@@ -1809,7 +1809,7 @@ begin
   Result := -1; if FTemplateEditMode then Exit; UpdateTransform;
   for I := FScene.Count-1 downto 0 do
   begin
-    Value := FScene.Item(I); if not Value.Selected then Continue;
+    Value := FScene.Item(I); if not Value.Selected or Value.Locked then Continue;
     R := ItemRect(I);
     for J := 0 to 7 do if PtInRect(GripRect(R,J),P) then Exit(I);
   end;
@@ -2059,15 +2059,23 @@ begin
         if Definition.Icon <> glNone then Painter.GlyphLine(Definition.Icon,(R.Left+R.Right)/2,(R.Top+R.Bottom)/2,Ink,ScaleValue(96)/96)
         else Painter.TextF((R.Left+R.Right)/2,(R.Top+R.Bottom)/2,Text,11,Ink,twBold,taCenter,Max(1,R.Width-ScaleValue(6)));
       end;
-      Text := Value.Name; if Value.Locked then Text := Text+' [locked]';
+      Text := Value.Name;
       LinkRect := Rect(R.Left-ScaleValue(64),R.Bottom+ScaleValue(3),R.Right+ScaleValue(64),R.Bottom+ScaleValue(22));
       Painter.TextBlockF(LinkRect.Left,LinkRect.Top,LinkRect.Width,LinkRect.Height,Text,11,Ink,twRegular,False,taCenter);
     end;
-    // Handles identify every selected object, including multiselection and fixed-size glyphs.
+    // Lock status is visible without selection, including on notes.
     for I := 0 to FScene.Count-1 do
     begin
-      Value := FScene.Item(I); if not Value.Selected then Continue;
-      R := ItemRect(I); Stroke := Palette.Accent; if Value.Locked then Stroke := Palette.Subtle;
+      Value := FScene.Item(I); if not Value.Locked then Continue;
+      R := ItemRect(I);
+      Painter.GlyphLine(glLock,R.Right+ScaleValue(12),R.Top+ScaleValue(8),
+        Palette.ForegroundText,ScaleValue(96)/96);
+    end;
+    // Handles identify unlocked selected objects, including multiselection and fixed-size glyphs.
+    for I := 0 to FScene.Count-1 do
+    begin
+      Value := FScene.Item(I); if not Value.Selected or Value.Locked then Continue;
+      R := ItemRect(I); Stroke := Palette.Accent;
       for J := 0 to 7 do
       begin
         Grip := GripRect(R,J);

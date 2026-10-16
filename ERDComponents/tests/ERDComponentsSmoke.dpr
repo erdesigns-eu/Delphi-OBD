@@ -2790,6 +2790,18 @@ begin
     P := Designer.BoardToClient(PointF(First.X+First.Width,First.Y+First.Height)); Q := Point(P.X+20,P.Y-10);
     Designer.StartAt(P); Designer.MoveTo(Q,True); Designer.StopAt(Q);
     Check(Designer.Scene.Item(B).Width > First.Width, 'Single unlocked note retains its resize handles');
+    First := Designer.Scene.Item(B); First.Locked := True; Designer.Scene.UpdateItem(B,First);
+    Designer.Scene.ClearSelection; Designer.Render(Unselected);
+    Designer.Scene.SelectAll; Designer.Render(Bitmap);
+    P := Designer.BoardToClient(PointF(First.X,First.Y+First.Height)); Count := 0;
+    for Y := P.Y-MulDiv(4,Designer.CurrentPPI,96) to P.Y-MulDiv(2,Designer.CurrentPPI,96) do
+      for X := P.X-MulDiv(4,Designer.CurrentPPI,96) to P.X+MulDiv(4,Designer.CurrentPPI,96) do
+        if Bitmap.Canvas.Pixels[X,Y] <> Unselected.Canvas.Pixels[X,Y] then Inc(Count);
+    Check(Count = 0, 'Locked objects have no exterior handles even in mixed multiselection');
+    Before := Designer.Scene.ContentJSON;
+    Dec(P.X,1); Dec(P.Y,1); Q := Point(P.X+20,P.Y+10);
+    Designer.StartAt(P); Designer.MoveTo(Q,True); Designer.StopAt(Q);
+    Check(Designer.Scene.ContentJSON = Before, 'Hidden locked handles cannot initiate a group move');
   finally Unselected.Free; Bitmap.Free; Form.Free; end;
 end;
 procedure TPCBDragProbe.StartAt(const P: TPoint);

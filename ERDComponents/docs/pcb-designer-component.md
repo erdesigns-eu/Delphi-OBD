@@ -243,10 +243,10 @@ The `OnDrawItemGlyph` canvas hook remains available for host-owned custom drawin
 
 ## Selection handles
 
-Every selected scene object shows eight themed square handles, including all
+Every unlocked selected scene object shows eight themed square handles, including
 objects in a multiselection and fixed-size nonvisual components. Handles are drawn
 after all bodies and labels so nearby objects cannot cover them. Locked objects
-use subdued handles and remain immovable.
+have no handles and remain immovable.
 
 A single unlocked note retains eight resize handles. In multiselection, handles
 move the selected unlocked objects as a group without resizing them. Nonvisual
@@ -320,3 +320,7 @@ handles, notes and connection lines keep the ERD theme colors.
 Selected terminals retain their imported body contour and use a translucent accent
 fill, a thick contrasting keyline and a narrower solid accent stroke. Hover uses a
 lighter fill and thin outline. Pad details are redrawn above the highlight.
+
+Locked scene objects retain their selection outline but have no drag/resize handles,
+including in mixed selections. A themed lock glyph beside the object replaces the
+locked suffix on component names and is also shown for locked notes.
