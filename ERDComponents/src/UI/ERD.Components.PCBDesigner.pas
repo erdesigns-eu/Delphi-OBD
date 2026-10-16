@@ -723,7 +723,7 @@ begin
   if Assigned(FOnPlacementChange) then FOnPlacementChange(Self);
 end;
 procedure TERDPCBDesigner.PaintPlacementPreview(ACanvas: TCanvas);
-var World: TPointF; P, Q: TPoint; R: TRect; Text: string; Definition: TERDPCBComponentType;
+var World: TPointF; P, Q: TPoint; R: TRect; Text: string; Definition: TERDPCBComponentType; Painter: TERDPainter;
 begin
   if not FPlacing or not FPlacementPreview or FDragging then Exit;
   if not ERDPCBFindComponentType(FPlacementTypeID, Definition) then Exit;
@@ -732,12 +732,13 @@ begin
   if FPlacementKind = piNote then
   begin Q := ScreenPoint(PointF(World.X + Definition.Width, World.Y + Definition.Height)); R := Rect(P.X, Q.Y, Q.X, P.Y); end
   else R := Rect(P.X, P.Y - ScaleValue(32), P.X + ScaleValue(32), P.Y);
-  ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Style := bsClear;
-  ACanvas.Pen.Color := Palette.Accent; ACanvas.Pen.Width := 1; ACanvas.Pen.Style := psDash;
-  ACanvas.Rectangle(R); ACanvas.Pen.Style := psSolid;
-  ACanvas.Font.Assign(Font); ACanvas.Font.Color := Palette.Accent;
-  Text := Definition.DisplayName;
-  ACanvas.TextOut(R.Left, R.Bottom + ScaleValue(4), Text);
+  Painter := TERDPainter.Create(ACanvas,Palette,ScaleValue(96));
+  try
+    Painter.AntiAlias := FAntiAlias;
+    Painter.RectangleF(R.Left,R.Top,R.Width,R.Height,clNone,Palette.Accent,1,255,True);
+    Text := Definition.DisplayName;
+    Painter.TextBlockF(R.Left,R.Bottom+ScaleValue(4),ScaleValue(240),ScaleValue(24),Text,12,Palette.Accent,twRegular,False);
+  finally Painter.Free; end;
 end;
 procedure TERDPCBDesigner.AlignSelected(Alignment: TERDPCBAlignment);
 var I: Integer; Bounds, R: TRect; Value: TERDPCBDesignItem; DX, DY: Integer; Found: Boolean;
@@ -846,7 +847,7 @@ begin
   if FGuideY.Kind <> lgNone then DY := DY-Correction.Y/FScreenScale else DY := GridDY;
 end;
 procedure TERDPCBDesigner.PaintAlignmentGuides(ACanvas: TCanvas);
-var Saved: Integer;
+var Painter: TERDPainter;
   procedure DrawGuide(const Guide: TERDPCBLayoutGuide; Horizontal: Boolean);
   var I, Position, Start, Finish, Tick: Integer;
   begin
@@ -854,41 +855,37 @@ var Saved: Integer;
     Position := Round(Guide.Coordinate); Tick := ScaleValue(3);
     if Guide.Kind = lgAlignment then
     begin
-      ACanvas.Pen.Style := psDot;
-      if Horizontal then begin ACanvas.MoveTo(Position,Round(Guide.SpanStart)-Tick); ACanvas.LineTo(Position,Round(Guide.SpanEnd)+Tick); end
-      else begin ACanvas.MoveTo(Round(Guide.SpanStart)-Tick,Position); ACanvas.LineTo(Round(Guide.SpanEnd)+Tick,Position); end;
+      if Horizontal then begin Painter.LineF(Position,Round(Guide.SpanStart)-Tick,Position,Round(Guide.SpanEnd)+Tick,Palette.Accent,1,True); end
+      else begin Painter.LineF(Round(Guide.SpanStart)-Tick,Position,Round(Guide.SpanEnd)+Tick,Position,Palette.Accent,1,True); end;
     end
     else
     begin
-      ACanvas.Pen.Style := psSolid; Inc(Position,ScaleValue(8));
+      Inc(Position,ScaleValue(8));
       for I := 0 to 1 do
       begin
         Start := Round(Guide.Gaps[I].X); Finish := Round(Guide.Gaps[I].Y);
         if Horizontal then
         begin
-          ACanvas.MoveTo(Start,Position); ACanvas.LineTo(Finish,Position);
-          ACanvas.MoveTo(Start,Position-Tick); ACanvas.LineTo(Start,Position+Tick+1);
-          ACanvas.MoveTo(Finish,Position-Tick); ACanvas.LineTo(Finish,Position+Tick+1);
+          Painter.LineF(Start,Position,Finish,Position,Palette.Accent,1);
+          Painter.LineF(Start,Position-Tick,Start,Position+Tick+1,Palette.Accent,1);
+          Painter.LineF(Finish,Position-Tick,Finish,Position+Tick+1,Palette.Accent,1);
         end
         else
         begin
-          ACanvas.MoveTo(Position,Start); ACanvas.LineTo(Position,Finish);
-          ACanvas.MoveTo(Position-Tick,Start); ACanvas.LineTo(Position+Tick+1,Start);
-          ACanvas.MoveTo(Position-Tick,Finish); ACanvas.LineTo(Position+Tick+1,Finish);
+          Painter.LineF(Position,Start,Position,Finish,Palette.Accent,1);
+          Painter.LineF(Position-Tick,Start,Position+Tick+1,Start,Palette.Accent,1);
+          Painter.LineF(Position-Tick,Finish,Position+Tick+1,Finish,Palette.Accent,1);
         end;
       end;
     end;
   end;
 begin
   if (FEditMode <> 1) or not FAlignmentGuides then Exit;
-  Saved := SaveDC(ACanvas.Handle);
+  Painter := TERDPainter.Create(ACanvas,Palette,ScaleValue(96));
   try
-    IntersectClipRect(ACanvas.Handle,0,0,ClientWidth,ClientHeight);
-    ACanvas.Pen.Color := Palette.Accent; ACanvas.Pen.Width := 1;
+    Painter.AntiAlias := FAntiAlias; Painter.ClipRectF(0,0,ClientWidth,ClientHeight);
     DrawGuide(FGuideX,True); DrawGuide(FGuideY,False);
-  finally RestoreDC(ACanvas.Handle,Saved); end;
-  // Keep TCanvas's cached pen state in sync with the restored DC.
-  ACanvas.Pen.Style := psSolid;
+  finally Painter.Free; end;
 end;
 procedure TERDPCBDesigner.BeginNoteEdit;
 var Index: Integer; Value: TERDPCBDesignItem; R: TRect;
@@ -1610,62 +1607,54 @@ begin
   Result := System.Types.Point(Round(FScreenX + Point.X * FScreenScale),
     Round(FScreenY - Point.Y * FScreenScale));
 end;
+function PCBScreenPolygon(const Points: TArray<TPointF>; Scale, OffsetX, OffsetY: Double): TArray<TGPPointF>;
+var I: Integer;
+begin
+  SetLength(Result,Length(Points));
+  for I := 0 to High(Points) do begin Result[I].X := OffsetX+Points[I].X*Scale; Result[I].Y := OffsetY-Points[I].Y*Scale; end;
+end;
 procedure TERDPCBDesigner.PaintBoardLayer(ACanvas: TCanvas);
-var I, J: Integer; P: TPoint; Poly: TArray<TPoint>; R: TRect; S: Double; Accent, BoardInk, PadInk, OutlineInk: TColor;
+var I: Integer; P: TPoint; Painter: TERDPainter; Poly: TArray<TGPPointF>;
+    BoardInk, PadInk, OutlineInk, Accent, Fill, Stroke: TColor; Width: Single;
   procedure DrawPaths(const Paths: TArray<TArray<TPointF>>; Ink: TColor);
-  var A, B: Integer;
+  var Points: TArray<TPointF>;
   begin
-    ACanvas.Pen.Color := Ink; ACanvas.Pen.Width := 1;
-    for A := 0 to High(Paths) do
-    begin
-      SetLength(Poly, Length(Paths[A]));
-      for B := 0 to High(Poly) do Poly[B] := ScreenPoint(Paths[A][B]);
-      if Length(Poly) > 1 then ACanvas.Polyline(Poly);
-    end;
+    for Points in Paths do Painter.Shape(PCBScreenPolygon(Points,FScreenScale,FScreenX,FScreenY),False,clNone,Ink);
   end;
 begin
-  ACanvas.Brush.Color := Palette.Background; ACanvas.FillRect(ClientRect);
-  if Length(FPads) = 0 then
-  begin
-    ACanvas.Font.Assign(Font); ACanvas.Font.Color := Palette.Subtle; ACanvas.Brush.Style := bsClear;
-    ACanvas.TextOut(ScaleValue(12), ScaleValue(12), 'PCB designer - set BoardFileName or call LoadBoard');
-    PaintGrid(ACanvas); Exit;
-  end;
-  BoardInk := FBoardColor; if BoardInk = clDefault then BoardInk := Palette.GaugeFace;
-  PadInk := FPadColor; if PadInk = clDefault then PadInk := Palette.Subtle;
-  OutlineInk := FOutlineColor; if OutlineInk = clDefault then OutlineInk := Palette.NeutralDark;
-  Accent := FSelectionColor; if Accent = clDefault then Accent := Palette.Accent;
-  UpdateTransform; S := FScreenScale;
-  P := ScreenPoint(PointF(0, FMaxY)); R := Rect(P.X, P.Y, P.X + Round(FMaxX * S), P.Y + Round(FMaxY * S));
-  ACanvas.Brush.Color := BoardInk; ACanvas.Pen.Color := Palette.NeutralLight;
-  ACanvas.RoundRect(R.Left, R.Top, R.Right, R.Bottom, Round(4 * S), Round(4 * S));
-  PaintGrid(ACanvas);
-  if FShowComponentOutlines then DrawPaths(FPaths, OutlineInk); DrawPaths(FOutline, Palette.NeutralDark);
-  if FShowPads then for I := 0 to High(FPads) do
-  begin
-    SetLength(Poly, Length(FPads[I].Polygon));
-    for J := 0 to High(Poly) do Poly[J] := ScreenPoint(FPads[I].Polygon[J]);
-    ACanvas.Pen.Width := 1; ACanvas.Pen.Color := Palette.NeutralDark;
-    ACanvas.Brush.Color := PadInk;
-    if FPads[I].ID = FHot then ACanvas.Brush.Color := Accent;
-    if (FPads[I].ID = FSelected) or ((FConnectionID <> '') and (FPads[I].ID = ConnectionPin)) then
-    begin ACanvas.Brush.Color := Accent; ACanvas.Pen.Color := Palette.ForegroundText; ACanvas.Pen.Width := ScaleValue(2); end;
-    if Length(Poly) > 2 then ACanvas.Polygon(Poly);
-    if not FShowDrills then Continue;
-    SetLength(Poly, Length(FPads[I].Drill));
-    for J := 0 to High(Poly) do Poly[J] := ScreenPoint(FPads[I].Drill[J]);
-    ACanvas.Brush.Color := Palette.Background; ACanvas.Pen.Color := Palette.Background; ACanvas.Pen.Width := 1;
-    if Length(Poly) > 2 then ACanvas.Polygon(Poly);
-  end;
-  if FShowBodies then PaintBodies(ACanvas);
-  ACanvas.Font.Name := 'Segoe UI'; ACanvas.Font.Height := -ScaleValue(10);
-  ACanvas.Font.Color := Palette.ForegroundText; ACanvas.Brush.Style := bsClear;
-  if FShowLabels then for I := 0 to High(FComponents) do
-    if (S >= ScaleValue(8)) or (ChannelIndex(FComponents[I].Reference + '.2') >= 0) or (FComponents[I].Reference = 'U6') then
+  Painter := TERDPainter.Create(ACanvas,Palette,ScaleValue(96));
+  try
+    Painter.AntiAlias := FAntiAlias; Painter.FillRect(ClientRect,Palette.Background); UpdateTransform;
+    if Length(FPads) = 0 then
     begin
-      P := ScreenPoint(FComponents[I].Position);
-      ACanvas.TextOut(P.X + ScaleValue(3), P.Y + ScaleValue(5), FComponents[I].Reference);
+      Painter.TextBlockF(ScaleValue(12),ScaleValue(12),ClientWidth-ScaleValue(24),ScaleValue(24),
+        'PCB designer - set BoardFileName or call LoadBoard',12,Palette.Subtle,twRegular,False);
+      PaintGrid(ACanvas); Exit;
     end;
+    BoardInk := ResolveColor(FBoardColor,Palette.GaugeFace); PadInk := ResolveColor(FPadColor,Palette.Subtle);
+    OutlineInk := ResolveColor(FOutlineColor,Palette.NeutralDark); Accent := ResolveColor(FSelectionColor,Palette.Accent);
+    Painter.RoundRect(FScreenX,FScreenY-FMaxY*FScreenScale,FMaxX*FScreenScale,FMaxY*FScreenScale,
+      2*FScreenScale,BoardInk,Palette.NeutralLight);
+    PaintGrid(ACanvas);
+    if FShowComponentOutlines then DrawPaths(FPaths,OutlineInk); DrawPaths(FOutline,Palette.NeutralDark);
+    if FShowPads then for I := 0 to High(FPads) do
+    begin
+      Fill := PadInk; Stroke := Palette.NeutralDark; Width := 1;
+      if FPads[I].ID = FHot then Fill := Accent;
+      if (FPads[I].ID = FSelected) or ((FConnectionID <> '') and (FPads[I].ID = ConnectionPin)) then
+      begin Fill := Accent; Stroke := Palette.ForegroundText; Width := ScaleValue(2); end;
+      Poly := PCBScreenPolygon(FPads[I].Polygon,FScreenScale,FScreenX,FScreenY);
+      Painter.Shape(Poly,True,Fill,Stroke,Width);
+      if FShowDrills then Painter.Shape(PCBScreenPolygon(FPads[I].Drill,FScreenScale,FScreenX,FScreenY),True,Palette.Background,Palette.Background);
+    end;
+    if FShowBodies then PaintBodies(ACanvas);
+    if FShowLabels then for I := 0 to High(FComponents) do
+      if (FScreenScale >= ScaleValue(8)) or (ChannelIndex(FComponents[I].Reference+'.2') >= 0) or (FComponents[I].Reference = 'U6') then
+      begin
+        P := ScreenPoint(FComponents[I].Position);
+        Painter.TextBlockF(P.X+ScaleValue(3),P.Y+ScaleValue(5),ScaleValue(160),ScaleValue(16),FComponents[I].Reference,10,Palette.ForegroundText,twRegular,False);
+      end;
+  finally Painter.Free; end;
 end;
 function TERDPCBDesigner.PadAt(X, Y: Integer): string;
 var I, J, K: Integer; P, Q, Center: TPoint; Inside: Boolean; Distance, Best, DX, DY, T: Double;
@@ -1775,122 +1764,81 @@ begin
   for I := 0 to 7 do if PtInRect(GripRect(R, I), P) then Exit(I);
 end;
 procedure TERDPCBDesigner.PaintBodies(ACanvas: TCanvas);
-var I, J, K: Integer; Value: TERDPCBComponent; Poly: TArray<TPoint>; R, Inner: TRect; P: TPoint;
-    Saved, Radius, TerminalID: Integer; Pad: TERDPCBPad;
-  procedure TintSelectedTerminal;
-  var Tint: TBitmap; Blend: TBlendFunction; ClipState, N: Integer; Bounds: TRect;
-  begin
-    Bounds := Rect(Poly[0].X, Poly[0].Y, Poly[0].X, Poly[0].Y);
-    for N := 1 to High(Poly) do
-    begin
-      Bounds.Left := Min(Bounds.Left, Poly[N].X); Bounds.Top := Min(Bounds.Top, Poly[N].Y);
-      Bounds.Right := Max(Bounds.Right, Poly[N].X); Bounds.Bottom := Max(Bounds.Bottom, Poly[N].Y);
-    end;
-    if (Bounds.Width <= 0) or (Bounds.Height <= 0) then Exit;
-    Tint := TBitmap.Create;
-    try
-      Tint.PixelFormat := pf32bit; Tint.SetSize(1, 1);
-      Tint.Canvas.Brush.Color := ACanvas.Pen.Color; Tint.Canvas.FillRect(Rect(0, 0, 1, 1));
-      Blend.BlendOp := AC_SRC_OVER; Blend.BlendFlags := 0;
-      Blend.SourceConstantAlpha := 56; Blend.AlphaFormat := 0;
-      ClipState := SaveDC(ACanvas.Handle);
-      try
-        // A GDI path preserves the supersampling world transform when clipping.
-        BeginPath(ACanvas.Handle); ACanvas.Polygon(Poly); EndPath(ACanvas.Handle);
-        SelectClipPath(ACanvas.Handle, RGN_AND);
-        Winapi.Windows.AlphaBlend(ACanvas.Handle, Bounds.Left, Bounds.Top, Bounds.Width, Bounds.Height,
-          Tint.Canvas.Handle, 0, 0, 1, 1, Blend);
-      finally RestoreDC(ACanvas.Handle, ClipState); end;
-    finally Tint.Free; end;
-  end;
+var I, J, K, Radius, TerminalID: Integer; Value: TERDPCBComponent; Poly: TArray<TGPPointF>;
+    R, Inner: TRect; P: TPoint; Pad: TERDPCBPad; Fill, Stroke, Accent: TColor; Painter: TERDPainter;
 begin
-  UpdateTransform;
-  for I := 0 to High(FComponents) do
-  begin
-    Value := FComponents[I]; if Length(Value.Body) < 3 then Continue;
-    SetLength(Poly, Length(Value.Body)); R := Rect(MaxInt, MaxInt, -MaxInt, -MaxInt);
-    for J := 0 to High(Poly) do
+  UpdateTransform; Painter := TERDPainter.Create(ACanvas,Palette,ScaleValue(96));
+  try
+    Painter.AntiAlias := FAntiAlias; Accent := ResolveColor(FSelectionColor,Palette.Accent);
+    for I := 0 to High(FComponents) do
     begin
-      Poly[J] := ScreenPoint(Value.Body[J]); R.Left := Min(R.Left, Poly[J].X); R.Right := Max(R.Right, Poly[J].X);
-      R.Top := Min(R.Top, Poly[J].Y); R.Bottom := Max(R.Bottom, Poly[J].Y);
+      Value := FComponents[I]; if Length(Value.Body) < 3 then Continue;
+      Poly := PCBScreenPolygon(Value.Body,FScreenScale,FScreenX,FScreenY); R := Rect(MaxInt,MaxInt,-MaxInt,-MaxInt);
+      for J := 0 to High(Poly) do
+      begin R.Left := Min(R.Left,Floor(Poly[J].X)); R.Right := Max(R.Right,Ceil(Poly[J].X));
+        R.Top := Min(R.Top,Floor(Poly[J].Y)); R.Bottom := Max(R.Bottom,Ceil(Poly[J].Y)); end;
+      Fill := Palette.NeutralLight;
+      if Value.Role = 'terminal' then Fill := ERDMixColor(Palette.GaugeFace,Palette.Success,0.8)
+      else if (Value.Role = 'ic') or (Value.Role = 'resistor') then Fill := Palette.Subtle;
+      Painter.Shape(Poly,True,Fill,Palette.NeutralDark);
+      Painter.ClipRectF(R.Left+1,R.Top+1,Max(0,R.Width-1),Max(0,R.Height-1));
+      try
+        if Value.Role = 'terminal' then
+          for Pad in FPads do if Pad.Reference = Value.Reference then
+          begin
+            P := ScreenPoint(Pad.Position); Radius := Max(ScaleValue(2),Round(0.8*FScreenScale));
+            Painter.Ellipse(P.X-Radius,P.Y-Radius,2*Radius,2*Radius,Palette.GaugeFace,Palette.NeutralDark);
+            Painter.LineF(P.X-Radius/2,P.Y+Radius/2,P.X+Radius/2,P.Y-Radius/2,Palette.NeutralDark);
+          end;
+        if Value.Role = 'usb' then
+        begin
+          Inner := R;
+          if R.Width > R.Height then InflateRect(Inner,-Max(2,R.Width div 6),-Max(2,R.Height div 3))
+          else InflateRect(Inner,-Max(2,R.Width div 3),-Max(2,R.Height div 6));
+          Painter.RoundRect(Inner.Left,Inner.Top,Inner.Width,Inner.Height,ScaleValue(3)/2,Palette.NeutralDark,clNone);
+        end
+        else if Value.Role = 'module' then
+        begin
+          Inner := R; InflateRect(Inner,-Max(1,R.Width div 12),-Max(1,R.Height div 12));
+          if R.Height > R.Width then Dec(Inner.Bottom,R.Height div 4) else Dec(Inner.Right,R.Width div 4);
+          Painter.RectangleF(Inner.Left,Inner.Top,Inner.Width,Inner.Height,Palette.GaugeFace,Palette.NeutralDark);
+          for K := 1 to 4 do
+          begin P := Point(R.Left+R.Width*K div 5,R.Bottom-R.Height div 8); Painter.LineF(P.X,P.Y,P.X,R.Bottom-R.Height div 20,Palette.NeutralDark); end;
+        end
+        else if Value.Role = 'button' then
+        begin
+          Inner := R; InflateRect(Inner,-Max(1,R.Width div 4),-Max(1,R.Height div 4));
+          Painter.Ellipse(Inner.Left,Inner.Top,Inner.Width,Inner.Height,Palette.Subtle,Palette.NeutralDark);
+        end
+        else if Value.Role = 'capacitor' then
+        begin
+          Inner := R; InflateRect(Inner,-Max(1,R.Width div 8),-Max(1,R.Height div 8));
+          Painter.Ellipse(Inner.Left,Inner.Top,Inner.Width,Inner.Height,Palette.GaugeFace,Palette.NeutralDark);
+          Painter.LineF((R.Left+R.Right)/2,R.Top,(R.Left+R.Right)/2,R.Bottom,Palette.NeutralDark);
+        end;
+      finally Painter.ResetClip; end;
     end;
-    ACanvas.Brush.Style := bsSolid; ACanvas.Pen.Width := 1; ACanvas.Pen.Color := Palette.NeutralDark;
-    ACanvas.Brush.Color := Palette.NeutralLight;
-    if Value.Role = 'terminal' then ACanvas.Brush.Color := ERDMixColor(Palette.GaugeFace, Palette.Success, 0.8)
-    else if (Value.Role = 'ic') or (Value.Role = 'resistor') then ACanvas.Brush.Color := Palette.Subtle;
-    ACanvas.Polygon(Poly);
-    Saved := SaveDC(ACanvas.Handle);
-    try
-      IntersectClipRect(ACanvas.Handle, R.Left + 1, R.Top + 1, R.Right, R.Bottom);
-      if Value.Role = 'terminal' then
-      begin
-        for Pad in FPads do if Pad.Reference = Value.Reference then
-        begin
-          P := ScreenPoint(Pad.Position); Radius := Max(ScaleValue(2), Round(0.8 * FScreenScale));
-          ACanvas.Brush.Color := Palette.GaugeFace; ACanvas.Pen.Color := Palette.NeutralDark;
-          ACanvas.Ellipse(P.X - Radius, P.Y - Radius, P.X + Radius, P.Y + Radius);
-          ACanvas.MoveTo(P.X - Radius div 2, P.Y + Radius div 2); ACanvas.LineTo(P.X + Radius div 2, P.Y - Radius div 2);
-        end;
-      end
-      else if Value.Role = 'usb' then
-      begin
-        Inner := R;
-        if R.Width > R.Height then InflateRect(Inner, -Max(2, R.Width div 6), -Max(2, R.Height div 3))
-        else InflateRect(Inner, -Max(2, R.Width div 3), -Max(2, R.Height div 6));
-        ACanvas.Brush.Color := Palette.NeutralDark; ACanvas.RoundRect(Inner.Left, Inner.Top, Inner.Right, Inner.Bottom, ScaleValue(3), ScaleValue(3));
-      end
-      else if Value.Role = 'module' then
-      begin
-        Inner := R; InflateRect(Inner, -Max(1, R.Width div 12), -Max(1, R.Height div 12));
-        if R.Height > R.Width then Inner.Bottom := Inner.Bottom - R.Height div 4 else Inner.Right := Inner.Right - R.Width div 4;
-        ACanvas.Brush.Color := Palette.GaugeFace; ACanvas.Rectangle(Inner);
-        ACanvas.Pen.Color := Palette.NeutralDark;
-        for K := 1 to 4 do
-        begin
-          P := Point(R.Left + R.Width * K div 5, R.Bottom - R.Height div 8);
-          ACanvas.MoveTo(P.X, P.Y); ACanvas.LineTo(P.X, R.Bottom - R.Height div 20);
-        end;
-      end
-      else if Value.Role = 'button' then
-      begin
-        Inner := R; InflateRect(Inner, -Max(1, R.Width div 4), -Max(1, R.Height div 4));
-        ACanvas.Brush.Color := Palette.Subtle; ACanvas.Ellipse(Inner);
-      end
-      else if Value.Role = 'capacitor' then
-      begin
-        Inner := R; InflateRect(Inner, -Max(1, R.Width div 8), -Max(1, R.Height div 8));
-        ACanvas.Brush.Color := Palette.GaugeFace; ACanvas.Ellipse(Inner);
-        ACanvas.MoveTo((R.Left + R.Right) div 2, R.Top); ACanvas.LineTo((R.Left + R.Right) div 2, R.Bottom);
-      end;
-    finally RestoreDC(ACanvas.Handle, Saved); end;
-  end;
-  // Draw selection outlines after every body, so adjacent terminals cannot cover an edge.
-  ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Style := bsClear; ACanvas.Pen.Width := ScaleValue(1);
-  ACanvas.Pen.Color := FSelectionColor;
-  if FSelectionColor = clDefault then ACanvas.Pen.Color := Palette.Accent;
-  for I := 0 to High(FComponents) do
-  begin
-    Value := FComponents[I]; TerminalID := TerminalIndex(Value.Reference);
-    if (TerminalID < 0) or (Length(Value.Body) < 3) then Continue;
-    if (FTerminals[TerminalID].SignalPin <> FSelected) and
-       (FTerminals[TerminalID].SignalPin <> FHot) and (FTerminals[TerminalID].SignalPin <> ConnectionPin) then Continue;
-    SetLength(Poly, Length(Value.Body));
-    for J := 0 to High(Poly) do Poly[J] := ScreenPoint(Value.Body[J]);
-    if (FTerminals[TerminalID].SignalPin = FSelected) or
-       ((FConnectionID <> '') and (FTerminals[TerminalID].SignalPin = ConnectionPin)) then TintSelectedTerminal;
-    // Use the exact imported terminal contour, with no inset or second frame.
-    ACanvas.Polygon(Poly);
-  end;
-  // Programmable pads remain clear hit targets on the assembled component layer.
-  if FShowPads then for I := 0 to High(FPads) do if IsSelectablePin(FPads[I].ID) then
-  begin
-    P := ScreenPoint(FPads[I].Position); Radius := Max(ScaleValue(3), Round(0.45 * FScreenScale));
-    ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Color := Palette.Background; ACanvas.Pen.Color := Palette.NeutralDark;
-    if (SelectionPinFor(FPads[I].ID) = FSelected) or (SelectionPinFor(FPads[I].ID) = FHot) or
-       ((FConnectionID <> '') and (SelectionPinFor(FPads[I].ID) = ConnectionPin)) then
-    begin ACanvas.Brush.Color := Palette.Accent; ACanvas.Pen.Color := Palette.ForegroundText; end;
-    ACanvas.Ellipse(P.X - Radius, P.Y - Radius, P.X + Radius, P.Y + Radius);
-  end;
+    // Use the same floating contour as the body, after every adjacent body has been drawn.
+    for I := 0 to High(FComponents) do
+    begin
+      Value := FComponents[I]; TerminalID := TerminalIndex(Value.Reference);
+      if (TerminalID < 0) or (Length(Value.Body) < 3) then Continue;
+      if (FTerminals[TerminalID].SignalPin <> FSelected) and (FTerminals[TerminalID].SignalPin <> FHot) and
+        (FTerminals[TerminalID].SignalPin <> ConnectionPin) then Continue;
+      Poly := PCBScreenPolygon(Value.Body,FScreenScale,FScreenX,FScreenY); Fill := clNone;
+      if (FTerminals[TerminalID].SignalPin = FSelected) or
+        ((FConnectionID <> '') and (FTerminals[TerminalID].SignalPin = ConnectionPin)) then Fill := Accent;
+      Painter.Shape(Poly,True,Fill,Accent,ScaleValue(1),56);
+    end;
+    if FShowPads then for I := 0 to High(FPads) do if IsSelectablePin(FPads[I].ID) then
+    begin
+      P := ScreenPoint(FPads[I].Position); Radius := Max(ScaleValue(3),Round(0.45*FScreenScale));
+      Fill := Palette.Background; Stroke := Palette.NeutralDark;
+      if (SelectionPinFor(FPads[I].ID) = FSelected) or (SelectionPinFor(FPads[I].ID) = FHot) or
+        ((FConnectionID <> '') and (SelectionPinFor(FPads[I].ID) = ConnectionPin)) then begin Fill := Accent; Stroke := Palette.ForegroundText; end;
+      Painter.Ellipse(P.X-Radius,P.Y-Radius,2*Radius,2*Radius,Fill,Stroke);
+    end;
+  finally Painter.Free; end;
 end;
 procedure TERDPCBDesigner.SetPanMode(Value: Boolean);
 begin
@@ -1906,261 +1854,153 @@ begin
   FAntiAlias := Value; FStaticDirty := True; Invalidate;
 end;
 procedure TERDPCBDesigner.PaintControl(ACanvas: TCanvas);
-const SampleScale = 3;
-var Samples: TBitmap; Transform: TXForm; SavedDC, SavedMode: Integer;
 begin
   if FStaticLayer = nil then Exit;
   if (FStaticLayer.Width <> ClientWidth) or (FStaticLayer.Height <> ClientHeight) then
-  begin FStaticLayer.SetSize(Max(1, ClientWidth), Max(1, ClientHeight)); FStaticDirty := True; end;
-  if FStaticDirty then
-  begin
-    if FAntiAlias then
-    begin
-      // Only rebuild the oversampled physical layer when geometry or the view changes.
-      // Scene selection and dragging reuse the finished bitmap at native resolution.
-      Samples := TBitmap.Create;
-      try
-        Samples.PixelFormat := pf32bit;
-        Samples.SetSize(FStaticLayer.Width * SampleScale, FStaticLayer.Height * SampleScale);
-        SavedDC := SaveDC(Samples.Canvas.Handle);
-        try
-          SetGraphicsMode(Samples.Canvas.Handle, GM_ADVANCED);
-          FillChar(Transform, SizeOf(Transform), 0);
-          Transform.eM11 := SampleScale; Transform.eM22 := SampleScale;
-          SetWorldTransform(Samples.Canvas.Handle, Transform);
-          PaintBoardLayer(Samples.Canvas);
-        finally
-          RestoreDC(Samples.Canvas.Handle, SavedDC);
-        end;
-        SavedMode := SetStretchBltMode(FStaticLayer.Canvas.Handle, HALFTONE);
-        try
-          SetBrushOrgEx(FStaticLayer.Canvas.Handle, 0, 0, nil);
-          StretchBlt(FStaticLayer.Canvas.Handle, 0, 0, FStaticLayer.Width, FStaticLayer.Height,
-            Samples.Canvas.Handle, 0, 0, Samples.Width, Samples.Height, SRCCOPY);
-        finally
-          SetStretchBltMode(FStaticLayer.Canvas.Handle, SavedMode);
-        end;
-      finally
-        Samples.Free;
-      end;
-    end
-    else PaintBoardLayer(FStaticLayer.Canvas);
-    FStaticDirty := False;
-  end;
-  ACanvas.Draw(0, 0, FStaticLayer); PaintScene(ACanvas); PaintPlacementPreview(ACanvas);
+  begin FStaticLayer.SetSize(Max(1,ClientWidth),Max(1,ClientHeight)); FStaticDirty := True; end;
+  if FStaticDirty then begin PaintBoardLayer(FStaticLayer.Canvas); FStaticDirty := False; end;
+  ACanvas.Draw(0,0,FStaticLayer); PaintScene(ACanvas); PaintPlacementPreview(ACanvas);
 end;
 procedure TERDPCBDesigner.PaintGrid(ACanvas: TCanvas);
-var X, Y, Step: Integer; GridMM: Double;
+var X, Y, Step, Dot: Integer; GridMM: Double; Ink: TColor; Painter: TERDPainter;
 begin
-  UpdateTransform;
-  if FShowGrid then
-  begin
-    GridMM := FGridSize;
-    while GridMM * FScreenScale < ScaleValue(12) do GridMM := GridMM * 2;
-    Step := Max(1, Round(GridMM * FScreenScale));
-    // Dots need contrast with the surface in both themes, not a divider color
-    // that can be almost identical to a light canvas.
-    if ERDIsDarkPalette(Palette) then ACanvas.Pen.Color := ERDMixColor(Palette.ForegroundText, Palette.Background, 0.24)
-    else ACanvas.Pen.Color := ERDMixColor(Palette.ForegroundText, Palette.Background, 0.34);
-    ACanvas.Pen.Style := psSolid; ACanvas.Pen.Width := Max(1, ScaleValue(1));
-    Y := Round(FScreenY) mod Step; if Y < 0 then Inc(Y, Step);
+  if not FShowGrid then Exit; UpdateTransform; GridMM := FGridSize;
+  while GridMM*FScreenScale < ScaleValue(12) do GridMM := GridMM*2;
+  Step := Max(1,Round(GridMM*FScreenScale)); Dot := Max(1,ScaleValue(1));
+  if ERDIsDarkPalette(Palette) then Ink := ERDMixColor(Palette.ForegroundText,Palette.Background,0.24)
+  else Ink := ERDMixColor(Palette.ForegroundText,Palette.Background,0.34);
+  Painter := TERDPainter.Create(ACanvas,Palette,ScaleValue(96));
+  try
+    Y := Round(FScreenY) mod Step; if Y < 0 then Inc(Y,Step);
     while Y < ClientHeight do
     begin
-      X := Round(FScreenX) mod Step; if X < 0 then Inc(X, Step);
-      while X < ClientWidth do
-      begin ACanvas.MoveTo(X, Y); ACanvas.LineTo(X + 1, Y); Inc(X, Step); end;
-      Inc(Y, Step);
+      X := Round(FScreenX) mod Step; if X < 0 then Inc(X,Step);
+      while X < ClientWidth do begin Painter.FillRect(Rect(X,Y,X+Dot,Y+Dot),Ink); Inc(X,Step); end;
+      Inc(Y,Step);
     end;
-  end;
+  finally Painter.Free; end;
 end;
 procedure TERDPCBDesigner.PaintScene(ACanvas: TCanvas);
-var I, J, ClipState: Integer; R, LinkRect: TRect; Value: TERDPCBDesignItem;
-    P, Q: TPoint; Pad: TERDPCBPad; Text: string; Role, ConnectionIndex: Integer;
-    Tint: TBitmap; Blend: TBlendFunction; Ink, NoteColor: TColor;
-    Definition: TERDPCBComponentType; Painter: TERDPainter; NoteIcon: TERDGlyph; Header, Badge: TRect; GlyphHandled: Boolean;
-  procedure DrawConnection(const FromPoint, ToPoint: TPoint; Color: TColor; Width: Single; TargetIndex: Integer);
-  var Graphics: TGPGraphics; Path: TGPGraphicsPath; Pen: TGPPen; Geometry: TERDPCBConnectionGeometry;
-      Segment: TERDPCBPathSegment;
+var I, J, Role, ConnectionIndex: Integer; R, LinkRect, Header, Badge, Grip: TRect;
+    Value: TERDPCBDesignItem; P, Q: TPoint; Pad: TERDPCBPad; Text: string;
+    Ink, NoteColor, Stroke: TColor; Width: Single; Definition: TERDPCBComponentType;
+    Painter: TERDPainter; NoteIcon: TERDGlyph; GlyphHandled: Boolean;
+  procedure DrawConnection(const FromPoint, ToPoint: TPoint; Color: TColor; LineWidth: Single; TargetIndex: Integer);
+  var Path: TGPGraphicsPath; Geometry: TERDPCBConnectionGeometry; Segment: TERDPCBPathSegment;
   begin
-    Geometry := BuildConnectionGeometry(FromPoint, ToPoint, TargetIndex);
-    Graphics := TGPGraphics.Create(ACanvas.Handle);
+    Geometry := BuildConnectionGeometry(FromPoint,ToPoint,TargetIndex); Path := TGPGraphicsPath.Create;
     try
-      Graphics.SetSmoothingMode(SmoothingModeAntiAlias); Path := TGPGraphicsPath.Create;
-      try
-        for Segment in Geometry.Segments do
-          if Segment.Cubic then Path.AddBezier(Segment.Points[0].X, Segment.Points[0].Y, Segment.Points[1].X,
-            Segment.Points[1].Y, Segment.Points[2].X, Segment.Points[2].Y, Segment.Points[3].X, Segment.Points[3].Y)
-          else Path.AddLine(Segment.Points[0].X, Segment.Points[0].Y, Segment.Points[3].X, Segment.Points[3].Y);
-        Pen := TGPPen.Create(ColorToARGB(Color), Width);
-        try
-          Pen.SetStartCap(LineCapRound); Pen.SetEndCap(LineCapRound); Pen.SetLineJoin(LineJoinRound); Graphics.DrawPath(Pen, Path);
-        finally Pen.Free; end;
-      finally Path.Free; end;
-    finally Graphics.Free; end;
+      for Segment in Geometry.Segments do
+        if Segment.Cubic then Path.AddBezier(Segment.Points[0].X,Segment.Points[0].Y,Segment.Points[1].X,
+          Segment.Points[1].Y,Segment.Points[2].X,Segment.Points[2].Y,Segment.Points[3].X,Segment.Points[3].Y)
+        else Path.AddLine(Segment.Points[0].X,Segment.Points[0].Y,Segment.Points[3].X,Segment.Points[3].Y);
+      Painter.DrawPath(Path,clNone,Color,LineWidth);
+    finally Path.Free; end;
   end;
 begin
-  UpdateTransform;
-  for I := 0 to FScene.Count - 1 do
-  begin
-    Value := FScene.Item(I);
-    if Value.Kind = piNote then Continue;
-    for Role := Ord(Low(TERDPCBPinRole)) to Ord(High(TERDPCBPinRole)) do
+  UpdateTransform; Painter := TERDPainter.Create(ACanvas,Palette,ScaleValue(96));
+  try
+    Painter.AntiAlias := FAntiAlias;
+    for I := 0 to FScene.Count-1 do
     begin
-      if not ConnectionAnchors(I, TERDPCBPinRole(Role), P, Q) then Continue;
-      if (FEditMode in [5,6]) and (Value.ID = FConnectionID) and (TERDPCBPinRole(Role) = FConnectionRole) then Continue;
-      Ink := Palette.Subtle; if Value.Selected then Ink := Palette.Accent;
-      if ((Value.ID = FConnectionID) and (TERDPCBPinRole(Role) = FConnectionRole)) or
-         ((Value.ID = FHotConnectionID) and (TERDPCBPinRole(Role) = FHotConnectionRole)) then
-        DrawConnection(P, Q, Palette.Accent, ScaleValue(2), I)
-      else DrawConnection(P, Q, Ink, ScaleValue(1), I);
-    end;
-  end;
-  // Keep every connection behind the component glyphs, regardless of item order.
-  for I := 0 to FScene.Count - 1 do
-  begin
-    Value := FScene.Item(I); R := ItemRect(I);
-    if Value.Kind = piNote then
-    begin
-      ACanvas.Brush.Style := bsSolid;
-      NoteColor := Palette.Subtle; NoteIcon := glNone;
-      case Value.NoteType of
-        ntInfo: begin NoteColor := Palette.Accent; NoteIcon := glInfo; end;
-        ntWarning: begin NoteColor := Palette.Warning; NoteIcon := glAlert; end;
-        ntError: begin NoteColor := Palette.Danger; NoteIcon := glClose; end;
-        ntQuestion: begin NoteColor := Palette.Accent; NoteIcon := glHelp; end;
-      end;
-      ACanvas.Brush.Color := ERDMixColor(NoteColor, Palette.Background, 0.12);
-      ACanvas.Pen.Color := NoteColor; ACanvas.Pen.Width := 1;
-      if Value.Selected then ACanvas.Pen.Color := Palette.Accent;
-      ACanvas.Rectangle(R);
-      ACanvas.Font.Assign(Font); ACanvas.Font.Color := Palette.ForegroundText;
-      ACanvas.Brush.Style := bsClear;
-      LinkRect := R; InflateRect(LinkRect, -ScaleValue(8), -ScaleValue(8));
-      Text := Value.Caption;
-      ClipState := SaveDC(ACanvas.Handle);
-      try
-        IntersectClipRect(ACanvas.Handle, R.Left + 1, R.Top + 1, R.Right - 1, R.Bottom - 1);
-        if Value.NoteType <> ntNone then
-        begin
-          Header := LinkRect; Header.Bottom := Header.Top + ScaleValue(20);
-          Badge := Rect(Header.Left, Header.Top, Header.Left + ScaleValue(20), Header.Top + ScaleValue(20));
-          Painter := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
-          try
-            Painter.RoundRect(Badge.Left, Badge.Top, Badge.Width, Badge.Height, ScaleValue(4), NoteColor, clNone);
-            Painter.GlyphLine(NoteIcon, Badge.Left + Badge.Width/2, Badge.Top + Badge.Height/2,
-              ERDContrastInk(NoteColor, Palette.ForegroundText, Palette.Background), ScaleValue(96)/96);
-          finally Painter.Free; end;
-          Inc(Header.Left, ScaleValue(24)); ACanvas.Font.Style := [fsBold];
-          DrawTextW(ACanvas.Handle, PWideChar(ERDPCBNoteTypeName(Value.NoteType)), -1, Header,
-            DT_SINGLELINE or DT_VCENTER or DT_END_ELLIPSIS or DT_NOPREFIX);
-          ACanvas.Font.Style := []; Inc(LinkRect.Top, ScaleValue(26));
-        end;
-        DrawTextW(ACanvas.Handle, PWideChar(Text), Length(Text), LinkRect,
-          DT_WORDBREAK or DT_NOPREFIX or DT_EDITCONTROL);
-      finally RestoreDC(ACanvas.Handle, ClipState); end;
-      if Value.Selected and not Value.Locked and (FScene.SelectionCount = 1) then
+      Value := FScene.Item(I); if Value.Kind = piNote then Continue;
+      for Role := Ord(Low(TERDPCBPinRole)) to Ord(High(TERDPCBPinRole)) do
       begin
-        ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Color := Palette.Background;
-        ACanvas.Pen.Color := Palette.Accent;
-        for J := 0 to 7 do ACanvas.Rectangle(GripRect(R, J));
-      end;
-      Continue;
-    end;
-    ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Color := Palette.Background;
-    ACanvas.Pen.Color := Palette.NeutralDark; ACanvas.Pen.Width := 1;
-    if Value.Selected then begin ACanvas.Pen.Color := Palette.Accent; ACanvas.Pen.Width := ScaleValue(2); end;
-    ACanvas.Rectangle(R);
-    ACanvas.Brush.Style := bsClear; ACanvas.Font.Name := 'Segoe UI';
-    ACanvas.Font.Height := -ScaleValue(11); ACanvas.Font.Style := [fsBold];
-    ACanvas.Font.Color := Palette.ForegroundText;
-    if not Value.Enabled then ACanvas.Font.Color := Palette.Subtle;
-    GlyphHandled := False;
-    if Assigned(FOnDrawItemGlyph) then FOnDrawItemGlyph(Self, ACanvas, R, Value, GlyphHandled);
-    if not GlyphHandled then
-    begin
-      case Value.Kind of
-        piTimer: Text := 'T'; piCounter: Text := '#'; piOutputGroup: Text := 'LED';
-        piNote: Text := 'N'; piUART: Text := 'UART'; piCANBus: Text := 'CAN';
-        piI2C: Text := 'I2C'; piSPI: Text := 'SPI';
-      end;
-      Definition := Default(TERDPCBComponentType);
-      if ERDPCBFindComponentType(Value.TypeID, Definition) and (Definition.GlyphText <> '') then Text := Definition.GlyphText;
-      if Definition.Icon <> glNone then
-      begin
-        Painter := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
-        try Painter.Glyph(Definition.Icon, (R.Left+R.Right)/2, (R.Top+R.Bottom)/2, ACanvas.Font.Color, ScaleValue(96)/96);
-        finally Painter.Free; end;
-      end
-      else
-      begin
-        LinkRect := R; InflateRect(LinkRect, -ScaleValue(3), -ScaleValue(3));
-        DrawTextW(ACanvas.Handle, PWideChar(Text), Length(Text), LinkRect,
-          DT_SINGLELINE or DT_CENTER or DT_VCENTER or DT_NOPREFIX);
+        if not ConnectionAnchors(I,TERDPCBPinRole(Role),P,Q) then Continue;
+        if (FEditMode in [5,6]) and (Value.ID = FConnectionID) and (TERDPCBPinRole(Role) = FConnectionRole) then Continue;
+        Ink := Palette.Subtle; if Value.Selected then Ink := Palette.Accent;
+        Width := ScaleValue(1);
+        if ((Value.ID = FConnectionID) and (TERDPCBPinRole(Role) = FConnectionRole)) or
+          ((Value.ID = FHotConnectionID) and (TERDPCBPinRole(Role) = FHotConnectionRole)) then begin Ink := Palette.Accent; Width := ScaleValue(2); end;
+        DrawConnection(P,Q,Ink,Width,I);
       end;
     end;
-    ACanvas.Font.Name := 'Segoe UI'; ACanvas.Font.Height := -ScaleValue(11); ACanvas.Font.Style := [];
-    ACanvas.Font.Color := Palette.ForegroundText; if not Value.Enabled then ACanvas.Font.Color := Palette.Subtle;
-    ACanvas.Brush.Style := bsClear; Text := Value.Name;
-    if Value.Locked then Text := Text + ' [locked]';
-    LinkRect := Rect(R.Left - ScaleValue(64), R.Bottom + ScaleValue(3),
-      R.Right + ScaleValue(64), R.Bottom + ScaleValue(22));
-    DrawTextW(ACanvas.Handle, PWideChar(Text), Length(Text), LinkRect,
-      DT_SINGLELINE or DT_CENTER or DT_END_ELLIPSIS or DT_NOPREFIX);
-  end;
-  ConnectionIndex := FScene.IndexOf(FConnectionID);
-  if (ConnectionIndex >= 0) and ConnectionAnchors(ConnectionIndex, FConnectionRole, P, Q) then
-  begin
-    ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Color := Palette.Background;
-    ACanvas.Pen.Color := Palette.Accent; ACanvas.Pen.Width := ScaleValue(2);
-    J := ScaleValue(4); ACanvas.Ellipse(P.X-J, P.Y-J, P.X+J+1, P.Y+J+1);
-    ACanvas.Ellipse(Q.X-J, Q.Y-J, Q.X+J+1, Q.Y+J+1);
-  end;
-  if FEditMode in [5,6] then
-  begin
-    if (ConnectionIndex >= 0) and ConnectionAnchors(ConnectionIndex, FConnectionRole, P, Q) then
+    for I := 0 to FScene.Count-1 do
     begin
-      I := ConnectionIndex;
-      if FEditMode = 5 then P := FBoxPoint
-      else begin Q := FBoxPoint; I := ItemAt(Q);
-        if I >= 0 then begin R := ItemRect(I); Q := Point((R.Left+R.Right) div 2, R.Top);
+      Value := FScene.Item(I); R := ItemRect(I);
+      if Value.Kind = piNote then
+      begin
+        NoteColor := Palette.Subtle; NoteIcon := glNone;
+        case Value.NoteType of ntInfo: begin NoteColor := Palette.Accent; NoteIcon := glInfo; end;
+          ntWarning: begin NoteColor := Palette.Warning; NoteIcon := glAlert; end;
+          ntError: begin NoteColor := Palette.Danger; NoteIcon := glClose; end;
+          ntQuestion: begin NoteColor := Palette.Accent; NoteIcon := glHelp; end; end;
+        Stroke := NoteColor; if Value.Selected then Stroke := Palette.Accent;
+        Painter.RectangleF(R.Left,R.Top,R.Width,R.Height,ERDMixColor(NoteColor,Palette.Background,0.12),Stroke);
+        LinkRect := R; InflateRect(LinkRect,-ScaleValue(8),-ScaleValue(8));
+        Painter.ClipRectF(R.Left+1,R.Top+1,Max(0,R.Width-2),Max(0,R.Height-2));
+        try
+          if Value.NoteType <> ntNone then
+          begin
+            Header := LinkRect; Header.Bottom := Header.Top+ScaleValue(20);
+            Badge := Rect(Header.Left,Header.Top,Header.Left+ScaleValue(20),Header.Top+ScaleValue(20));
+            Painter.RoundRect(Badge.Left,Badge.Top,Badge.Width,Badge.Height,ScaleValue(4),NoteColor,clNone);
+            Painter.GlyphLine(NoteIcon,Badge.Left+Badge.Width/2,Badge.Top+Badge.Height/2,
+              ERDContrastInk(NoteColor,Palette.ForegroundText,Palette.Background),ScaleValue(96)/96);
+            Inc(Header.Left,ScaleValue(24));
+            Painter.TextF(Header.Left,(Header.Top+Header.Bottom)/2,ERDPCBNoteTypeName(Value.NoteType),12,Palette.ForegroundText,twBold,taLeftJustify,Header.Width);
+            Inc(LinkRect.Top,ScaleValue(26));
+          end;
+          Painter.TextBlockF(LinkRect.Left,LinkRect.Top,LinkRect.Width,LinkRect.Height,Value.Caption,12,Palette.ForegroundText);
+        finally Painter.ResetClip; end;
+        if Value.Selected and not Value.Locked and (FScene.SelectionCount = 1) then
+          for J := 0 to 7 do begin Grip := GripRect(R,J); Painter.RectangleF(Grip.Left,Grip.Top,Grip.Width,Grip.Height,Palette.Background,Palette.Accent); end;
+        Continue;
+      end;
+      Stroke := Palette.NeutralDark; Width := 1;
+      if Value.Selected then begin Stroke := Palette.Accent; Width := ScaleValue(2); end;
+      Painter.RectangleF(R.Left,R.Top,R.Width,R.Height,Palette.Background,Stroke,Width);
+      Ink := Palette.ForegroundText; if not Value.Enabled then Ink := Palette.Subtle;
+      GlyphHandled := False;
+      // Preserve the existing host hook. Custom drawing remains the host's responsibility.
+      if Assigned(FOnDrawItemGlyph) then
+      begin
+        Painter.SetFont(11,twBold,Ink); ACanvas.Brush.Style := bsClear;
+        ACanvas.Pen.Color := Stroke; ACanvas.Pen.Width := Round(Width);
+        FOnDrawItemGlyph(Self,ACanvas,R,Value,GlyphHandled);
+      end;
+      if not GlyphHandled then
+      begin
+        case Value.Kind of piTimer: Text := 'T'; piCounter: Text := '#'; piOutputGroup: Text := 'LED';
+          piNote: Text := 'N'; piUART: Text := 'UART'; piCANBus: Text := 'CAN'; piI2C: Text := 'I2C'; piSPI: Text := 'SPI'; end;
+        Definition := Default(TERDPCBComponentType);
+        if ERDPCBFindComponentType(Value.TypeID,Definition) and (Definition.GlyphText <> '') then Text := Definition.GlyphText;
+        if Definition.Icon <> glNone then Painter.GlyphLine(Definition.Icon,(R.Left+R.Right)/2,(R.Top+R.Bottom)/2,Ink,ScaleValue(96)/96)
+        else Painter.TextF((R.Left+R.Right)/2,(R.Top+R.Bottom)/2,Text,11,Ink,twBold,taCenter,Max(1,R.Width-ScaleValue(6)));
+      end;
+      Text := Value.Name; if Value.Locked then Text := Text+' [locked]';
+      LinkRect := Rect(R.Left-ScaleValue(64),R.Bottom+ScaleValue(3),R.Right+ScaleValue(64),R.Bottom+ScaleValue(22));
+      Painter.TextBlockF(LinkRect.Left,LinkRect.Top,LinkRect.Width,LinkRect.Height,Text,11,Ink,twRegular,False,taCenter);
+    end;
+    ConnectionIndex := FScene.IndexOf(FConnectionID);
+    if (ConnectionIndex >= 0) and ConnectionAnchors(ConnectionIndex,FConnectionRole,P,Q) then
+    begin
+      J := ScaleValue(4); Painter.Ellipse(P.X-J,P.Y-J,2*J+1,2*J+1,Palette.Background,Palette.Accent,ScaleValue(2));
+      Painter.Ellipse(Q.X-J,Q.Y-J,2*J+1,2*J+1,Palette.Background,Palette.Accent,ScaleValue(2));
+    end;
+    if FEditMode in [5,6] then
+      if (ConnectionIndex >= 0) and ConnectionAnchors(ConnectionIndex,FConnectionRole,P,Q) then
+      begin
+        I := ConnectionIndex;
+        if FEditMode = 5 then P := FBoxPoint
+        else begin Q := FBoxPoint; I := ItemAt(Q); if I >= 0 then begin R := ItemRect(I); Q := Point((R.Left+R.Right) div 2,R.Top);
           if (R.Top+R.Bottom) div 2 < P.Y then Q.Y := R.Bottom; end; end;
-      DrawConnection(P, Q, Palette.Accent, ScaleValue(2), I);
-    end;
-  end;
-  PaintAlignmentGuides(ACanvas);
-  if FEditMode = 4 then
-  begin
-    P := FStartPoint;
-    Pad := PadInfo(FLinkPin); if Pad.ID <> '' then P := ScreenPoint(Pad.Position);
-    Q := FBoxPoint; I := ItemAt(Q);
-    if I >= 0 then
+        DrawConnection(P,Q,Palette.Accent,ScaleValue(2),I);
+      end;
+    PaintAlignmentGuides(ACanvas);
+    if FEditMode = 4 then
     begin
-      R := ItemRect(I); Q := Point((R.Left + R.Right) div 2, R.Top);
-      if (R.Top + R.Bottom) div 2 < P.Y then Q.Y := R.Bottom;
+      P := FStartPoint; Pad := PadInfo(FLinkPin); if Pad.ID <> '' then P := ScreenPoint(Pad.Position);
+      Q := FBoxPoint; I := ItemAt(Q);
+      if I >= 0 then begin R := ItemRect(I); Q := Point((R.Left+R.Right) div 2,R.Top); if (R.Top+R.Bottom) div 2 < P.Y then Q.Y := R.Bottom; end;
+      DrawConnection(P,Q,Palette.Accent,ScaleValue(2),I);
     end;
-    DrawConnection(P, Q, Palette.Accent, ScaleValue(2), I);
-  end;
-  if FEditMode = 3 then
-  begin
-    R := Rect(Min(FStartPoint.X, FBoxPoint.X), Min(FStartPoint.Y, FBoxPoint.Y),
-      Max(FStartPoint.X, FBoxPoint.X), Max(FStartPoint.Y, FBoxPoint.Y));
-    if (R.Width > 0) and (R.Height > 0) then
+    if FEditMode = 3 then
     begin
-      Tint := TBitmap.Create;
-      try
-        Tint.PixelFormat := pf32bit; Tint.SetSize(1, 1);
-        Tint.Canvas.Brush.Color := Palette.Accent; Tint.Canvas.FillRect(Rect(0, 0, 1, 1));
-        Blend.BlendOp := AC_SRC_OVER; Blend.BlendFlags := 0;
-        Blend.SourceConstantAlpha := 32; Blend.AlphaFormat := 0;
-        Winapi.Windows.AlphaBlend(ACanvas.Handle, R.Left, R.Top, R.Width, R.Height,
-          Tint.Canvas.Handle, 0, 0, 1, 1, Blend);
-      finally Tint.Free; end;
+      R := Rect(Min(FStartPoint.X,FBoxPoint.X),Min(FStartPoint.Y,FBoxPoint.Y),Max(FStartPoint.X,FBoxPoint.X),Max(FStartPoint.Y,FBoxPoint.Y));
+      Painter.RectangleF(R.Left,R.Top,R.Width,R.Height,Palette.Accent,Palette.Accent,1,32);
     end;
-    // Force the hollow brush into the DC even after SaveDC/RestoreDC painting.
-    ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Style := bsClear;
-    ACanvas.Pen.Width := 1; ACanvas.Pen.Color := Palette.Accent;
-    ACanvas.Rectangle(R);
-  end;
+  finally Painter.Free; end;
 end;
 procedure TERDPCBDesigner.ConnectPin(Index: Integer; const Pin: string);
 var Value: TERDPCBDesignItem; Role: TERDPCBPinRole; Current, Error: string;

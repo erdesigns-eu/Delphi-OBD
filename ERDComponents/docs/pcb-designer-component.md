@@ -25,7 +25,7 @@ PCBDesigner.SelectedPin := 'U7.2';
 
 | Property | Meaning |
 | --- | --- |
-| `AntiAlias` | Cached 3× supersampling for board artwork; enabled by default |
+| `AntiAlias` | Shared GDI+ geometry smoothing; enabled by default |
 | `ShowBodies` | Draw assembled terminals, USB, module and other component bodies |
 | `ScrollBars` | Themed scrollbars shown only when the PCB or scene exceeds the viewport |
 | `Zoom` | Relative to fit-to-board size; clamped to 0.3–20 |
@@ -226,3 +226,17 @@ The standalone [object tree](pcb-object-tree.md) lists components and notes with
 See [magnetic layout](pcb-magnetic-layout.md) for grid, object and equal-gap snapping and guide settings.
 
 The optional [validation engine and panel](pcb-validation.md) inspect snapshots and emit host navigation events.
+
+## Shared GDI+ rendering
+
+The designer paints through `TERDPainter`, using the same ERD palette, DPI and
+GDI+ infrastructure as other controls. Board contours, pads, terminals, component
+bodies, connection paths, selection outlines, drag handles and previews use shared
+primitives. Terminal and rubber-band selections use alpha fills with opaque borders.
+The static board bitmap is cached at native resolution; GDI+ smoothing replaces the
+previous 3x bitmap supersampling workaround. `AntiAlias` controls geometry smoothing.
+Hit testing, world coordinates, pin assignment, dragging and undo remain model APIs.
+
+The palette, object tree and validation panel opt into shared `TextF` for floating
+text geometry. Existing `Text`, `WrapText` and editor text metrics remain unchanged.
+The `OnDrawItemGlyph` canvas hook remains available for host-owned custom drawing.

@@ -7,7 +7,8 @@
 //  frames and the small line glyphs - from a theme palette, so a
 //  stand-alone TERDChip and a chip inside a DTC panel row are the same
 //  pixels. Shapes are anti-aliased with GDI+; text goes through GDI so
-//  it gets ClearType.
+//  it gets ClearType. TextF/TextBlockF provide opt-in GDI+ text for floating
+//  geometry without changing existing control text metrics.
 //
 //  Every coordinate handed to the painter is in device pixels. Fixed
 //  design sizes (a chip is 20 px high, a card edge 4 px wide) are
@@ -126,7 +127,10 @@ type
     FPPI: Integer;
     FDark: Boolean;
     FFontName: string;
+    FAntiAlias, FClipEnabled: Boolean;
+    FClip: TGPRectF;
     function NewGraphics: TGPGraphics;
+    function NewFontF(ASize: Single; AWeight: TERDTextWeight): TGPFont;
     procedure AddRoundRect(APath: TGPGraphicsPath; X, Y, W, H,
       ARadius: Single);
   public
@@ -229,6 +233,27 @@ type
       AWidth: Single);
     /// <summary>Filled polygon.</summary>
     procedure Polygon(const APoints: array of TGPPointF; AColor: TColor);
+
+    /// Shared GDI+ path drawing; fill opacity does not affect the outline.
+    procedure DrawPath(APath: TGPGraphicsPath; AFill, AOutline: TColor;
+      AWidth: Single = 1; AFillAlpha: Byte = 255; ADashed: Boolean = False);
+    procedure Shape(const APoints: array of TGPPointF; AClosed: Boolean;
+      AFill, AOutline: TColor; AWidth: Single = 1; AFillAlpha: Byte = 255);
+    procedure RectangleF(X, Y, W, H: Single; AFill, AOutline: TColor;
+      AWidth: Single = 1; AFillAlpha: Byte = 255; ADashed: Boolean = False);
+    procedure LineF(X1, Y1, X2, Y2: Single; AColor: TColor;
+      AWidth: Single = 1; ADashed: Boolean = False);
+    /// Clip applies to subsequent GDI+ primitives from this painter only.
+    procedure ClipRectF(X, Y, W, H: Single);
+    procedure ResetClip;
+    property AntiAlias: Boolean read FAntiAlias write FAntiAlias;
+    /// GDI+ text with floating device-pixel geometry; existing Text stays ClearType.
+    function TextF(X, CY: Single; const AText: string; ASize: Single;
+      AColor: TColor; AWeight: TERDTextWeight = twRegular;
+      AAlign: TAlignment = taLeftJustify; AMaxWidth: Single = 0): Single;
+    procedure TextBlockF(X, Y, W, H: Single; const AText: string; ASize: Single;
+      AColor: TColor; AWeight: TERDTextWeight = twRegular;
+      AWrap: Boolean = True; AAlign: TAlignment = taLeftJustify);
 
     { Text }
 
@@ -711,6 +736,7 @@ constructor TERDPainter.Create(ACanvas: TCanvas;
   const APalette: TERDThemePalette; APPI: Integer);
 begin
   inherited Create;
+  FAntiAlias := True;
   FCanvas := ACanvas;
   FPalette := APalette;
   FPPI := APPI;
@@ -733,7 +759,10 @@ end;
 function TERDPainter.NewGraphics: TGPGraphics;
 begin
   Result := TGPGraphics.Create(FCanvas.Handle);
-  Result.SetSmoothingMode(SmoothingModeAntiAlias);
+  if FAntiAlias then Result.SetSmoothingMode(SmoothingModeAntiAlias)
+  else Result.SetSmoothingMode(SmoothingModeNone);
+  Result.SetPageUnit(UnitPixel);
+  if FClipEnabled then Result.SetClip(FClip,CombineModeIntersect);
   // Pixel i covers [i, i + 1], so a fill from X to X + W covers
   // exactly the pixels a GDI FillRect would.
   Result.SetPixelOffsetMode(PixelOffsetModeHalf);
@@ -1007,6 +1036,121 @@ begin
   finally
     G.Free;
   end;
+end;
+
+function TERDPainter.NewFontF(ASize: Single; AWeight: TERDTextWeight): TGPFont;
+var Family: string; Style: Integer;
+begin
+  Family := FFontName; Style := FontStyleRegular;
+  if AWeight in [twMono,twMonoBold] then Family := MONO_FONT;
+  if AWeight in [twBold,twMonoBold] then Style := FontStyleBold;
+  if AWeight = twSemibold then Family := FFontName+SEMIBOLD_SUFFIX;
+  Result := TGPFont.Create(Family,SF(ASize),Style,UnitPixel);
+end;
+procedure TERDPainter.ClipRectF(X, Y, W, H: Single);
+begin FClip := ERD.Components.GDIP.RectF(X,Y,Max(0,W),Max(0,H)); FClipEnabled := True; end;
+procedure TERDPainter.ResetClip;
+begin FClipEnabled := False; end;
+procedure TERDPainter.DrawPath(APath: TGPGraphicsPath; AFill, AOutline: TColor;
+  AWidth: Single; AFillAlpha: Byte; ADashed: Boolean);
+var G: TGPGraphics; Brush: TGPSolidBrush; Pen: TGPPen;
+begin
+  if APath = nil then Exit;
+  G := NewGraphics;
+  try
+    if (AFill <> clNone) and (AFillAlpha > 0) then
+    begin
+      Brush := TGPSolidBrush.Create(ColorToARGB(AFill,AFillAlpha));
+      try G.FillPath(Brush,APath); finally Brush.Free; end;
+    end;
+    if (AOutline <> clNone) and (AWidth > 0) then
+    begin
+      Pen := TGPPen.Create(ColorToARGB(AOutline),AWidth);
+      try
+        Pen.SetLineJoin(LineJoinRound); Pen.SetStartCap(LineCapRound); Pen.SetEndCap(LineCapRound);
+        if ADashed then Pen.SetDashStyle(DashStyleDash);
+        G.DrawPath(Pen,APath);
+      finally Pen.Free; end;
+    end;
+  finally G.Free; end;
+end;
+procedure TERDPainter.Shape(const APoints: array of TGPPointF; AClosed: Boolean;
+  AFill, AOutline: TColor; AWidth: Single; AFillAlpha: Byte);
+var Path: TGPGraphicsPath;
+begin
+  if Length(APoints) < 2 then Exit;
+  Path := TGPGraphicsPath.Create;
+  try
+    Path.AddLines(PGPPointF(@APoints[0]),Length(APoints));
+    if AClosed then Path.CloseFigure;
+    DrawPath(Path,AFill,AOutline,AWidth,AFillAlpha);
+  finally Path.Free; end;
+end;
+procedure TERDPainter.RectangleF(X, Y, W, H: Single; AFill, AOutline: TColor;
+  AWidth: Single; AFillAlpha: Byte; ADashed: Boolean);
+var Path: TGPGraphicsPath; Half: Single;
+begin
+  if (W <= 0) or (H <= 0) then Exit;
+  Path := TGPGraphicsPath.Create;
+  try
+    Half := 0; if (AOutline <> clNone) and (AWidth > 0) then Half := Min(AWidth/2,Min(W,H)/2);
+    Path.AddRectangle(ERD.Components.GDIP.RectF(X+Half,Y+Half,Max(0,W-2*Half),Max(0,H-2*Half)));
+    DrawPath(Path,AFill,AOutline,AWidth,AFillAlpha,ADashed);
+  finally Path.Free; end;
+end;
+procedure TERDPainter.LineF(X1, Y1, X2, Y2: Single; AColor: TColor; AWidth: Single; ADashed: Boolean);
+var Path: TGPGraphicsPath;
+begin
+  Path := TGPGraphicsPath.Create;
+  try Path.AddLine(X1,Y1,X2,Y2); DrawPath(Path,clNone,AColor,AWidth,255,ADashed);
+  finally Path.Free; end;
+end;
+function TERDPainter.TextF(X, CY: Single; const AText: string; ASize: Single;
+  AColor: TColor; AWeight: TERDTextWeight; AAlign: TAlignment; AMaxWidth: Single): Single;
+var G: TGPGraphics; Font: TGPFont; Format: TGPStringFormat; Brush: TGPSolidBrush;
+    Bounds, Layout: TGPRectF; W, H: Single;
+begin
+  Result := 0; if (AText = '') or (AColor = clNone) or (ASize <= 0) then Exit;
+  G := NewGraphics;
+  try
+    G.SetTextRenderingHint(TextRenderingHintAntiAliasGridFit); Font := NewFontF(ASize,AWeight);
+    try
+      Format := TGPStringFormat.Create(StringFormatFlagsNoWrap);
+      try
+        Layout := ERD.Components.GDIP.RectF(0,0,100000,Max(1,SF(ASize)*4));
+        G.MeasureString(AText,Length(AText),Font,Layout,Format,Bounds);
+        W := Bounds.Width; H := Max(Bounds.Height,Font.GetHeight(G));
+        if AMaxWidth > 0 then W := Min(W,AMaxWidth); Result := W;
+        Layout := ERD.Components.GDIP.RectF(X,CY-H/2,Max(1,W),H);
+        case AAlign of taCenter: begin Layout.X := X-W/2; Format.SetAlignment(StringAlignmentCenter); end;
+          taRightJustify: begin Layout.X := X-W; Format.SetAlignment(StringAlignmentFar); end; end;
+        Format.SetLineAlignment(StringAlignmentCenter); Format.SetTrimming(StringTrimmingEllipsisCharacter);
+        Brush := TGPSolidBrush.Create(ColorToARGB(AColor));
+        try G.DrawString(AText,Length(AText),Font,Layout,Format,Brush); finally Brush.Free; end;
+      finally Format.Free; end;
+    finally Font.Free; end;
+  finally G.Free; end;
+end;
+procedure TERDPainter.TextBlockF(X, Y, W, H: Single; const AText: string; ASize: Single;
+  AColor: TColor; AWeight: TERDTextWeight; AWrap: Boolean; AAlign: TAlignment);
+var G: TGPGraphics; Font: TGPFont; Format: TGPStringFormat; Brush: TGPSolidBrush;
+    Layout: TGPRectF; Flags: Integer;
+begin
+  if (W <= 0) or (H <= 0) or (AText = '') or (AColor = clNone) or (ASize <= 0) then Exit;
+  G := NewGraphics;
+  try
+    G.SetTextRenderingHint(TextRenderingHintAntiAliasGridFit); Font := NewFontF(ASize,AWeight);
+    try
+      Flags := 0; if not AWrap then Flags := StringFormatFlagsNoWrap;
+      Format := TGPStringFormat.Create(Flags);
+      try
+        case AAlign of taCenter: Format.SetAlignment(StringAlignmentCenter); taRightJustify: Format.SetAlignment(StringAlignmentFar); end;
+        Format.SetTrimming(StringTrimmingEllipsisCharacter); Layout := ERD.Components.GDIP.RectF(X,Y,W,H);
+        Brush := TGPSolidBrush.Create(ColorToARGB(AColor));
+        try G.DrawString(AText,Length(AText),Font,Layout,Format,Brush); finally Brush.Free; end;
+      finally Format.Free; end;
+    finally Font.Free; end;
+  finally G.Free; end;
 end;
 
 procedure TERDPainter.Lines(const APoints: array of TGPPointF;

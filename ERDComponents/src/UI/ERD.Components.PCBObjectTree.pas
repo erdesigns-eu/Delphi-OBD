@@ -125,14 +125,14 @@ begin
   begin
     Marker := ''; if Value.Locked then Marker := ' [locked]';
     if not Value.Enabled then Marker := Marker+' [disabled]';
-    APainter.Text(ARect.Left+ScaleValue(28), ARect.Top+ARect.Height div 2, Text+Marker, 12, Ink, twRegular, taLeftJustify, ARect.Width-ScaleValue(36));
+    APainter.TextF(ARect.Left+ScaleValue(28), ARect.Top+ARect.Height/2, Text+Marker, 12, Ink, twRegular, taLeftJustify, ARect.Width-ScaleValue(36));
   end
   else
   begin
     Expanded := FHost.FComponentsExpanded;
     if FHost.FIDs[AIndex] = '#notes' then Expanded := FHost.FNotesExpanded;
     Marker := '+'; if Expanded or (FHost.SearchText <> '') then Marker := '-';
-    APainter.Text(ARect.Left+ScaleValue(8), ARect.Top+ARect.Height div 2, Marker+'  '+Text, 12, Ink, twSemibold, taLeftJustify, ARect.Width-ScaleValue(16));
+    APainter.TextF(ARect.Left+ScaleValue(8), ARect.Top+ARect.Height/2, Marker+'  '+Text, 12, Ink, twSemibold, taLeftJustify, ARect.Width-ScaleValue(16));
   end;
 end;
 constructor TERDPCBObjectTree.Create(AOwner: TComponent);

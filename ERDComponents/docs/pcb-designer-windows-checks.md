@@ -215,3 +215,15 @@ verified. No automated Windows smoke-run log was supplied.
 - Check semantic icons, tooltips, scrollbars, light/dark, density and DPI.
 - Round-trip the panel through DFM: keep severity filter, omit issues/search and duplicate internal controls.
 - Close while a validation timer is pending and after navigating a message; no lifetime exceptions.
+
+### Shared GDI+ painter migration
+
+- Rebuild both runtime/design-time packages and the smoke executable.
+- Check board outlines, round pads/drills, terminals, USB and component bodies at fractional zoom and high DPI.
+- Verify terminal selection follows its original contour and adjacent terminals cannot cover its border.
+- Confirm terminal/rubber-band fills stay translucent and selection borders remain opaque.
+- Check floating text, ellipsis, wrapped/multiline notes, status badges and component names below glyphs.
+- Scroll/zoom/select repeatedly; cached board painting should remain responsive without supersampling buffers.
+- Toggle AntiAlias; verify the geometry setting does not alter hit targets or object sizes.
+- Exercise custom OnDrawItemGlyph handlers, placement, handles, snapping and connection rewiring.
+- Compare the code editor, inspector and other existing controls: their original text APIs are unchanged.

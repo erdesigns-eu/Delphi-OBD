@@ -96,12 +96,12 @@ begin
   Size := ScaleValue(28); X := ARect.Left + ScaleValue(22);
   APainter.RoundRect(ARect.Left+ScaleValue(8), ARect.Top+(ARect.Height-Size)/2, Size, Size,
     ScaleValue(4), ERDMixColor(Palette.Accent, ListBackground, 0.12), clNone);
-  if Icon <> glNone then APainter.GlyphLine(Icon, X, ARect.Top+ARect.Height div 2, Ink, ScaleValue(96)/96)
-  else APainter.Text(X, ARect.Top+ARect.Height div 2, Definition.GlyphText, 10, Ink, twSemibold, taCenter, Size);
+  if Icon <> glNone then APainter.GlyphLine(Icon, X, ARect.Top+ARect.Height/2, Ink, ScaleValue(96)/96)
+  else APainter.TextF(X, ARect.Top+ARect.Height/2, Definition.GlyphText, 10, Ink, twSemibold, taCenter, Size);
   X := ARect.Left+ScaleValue(46);
-  APainter.Text(X, ARect.Top+ARect.Height div 2-ScaleValue(10), Definition.DisplayName, 12.5, Ink, twSemibold, taLeftJustify, ARect.Right-X-ScaleValue(8));
+  APainter.TextF(X, ARect.Top+ARect.Height/2-ScaleValue(10), Definition.DisplayName, 12.5, Ink, twSemibold, taLeftJustify, ARect.Right-X-ScaleValue(8));
   Text := Definition.Description; if Text = '' then Text := FHost.CategoryOf(Definition);
-  APainter.Text(X, ARect.Top+ARect.Height div 2+ScaleValue(11), Text, 11, ERDMixColor(Palette.ForegroundText, ListBackground, 0.7), twRegular, taLeftJustify, ARect.Right-X-ScaleValue(8));
+  APainter.TextF(X, ARect.Top+ARect.Height/2+ScaleValue(11), Text, 11, ERDMixColor(Palette.ForegroundText, ListBackground, 0.7), twRegular, taLeftJustify, ARect.Right-X-ScaleValue(8));
 end;
 procedure TERDPCBPaletteList.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin

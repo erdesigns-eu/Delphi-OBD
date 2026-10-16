@@ -1112,6 +1112,48 @@ begin
   end;
 end;
 
+procedure TestFloatingPainter;
+var Bitmap: TBitmap; Painter: TERDPainter; Palette: TERDThemePalette; C: Cardinal;
+    X, Y, Ink, Intermediate: Integer; Width, Narrow, Wide: Single;
+  procedure Clear;
+  begin Bitmap.Canvas.Brush.Color := clWhite; Bitmap.Canvas.FillRect(Rect(0,0,160,100)); end;
+begin
+  Bitmap := TBitmap.Create;
+  try
+    Bitmap.PixelFormat := pf32bit; Bitmap.SetSize(160,100); Palette := BRAND_PALETTE_LIGHT;
+    Painter := TERDPainter.Create(Bitmap.Canvas,Palette,96);
+    try
+      Clear; Painter.RectangleF(10.25,10.25,40,40,clRed,clBlue,2,64);
+      C := ColorToRGB(Bitmap.Canvas.Pixels[30,30]);
+      Check((GetRValue(C) >= 252) and (Abs(Integer(GetGValue(C))-191) <= 3) and (Abs(Integer(GetBValue(C))-191) <= 3), 'Shared GDI+ rectangle blends translucent fill over the destination');
+      C := ColorToRGB(Bitmap.Canvas.Pixels[11,30]);
+      Check((GetBValue(C) > 240) and (GetRValue(C) < 20), 'Transparent shape fill retains an opaque selection border');
+      Clear; Painter.ClipRectF(20,20,20,20); Painter.RectangleF(0,0,100,100,clRed,clNone);
+      Check((ColorToRGB(Bitmap.Canvas.Pixels[25,25]) = ColorToRGB(clRed)) and
+        (ColorToRGB(Bitmap.Canvas.Pixels[10,10]) = ColorToRGB(clWhite)), 'Shared clip restricts subsequent GDI+ primitives');
+      Painter.ResetClip; Painter.RectangleF(2,2,6,6,clBlue,clNone);
+      Check(ColorToRGB(Bitmap.Canvas.Pixels[4,4]) = ColorToRGB(clBlue), 'Resetting painter clip restores drawing outside it');
+      Clear; Painter.LineF(5.25,5.75,90.5,65.25,clBlack,1); Intermediate := 0;
+      for Y := 2 to 70 do for X := 2 to 100 do
+      begin C := ColorToRGB(Bitmap.Canvas.Pixels[X,Y]); if (GetRValue(C) > 0) and (GetRValue(C) < 255) then Inc(Intermediate); end;
+      Check(Intermediate > 10, 'Shared diagonal strokes produce anti-aliased edge pixels');
+      Clear; Width := Painter.TextF(10.5,30.25,'Floating PCB text',14,clBlack,twRegular,taLeftJustify,120.5);
+      Check((Width > 0) and (Width <= 120.5), 'Floating text honors device-pixel maximum width');
+      Ink := 0; for Y := 5 to 55 do for X := 5 to 145 do if ColorToRGB(Bitmap.Canvas.Pixels[X,Y]) <> ColorToRGB(clWhite) then Inc(Ink);
+      Check(Ink > 20, 'GDI+ floating text produces visible glyphs');
+      Narrow := Painter.TextF(0,80,'iiii',12,clBlack,twMono); Wide := Painter.TextF(0,80,'MMMM',12,clBlack,twMono);
+      Check(Abs(Narrow-Wide) < 1, 'Floating text retains monospaced font weights');
+      Clear; Painter.ClipRectF(20,20,80,40); Painter.TextBlockF(0,0,150,90,'Line one'+sLineBreak+'Line two',12,clBlack);
+      Ink := 0; Intermediate := 0;
+      for Y := 0 to Bitmap.Height-1 do for X := 0 to Bitmap.Width-1 do
+        if ColorToRGB(Bitmap.Canvas.Pixels[X,Y]) <> ColorToRGB(clWhite) then
+          if (X >= 20) and (X < 100) and (Y >= 20) and (Y < 60) then Inc(Ink) else Inc(Intermediate);
+      Check((Ink > 5) and (Intermediate = 0), 'Wrapped GDI+ text is visible inside the clip and cannot spill outside');
+      Painter.ResetClip;
+    finally Painter.Free; end;
+  finally Bitmap.Free; end;
+end;
+
 procedure TestTextPainting;
 var Form: TForm; Theme: TERDTheme; Edit: TERDEdit; Memo: TERDMemo;
   Other: TButton; Native: TWinControl; I, J, BeforeInk, AfterInk: Integer;
@@ -4484,6 +4526,7 @@ begin
     TestEditPasswordAndValidation;
     TestDocumentTabs;
     TestTextPainting;
+    TestFloatingPainter;
     TestUnicodeTextModel;
     TestSelfPaintedTextInput;
     TestMultilineTextEngine;
