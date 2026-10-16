@@ -59,6 +59,7 @@ def resource(name,payload):
 # Per-class icons, not one placeholder shared by every component.
 COMPONENT_ICONS={
     'TERDPCBComponentPalette': 87,
+    'TERDPCBObjectTree': 69,
     'TERDPCBDesigner': -1,  # Dedicated board glyph, not a catalog placeholder.
     'TERDRating': 224,
     'TERDCommandPalette': 14,

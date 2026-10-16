@@ -177,3 +177,14 @@ verified. No automated Windows smoke-run log was supplied.
 - Enable template authoring: the palette must be disabled and no placement may
   begin. Close with search focused, with the category popup open, after a drag,
   and after clearing/filtering the current selection.
+
+### PCB object tree
+
+- Select components/notes in the tree and canvas; verify Ctrl and Shift multiselection in both directions.
+- Search by name/caption/type; collapse groups; ensure hidden selection survives filtering.
+- Double-click/Enter focuses selection; right-click an already selected row preserves the group selection.
+- F2: rename, reject duplicate/invalid names, cancel; locked items cannot rename.
+- Lock/unlock several objects, undo/redo once; delete skips locked objects and can be undone.
+- Verify keyboard navigation after repeated refresh, searching, renaming and undo/redo.
+- Check light/dark theme, high DPI, density, scrolling and DFM round-trip.
+- Close the demo after tree/inspector edits; destroy a bound designer before its tree.

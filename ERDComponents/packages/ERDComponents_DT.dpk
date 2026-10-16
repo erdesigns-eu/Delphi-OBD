@@ -13,6 +13,7 @@ contains
   ERD.Components.PCBLibrary in '..\src\UI\ERD.Components.PCBLibrary.pas',
   ERD.Components.PCBRoute in '..\src\UI\ERD.Components.PCBRoute.pas',
   ERD.Components.PCBComponentPalette in '..\src\UI\ERD.Components.PCBComponentPalette.pas',
+  ERD.Components.PCBObjectTree in '..\src\UI\ERD.Components.PCBObjectTree.pas',
   ERD.Components.PCBInspector in '..\src\UI\ERD.Components.PCBInspector.pas',
   ERD.Components.PCBScene in '..\src\UI\ERD.Components.PCBScene.pas',
   ERD.Components.PCBDesigner in '..\src\UI\ERD.Components.PCBDesigner.pas',

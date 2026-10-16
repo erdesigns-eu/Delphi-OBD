@@ -2,7 +2,7 @@
 interface
 uses System.Classes, System.SysUtils, System.Types, Vcl.Controls, Vcl.StdCtrls, Winapi.Windows,
   ERD.Components.Control, ERD.Components.Panel, ERD.Components.PCBDesigner, ERD.Components.PCBScene,
-  ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBComponentPalette, ERD.Components.Buttons, ERD.Components.FileDialogs;
+  ERD.Components.PCBObjectTree, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBComponentPalette, ERD.Components.Buttons, ERD.Components.FileDialogs;
 type
   /// Demo host only: toolbox and inspector are separate from TERDPCBDesigner.
   TPCBPreview = class(TERDPanel)
@@ -10,6 +10,7 @@ type
     FDesigner: TERDPCBDesigner;
     FInspector: TERDInspector;
     FBinding: TERDPCBInspectorBinding;
+    FObjects: TERDPCBObjectTree;
     FToolbox: TERDPCBComponentPalette;
     FStatus: TLabel;
     FAuthoring, FHand: TERDCheckBox;
@@ -107,6 +108,8 @@ begin
   FInspector.OnPropertyButtonClick := PropertyButtonClicked;
   FInspector.OnPropertyChanging := PropertyChanging; FInspector.OnPropertyChanged := PropertyChanged;
   FDesigner := TERDPCBDesigner.Create(Self); FDesigner.Parent := Self; FDesigner.Align := alClient;
+  FObjects := TERDPCBObjectTree.Create(Self); FObjects.Parent := Tools;
+  FObjects.Align := alBottom; FObjects.Height := ScaleValue(240); FObjects.Designer := FDesigner;
   FDesigner.OnConnectionSelectionChange := ConnectionSelectionChanged;
   FDesigner.OnPlacementChange := PlacementChanged;
   FDesigner.OnSelectionChange := SelectionChanged; FDesigner.OnChange := DesignChanged; FDesigner.OnConnectionError := ConnectionError;
@@ -149,6 +152,7 @@ begin
   end;
   if FToolbox <> nil then
   begin FToolbox.OnChoose := nil; FToolbox.OnSelectionChange := nil; FToolbox.OnCancel := nil; FToolbox.OnStartDrag := nil; FToolbox.OnEndDrag := nil; end;
+  if FObjects <> nil then FObjects.Designer := nil;
   FreeAndNil(FBinding); inherited;
 end;
 procedure TPCBPreview.ThemeChanged;
@@ -162,7 +166,7 @@ begin
     2: FDesigner.ShowLabels := Choice.Checked; 3: FDesigner.ShowComponentOutlines := Choice.Checked;
     4: FDesigner.ShowGrid := Choice.Checked;
     6: FDesigner.PanMode := Choice.Checked;
-    5: begin FToolbox.Enabled := not Choice.Checked; FDesigner.TemplateEditMode := Choice.Checked; FDesigner.Scene.ClearSelection; SelectionChanged(Self); end;
+    5: begin FObjects.Enabled := not Choice.Checked; FToolbox.Enabled := not Choice.Checked; FDesigner.TemplateEditMode := Choice.Checked; FDesigner.Scene.ClearSelection; SelectionChanged(Self); end;
   end;
 end;
 procedure TPCBPreview.ConnectionSelectionChanged(Sender: TObject);
@@ -200,6 +204,7 @@ end;
 procedure TPCBPreview.DesignChanged(Sender: TObject);
 var C, P, Index: Integer; Value: TERDPCBDesignItem; Row: TERDInspectorProperty;
 begin
+  if FObjects <> nil then FObjects.Refresh;
   Index := FDesigner.Scene.PrimaryIndex;
   if Index >= 0 then
   begin
@@ -233,6 +238,7 @@ var Category: TERDInspectorCategory; P: TERDPCBPad; Value: TERDPCBDesignItem; In
     Field(Name, Text, Tag, ivPickList);
   end;
 begin
+  if FObjects <> nil then FObjects.Refresh;
   FBinding.Clear; FInspector.Clear; Index := FDesigner.Scene.PrimaryIndex;
   if FDesigner.Scene.SelectionCount > 1 then
   begin

@@ -220,3 +220,5 @@ line icons on status badges, preserving readability in light and dark themes.
 The demo uses the standalone [component palette](pcb-component-palette.md), with
 search, a category filter, icons and descriptions from the type registry. It
 supports click-to-place and drag/drop and can be hosted independently in an IDE.
+
+The standalone [object tree](pcb-object-tree.md) lists components and notes without embedding an inspector.

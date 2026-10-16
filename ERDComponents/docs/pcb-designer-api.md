@@ -513,3 +513,5 @@ It remains independent of the designer and inspector. See the
 [palette guide](pcb-component-palette.md) for events, stable type IDs, drag/drop
 wiring and DFM behavior. `TERDPCBComponentType.Category` and `.Description` supply
 presentation metadata and do not change serialized scene instances.
+
+See [PCB object tree](pcb-object-tree.md) for separate scene navigation and selection commands.

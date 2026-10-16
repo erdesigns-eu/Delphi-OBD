@@ -115,6 +115,7 @@
         <DCCReference Include="..\src\UI\ERD.Components.PCBLibrary.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.PCBRoute.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.PCBComponentPalette.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.PCBObjectTree.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.PCBInspector.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.PCBScene.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.Syntax.pas"/>

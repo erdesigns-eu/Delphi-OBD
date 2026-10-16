@@ -2,7 +2,7 @@
 {$APPTYPE CONSOLE}
 uses
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
-  ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
+  ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
   System.IOUtils, System.JSON,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
@@ -2589,6 +2589,62 @@ procedure TPCBPaletteSink.Started(Sender: TObject; var DragObject: TDragObject);
 begin Inc(Starts); LastID := TERDPCBComponentPalette(Sender).SelectedTypeID; end;
 procedure TPCBPaletteSink.Ended(Sender, Target: TObject; X, Y: Integer);
 begin Inc(Ends); LastID := TERDPCBComponentPalette(Sender).SelectedTypeID; end;
+procedure TestPCBObjectTree;
+var Form: TForm; Designer: TERDPCBDesigner; Tree, CopyTree: TERDPCBObjectTree; Stream: TMemoryStream;
+    A, B, Note: TERDPCBDesignItem; Before: string; Failed: Boolean; I, Row: Integer;
+begin
+  Form := TForm.Create(nil);
+  try
+    Designer := TERDPCBDesigner.Create(Form); Designer.Parent := Form;
+    Tree := TERDPCBObjectTree.Create(Form); Tree.Parent := Form; Tree.Designer := Designer;
+    I := Designer.Scene.Add(piTimer,PointF(1,2)); A := Designer.Scene.Item(I);
+    I := Designer.Scene.Add(piCounter,PointF(3,4)); B := Designer.Scene.Item(I);
+    I := Designer.Scene.Add(piNote,PointF(5,6)); Note := Designer.Scene.Item(I);
+    Designer.Scene.ClearSelection; Designer.Scene.ResetHistory; Tree.Refresh;
+    Check(Tree.ItemList.ItemCount = 5, 'Object tree groups components and notes separately');
+    Tree.ItemList.ItemIndex := 1; Tree.Refresh; Tree.Refresh;
+    Check(Tree.ItemList.ItemIndex = 1, 'Repeated tree refresh preserves keyboard focus');
+    Designer.Scene.SelectIDs([A.ID,B.ID]); Tree.Refresh;
+    Check((Tree.ItemList.SelCount = 2) and not Designer.Scene.CanUndo, 'Canvas multiselection mirrors into tree without history');
+    Before := Designer.Scene.ToJSON; Failed := False;
+    try Designer.Scene.SelectIDs([Note.ID,'missing']); except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Before = Designer.Scene.ToJSON), 'Unknown selection ID rejects atomically');
+    Tree.SetSelectionLocked(True);
+    Check(Designer.Scene.Item(Designer.Scene.IndexOf(A.ID)).Locked and Designer.Scene.Item(Designer.Scene.IndexOf(B.ID)).Locked, 'Tree locks entire selection');
+    Designer.Scene.Undo;
+    Check(not Designer.Scene.Item(Designer.Scene.IndexOf(A.ID)).Locked and not Designer.Scene.Item(Designer.Scene.IndexOf(B.ID)).Locked and not Designer.Scene.CanUndo, 'Multi-lock is one undo step');
+    Designer.Scene.SelectIDs([A.ID]); Tree.RenameSelected('RenamedTimer');
+    Check(Designer.Scene.Item(Designer.Scene.IndexOf(A.ID)).Name = 'RenamedTimer', 'Tree renames through scene validation');
+    Before := Designer.Scene.ContentJSON; Failed := False;
+    try Tree.RenameSelected(B.Name); except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Before = Designer.Scene.ContentJSON), 'Duplicate tree rename preserves scene');
+    Designer.Scene.Undo; Check(Designer.Scene.Item(Designer.Scene.IndexOf(A.ID)).Name = A.Name, 'Tree rename can be undone');
+    Tree.SearchText := B.Name; Check(Tree.ItemList.ItemCount = 2, 'Object search filters rows and empty groups');
+    Row := -1;
+    for I := 0 to Tree.ItemList.ItemCount-1 do if Tree.VisibleID(I) = B.ID then Row := I;
+    Check(Row >= 0, 'Search resolves object by identity');
+    Tree.ItemList.ItemIndex := Row;
+    Check(Designer.Scene.Item(Designer.Scene.IndexOf(B.ID)).Selected and Designer.Scene.Item(Designer.Scene.IndexOf(A.ID)).Selected, 'Filtering keeps hidden selection during list edits');
+    Tree.SearchText := ''; Tree.ComponentsExpanded := False;
+    Check(Tree.ItemList.ItemCount = 3, 'Collapsing components keeps note rows');
+    Tree.SearchText := A.Name; Check(Tree.ItemList.ItemCount = 2, 'Search reveals matching collapsed objects');
+    Tree.SearchText := ''; Tree.ComponentsExpanded := True;
+    Designer.Scene.SelectIDs([A.ID]); Tree.Refresh; Tree.DeleteSelection;
+    Check(Designer.Scene.IndexOf(A.ID) < 0, 'Tree delete removes unlocked selected object');
+    Designer.Scene.Undo; Tree.Refresh; Check(Designer.Scene.IndexOf(A.ID) >= 0, 'Tree delete can be undone');
+    Tree.SetSelectionLocked(True); Tree.DeleteSelection;
+    Check(Designer.Scene.IndexOf(A.ID) >= 0, 'Tree delete preserves locked objects');
+    Tree.Designer := nil; Check(Tree.ItemList.ItemCount = 0, 'Detached object tree clears borrowed model');
+    Stream := TMemoryStream.Create; CopyTree := TERDPCBObjectTree.Create(Form);
+    try
+      Tree.SearchText := 'transient'; Tree.ComponentsExpanded := False;
+      Stream.WriteComponent(Tree); Stream.Position := 0; Stream.ReadComponent(CopyTree);
+      Check((CopyTree.SearchText = '') and not CopyTree.ComponentsExpanded and (CopyTree.ControlCount = 2), 'Tree DFM omits search and does not duplicate internal controls');
+    finally CopyTree.Free; Stream.Free; end;
+    Tree.Designer := Designer; Designer.Free;
+    Check((Tree.Designer = nil) and (Tree.ItemList.ItemCount = 0), 'Designer destruction detaches tree safely');
+  finally Form.Free; end;
+end;
 procedure TestPCBComponentPalette;
 var Form: TForm; Palette, CopyPalette: TERDPCBComponentPalette; Definition: TERDPCBComponentType;
     Sink: TPCBPaletteSink; Stream: TMemoryStream; DragObject: TDragObject; Initial, Before: Integer;
@@ -4233,6 +4289,7 @@ begin
     TestCodeLanguageServices;
     TestPCBScene;
     TestPCBComponentPalette;
+    TestPCBObjectTree;
     TestPCBThemeContrast;
     TestPCBHistoryValidation;
     TestPCBDesigner;

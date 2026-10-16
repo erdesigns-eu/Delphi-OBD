@@ -78,6 +78,7 @@ type
     procedure UpdateItems(const Values: TArray<TERDPCBDesignItem>);
     procedure UpdateItem(Index: Integer; const Value: TERDPCBDesignItem);
     procedure Select(Index: Integer; Additive: Boolean = False; Toggle: Boolean = False);
+    procedure SelectIDs(const IDs: TArray<string>);
     procedure SelectAll;
     procedure ClearSelection;
     procedure DeleteSelected;
@@ -480,6 +481,22 @@ begin
   if Index >= 0 then
     if Toggle then FItems[Index].Selected := not FItems[Index].Selected else FItems[Index].Selected := True;
   Changed(True);
+end;
+procedure TERDPCBScene.SelectIDs(const IDs: TArray<string>);
+var Indices: TArray<Integer>; I, Index: Integer; Different: Boolean; Selected: TArray<Boolean>;
+begin
+  SetLength(Indices, Length(IDs));
+  for I := 0 to High(IDs) do
+  begin
+    Indices[I] := IndexOf(IDs[I]);
+    if Indices[I] < 0 then raise EArgumentException.Create('Unknown selection identity');
+  end;
+  SetLength(Selected, Count);
+  for Index in Indices do Selected[Index] := True;
+  Different := False;
+  for I := 0 to High(FItems) do
+    if FItems[I].Selected <> Selected[I] then begin FItems[I].Selected := Selected[I]; Different := True; end;
+  if Different then Changed(True);
 end;
 procedure TERDPCBScene.ClearSelection;
 var I: Integer;
