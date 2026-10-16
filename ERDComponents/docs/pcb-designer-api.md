@@ -504,3 +504,12 @@ schema or host validator rejects the snapshot, content, selection and history
 remain unchanged and no change event is emitted. After the validator allows the
 snapshot, the same action can be retried. Successful listeners observe the final
 CanUndo/CanRedo state. Validators must remain free of scene mutations.
+
+### Standalone toolbox
+
+Use `TERDPCBComponentPalette` from `ERD.Components.PCBComponentPalette` for a
+registry-backed host toolbox with category/search filters, icons and descriptions.
+It remains independent of the designer and inspector. See the
+[palette guide](pcb-component-palette.md) for events, stable type IDs, drag/drop
+wiring and DFM behavior. `TERDPCBComponentType.Category` and `.Description` supply
+presentation metadata and do not change serialized scene instances.

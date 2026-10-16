@@ -216,3 +216,7 @@ tekstveld aanklikken of verlaten wijzigt niets.
 Grid dots derive their contrast from the theme foreground/background instead of
 using the light divider color. Typed notes use a 12% status tint and contrasting
 line icons on status badges, preserving readability in light and dark themes.
+
+The demo uses the standalone [component palette](pcb-component-palette.md), with
+search, a category filter, icons and descriptions from the type registry. It
+supports click-to-place and drag/drop and can be hosted independently in an IDE.

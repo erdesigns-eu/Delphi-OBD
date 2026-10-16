@@ -156,3 +156,24 @@ verified. No automated Windows smoke-run log was supplied.
   tinted background and a readable icon on a solid status badge. Selection
   changes the outline/handles, without turning the note into a solid accent
   block. None has no badge. Repeat with a custom blue or yellow theme accent.
+
+### Standalone component palette
+
+- Run `TestPCBComponentPalette`: registry enumeration, combined category/search,
+  case-insensitive multiword description search, hidden selections, no-match
+  results, mouse/keyboard choice, cancellation, drag forwarding, scroll clamping,
+  refresh with stable IDs, host placement and transient DFM state are covered.
+- Rebuild/install the design-time package. Drop TERDPCBComponentPalette on a form;
+  save/reopen with AllowDrag False. The three internal controls must not duplicate.
+- In the PCB demo, filter Components, Communication and Notes; search by a word
+  from a description. Check hover hints, selected/hover fills and icon readability
+  in both themes, custom accents, tablet density and 100%/150%/200% DPI.
+- Click a result and place it, then Shift-repeat. Arrow through results without
+  placing, Enter to choose, Down/Enter from search, Escape to cancel. Hiding an
+  armed tool with a filter must cancel that obsolete placement.
+- Drag a result onto the designer, outside it and back, then drop. Check the same
+  type is placed. Cancel a drag outside the target. Scrollbar/blank clicks must
+  not arm an old component. AllowDrag False must preserve click placement.
+- Enable template authoring: the palette must be disabled and no placement may
+  begin. Close with search focused, with the category popup open, after a drag,
+  and after clearing/filtering the current selection.

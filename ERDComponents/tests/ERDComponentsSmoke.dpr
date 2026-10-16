@@ -2,7 +2,7 @@
 {$APPTYPE CONSOLE}
 uses
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
-  ERD.Components.PCBDesigner, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
+  ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
   System.IOUtils, System.JSON,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
@@ -32,6 +32,16 @@ type
     Requests, Cancels: Integer;
     procedure Request(const Value: TERDLanguageRequest; const Reply: IERDLanguageResponses);
     procedure Cancel(RequestID: Int64);
+  end;
+  TPCBPaletteSink = class
+    Choices, Changes, Cancels, Starts, Ends: Integer;
+    LastID: string;
+    Designer: TERDPCBDesigner;
+    procedure Chosen(Sender: TObject);
+    procedure Selection(Sender: TObject);
+    procedure Cancelled(Sender: TObject);
+    procedure Started(Sender: TObject; var DragObject: TDragObject);
+    procedure Ended(Sender, Target: TObject; X, Y: Integer);
   end;
   TPCBContrastProbe = class(TERDPCBDesigner)
     procedure Render(Bitmap: TBitmap);
@@ -2566,6 +2576,86 @@ begin
   finally OnGrid.Free; OffGrid.Free; Form.Free; end;
 end;
 
+procedure TPCBPaletteSink.Chosen(Sender: TObject);
+begin
+  Inc(Choices); LastID := TERDPCBComponentPalette(Sender).SelectedTypeID;
+  if Designer <> nil then Designer.BeginTypePlacement(LastID);
+end;
+procedure TPCBPaletteSink.Selection(Sender: TObject);
+begin Inc(Changes); end;
+procedure TPCBPaletteSink.Cancelled(Sender: TObject);
+begin Inc(Cancels); if Designer <> nil then Designer.CancelPlacement; end;
+procedure TPCBPaletteSink.Started(Sender: TObject; var DragObject: TDragObject);
+begin Inc(Starts); LastID := TERDPCBComponentPalette(Sender).SelectedTypeID; end;
+procedure TPCBPaletteSink.Ended(Sender, Target: TObject; X, Y: Integer);
+begin Inc(Ends); LastID := TERDPCBComponentPalette(Sender).SelectedTypeID; end;
+procedure TestPCBComponentPalette;
+var Form: TForm; Palette, CopyPalette: TERDPCBComponentPalette; Definition: TERDPCBComponentType;
+    Sink: TPCBPaletteSink; Stream: TMemoryStream; DragObject: TDragObject; Initial, Before: Integer;
+    Failed: Boolean; R: TRect;
+begin
+  ERDPCBFindComponentType('erd.timer', Definition);
+  Definition.TypeID := 'smoke.palette.alpha'; Definition.DisplayName := 'Palette Alpha'; Definition.NamePrefix := 'PaletteAlpha';
+  Definition.Category := 'Palette tests'; Definition.Description := 'Amber diagnostic output'; ERDPCBRegisterComponentType(Definition);
+  Definition.TypeID := 'smoke.palette.beta'; Definition.DisplayName := 'Palette Beta'; Definition.NamePrefix := 'PaletteBeta';
+  Definition.Description := 'Azure diagnostic output'; ERDPCBRegisterComponentType(Definition);
+  Form := TForm.Create(nil); Sink := TPCBPaletteSink.Create;
+  try
+    Palette := TERDPCBComponentPalette.Create(Form); Palette.Parent := Form; Palette.SetBounds(0,0,280,300);
+    Initial := Length(ERDPCBComponentTypes);
+    Check((Palette.VisibleCount = Initial) and Palette.AllowDrag and (Palette.SelectedTypeID = ''), 'Palette automatically enumerates registered component types');
+    Palette.OnChoose := Sink.Chosen; Palette.OnSelectionChange := Sink.Selection; Palette.OnCancel := Sink.Cancelled;
+    Palette.OnStartDrag := Sink.Started; Palette.OnEndDrag := Sink.Ended;
+    Palette.CategoryFilter := 'Palette tests'; Check(Palette.VisibleCount = 2, 'Category filter includes matching registered types');
+    Palette.SelectedTypeID := 'smoke.palette.alpha'; Palette.SearchText := 'diagnostic AMBER';
+    Check((Palette.VisibleCount = 1) and (Palette.VisibleType(0).TypeID = 'smoke.palette.alpha') and
+      (Palette.SelectedTypeID = 'smoke.palette.alpha') and (Sink.Choices = 0), 'Search matches all words across name/description without activating an item');
+    Palette.SearchText := 'azure'; Check((Palette.VisibleCount = 1) and (Palette.SelectedTypeID = ''), 'Filtering out the selected type clears its stable ID');
+    Failed := False; try Palette.SelectedTypeID := 'smoke.palette.alpha'; except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Palette.SelectedTypeID = ''), 'Hidden type cannot be activated through a stale list index');
+    Palette.SelectedTypeID := 'smoke.palette.beta'; Palette.AllowDrag := False; Form.Show;
+    Before := Sink.Choices; R := Palette.ItemList.ItemRect(0);
+    Palette.ItemList.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(R.Left+10, R.Top+10));
+    Palette.ItemList.Perform(WM_LBUTTONUP, 0, MakeLParam(R.Left+10, R.Top+10));
+    Check((Sink.Choices = Before+1) and (Sink.LastID = 'smoke.palette.beta'), 'Click chooses the visible type ID');
+    Before := Sink.Choices; Palette.ItemList.Perform(WM_KEYDOWN, VK_RETURN, 0);
+    Check(Sink.Choices = Before+1, 'Enter activates a palette item');
+    Palette.ItemList.Perform(WM_KEYDOWN, VK_ESCAPE, 0);
+    Check((Sink.Cancels = 1) and (Palette.SelectedTypeID = ''), 'Escape clears the tool and notifies the host');
+    Palette.SearchEditor.Editor.Perform(WM_KEYDOWN, VK_RETURN, 0);
+    Check((Palette.SelectedTypeID = 'smoke.palette.beta') and (Sink.LastID = 'smoke.palette.beta'), 'Search Enter chooses the first matching type');
+    DragObject := nil; Palette.ItemList.OnStartDrag(Palette.ItemList, DragObject);
+    Palette.ItemList.OnEndDrag(Palette.ItemList, nil, 0, 0);
+    Check((Sink.Starts = 1) and (Sink.Ends = 1) and (Sink.LastID = 'smoke.palette.beta') and
+      Palette.IsDragSource(Palette.ItemList) and not Palette.IsDragSource(Palette.SearchEditor), 'Internal list drag events expose the palette and preserve selected ID');
+    Palette.Enabled := False; Before := Sink.Choices; Palette.ChooseSelected;
+    Check(Sink.Choices = Before, 'Disabled palette cannot activate a type'); Palette.Enabled := True;
+    Palette.SearchText := 'no-such-component-9f0d'; Before := Sink.Choices; Palette.ChooseSelected;
+    Check((Palette.VisibleCount = 0) and (Palette.SelectedTypeID = '') and (Sink.Choices = Before), 'Empty results cannot activate a stale item');
+    Palette.SearchText := ''; Palette.CategoryFilter := ''; Palette.ItemList.ScrollTo(MaxInt);
+    Check(Palette.ItemList.ScrollPos > 0, 'Virtual list scrolls when registered types exceed its viewport');
+    Palette.CategoryFilter := 'Palette tests'; Palette.SelectedTypeID := 'smoke.palette.alpha';
+    ERDPCBFindComponentType('smoke.palette.beta', Definition); Definition.TypeID := 'smoke.palette.gamma'; Definition.DisplayName := 'Palette Gamma'; Definition.NamePrefix := 'PaletteGamma';
+    ERDPCBRegisterComponentType(Definition); Before := Sink.Changes; Palette.ReloadTypes;
+    Check((Sink.Changes = Before) and (Palette.VisibleCount = 3) and (Palette.SelectedTypeID = 'smoke.palette.alpha'), 'Reload picks up newly registered types while preserving filter and selection');
+    Palette.SearchText := 'amber'; Check(Palette.ItemList.ScrollPos = 0, 'Filtering resets an out-of-range scroll offset');
+    Sink.Designer := TERDPCBDesigner.Create(Form); Sink.Designer.Parent := Form; Sink.Designer.SetBounds(300,0,500,400);
+    Palette.ChooseSelected; Check(Sink.Designer.Placing and (Sink.Designer.PlacementTypeID = 'smoke.palette.alpha'), 'Host connects palette choice to placement independently');
+    Sink.Designer.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(100,100)); Sink.Designer.Perform(WM_LBUTTONUP, 0, MakeLParam(100,100));
+    Check((Sink.Designer.Scene.Count = 1) and (Sink.Designer.Scene.Item(0).TypeID = 'smoke.palette.alpha'), 'Canvas click inserts the selected registered type');
+    Palette.OnChoose := nil; Palette.OnSelectionChange := nil; Palette.OnCancel := nil; Palette.OnStartDrag := nil; Palette.OnEndDrag := nil;
+    Stream := TMemoryStream.Create;
+    try
+      RegisterClass(TERDPCBComponentPalette); Stream.WriteComponent(Palette); Stream.Position := 0;
+      CopyPalette := TERDPCBComponentPalette(Stream.ReadComponent(nil));
+      try
+        Check((CopyPalette.SearchText = '') and (CopyPalette.CategoryFilter = '') and (CopyPalette.SelectedTypeID = '') and
+          not CopyPalette.AllowDrag and (CopyPalette.VisibleCount = Initial+1) and (CopyPalette.ControlCount = 3), 'DFM streams configuration without transient search/category/placement state');
+      finally CopyPalette.Free; end;
+    finally Stream.Free; end;
+  finally Form.Free; Sink.Free; end;
+end;
+
 procedure TestPCBScene;
 var Scene: TERDPCBScene; A, B, C: Integer; Value: TERDPCBDesignItem; Before: string; Failed: Boolean;
 begin
@@ -4142,6 +4232,7 @@ begin
     TestCodeEditorSearch;
     TestCodeLanguageServices;
     TestPCBScene;
+    TestPCBComponentPalette;
     TestPCBThemeContrast;
     TestPCBHistoryValidation;
     TestPCBDesigner;

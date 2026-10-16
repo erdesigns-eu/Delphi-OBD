@@ -2,7 +2,7 @@
 interface
 uses System.Classes, System.SysUtils, System.Types, Vcl.Controls, Vcl.StdCtrls, Winapi.Windows,
   ERD.Components.Control, ERD.Components.Panel, ERD.Components.PCBDesigner, ERD.Components.PCBScene,
-  ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.ItemList, ERD.Components.Buttons, ERD.Components.FileDialogs;
+  ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBComponentPalette, ERD.Components.Buttons, ERD.Components.FileDialogs;
 type
   /// Demo host only: toolbox and inspector are separate from TERDPCBDesigner.
   TPCBPreview = class(TERDPanel)
@@ -10,12 +10,11 @@ type
     FDesigner: TERDPCBDesigner;
     FInspector: TERDInspector;
     FBinding: TERDPCBInspectorBinding;
-    FToolbox: TERDListBox;
+    FToolbox: TERDPCBComponentPalette;
     FStatus: TLabel;
     FAuthoring, FHand: TERDCheckBox;
     FFileName, FTemplateDirectory: string;
     FToolDragging: Boolean;
-    FTypes: TArray<TERDPCBComponentType>;
     procedure ViewOptionChanged(Sender: TObject);
     procedure SelectionChanged(Sender: TObject);
     procedure ConnectionSelectionChanged(Sender: TObject);
@@ -28,8 +27,7 @@ type
     procedure PropertyChanged(Sender: TObject; AProperty: TERDInspectorProperty);
     function EditedItem(AProperty: TERDInspectorProperty; const Text: string): TERDPCBDesignItem;
     procedure ToolbarClicked(Sender: TObject);
-    procedure ToolboxMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure ToolboxDoubleClick(Sender: TObject);
+    procedure ToolboxSelectionChanged(Sender: TObject);
     procedure ToolboxClick(Sender: TObject);
     procedure ToolboxStartDrag(Sender: TObject; var DragObject: TDragObject);
     procedure ToolboxEndDrag(Sender, Target: TObject; X, Y: Integer);
@@ -50,6 +48,7 @@ begin
   if ERDPCBFindComponentType('demo.retry-timer', Definition) then Exit;
   ERDPCBFindComponentType('erd.timer', Definition);
   Definition.TypeID := 'demo.retry-timer'; Definition.DisplayName := 'Retry timer'; Definition.NamePrefix := 'RetryTimer';
+  Definition.Description := 'Configure retry intervals and backoff settings.';
   SetLength(Props, 5);
   Props[0].Name := 'description'; Props[0].Caption := 'Description'; Props[0].Category := 'Documentation';
   Props[0].DefaultValue := ''; Props[0].Hint := 'A description for this timer.';
@@ -93,17 +92,16 @@ begin
   end;
   FStatus := TLabel.Create(Self); FStatus.Parent := Self; FStatus.Align := alBottom;
   FStatus.AutoSize := False; FStatus.Height := ScaleValue(25);
-  Tools := TERDPanel.Create(Self); Tools.Parent := Self; Tools.Align := alLeft; Tools.Width := ScaleValue(145);
+  Tools := TERDPanel.Create(Self); Tools.Parent := Self; Tools.Align := alLeft; Tools.Width := ScaleValue(260);
   B := TERDButton.Create(Self); B.Parent := Tools; B.Align := alTop; B.Height := ScaleValue(30);
   B.Caption := 'Select / move'; B.OnClick := SelectToolClicked;
   B := TERDButton.Create(Self); B.Parent := Tools; B.Align := alTop; B.Height := ScaleValue(30);
   B.Caption := 'Reset property'; B.Tag := 9; B.OnClick := ToolbarClicked;
   B := TERDButton.Create(Self); B.Parent := Tools; B.Align := alTop; B.Height := ScaleValue(30);
   B.Caption := 'Reset type properties'; B.Tag := 10; B.OnClick := ToolbarClicked;
-  FToolbox := TERDListBox.Create(Self); FToolbox.Parent := Tools; FToolbox.Align := alClient;
-  FTypes := ERDPCBComponentTypes;
-  for I := 0 to High(FTypes) do FToolbox.Items.Add(FTypes[I].DisplayName);
-  FToolbox.ItemIndex := 0; FToolbox.OnMouseDown := ToolboxMouseDown; FToolbox.OnDblClick := ToolboxDoubleClick; FToolbox.OnClick := ToolboxClick;
+  FToolbox := TERDPCBComponentPalette.Create(Self); FToolbox.Parent := Tools; FToolbox.Align := alClient;
+  FToolbox.OnChoose := ToolboxClick; FToolbox.OnSelectionChange := ToolboxSelectionChanged;
+  FToolbox.OnCancel := SelectToolClicked;
   FToolbox.OnStartDrag := ToolboxStartDrag; FToolbox.OnEndDrag := ToolboxEndDrag;
   FInspector := TERDInspector.Create(Self); FInspector.Parent := Self; FInspector.Align := alRight; FInspector.Width := ScaleValue(310);
   FInspector.OnPropertyButtonClick := PropertyButtonClicked;
@@ -149,6 +147,8 @@ begin
     FDesigner.OnChange := nil; FDesigner.OnSelectionChange := nil; FDesigner.OnPlacementChange := nil;
     FDesigner.OnConnectionSelectionChange := nil; FDesigner.OnConnectionError := nil;
   end;
+  if FToolbox <> nil then
+  begin FToolbox.OnChoose := nil; FToolbox.OnSelectionChange := nil; FToolbox.OnCancel := nil; FToolbox.OnStartDrag := nil; FToolbox.OnEndDrag := nil; end;
   FreeAndNil(FBinding); inherited;
 end;
 procedure TPCBPreview.ThemeChanged;
@@ -162,7 +162,7 @@ begin
     2: FDesigner.ShowLabels := Choice.Checked; 3: FDesigner.ShowComponentOutlines := Choice.Checked;
     4: FDesigner.ShowGrid := Choice.Checked;
     6: FDesigner.PanMode := Choice.Checked;
-    5: begin FDesigner.TemplateEditMode := Choice.Checked; FDesigner.Scene.ClearSelection; SelectionChanged(Self); end;
+    5: begin FToolbox.Enabled := not Choice.Checked; FDesigner.TemplateEditMode := Choice.Checked; FDesigner.Scene.ClearSelection; SelectionChanged(Self); end;
   end;
 end;
 procedure TPCBPreview.ConnectionSelectionChanged(Sender: TObject);
@@ -366,29 +366,24 @@ begin
   except on E: Exception do FStatus.Caption := E.Message; end;
   UpdatePinChoices;
 end;
-procedure TPCBPreview.ToolboxMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var Index: Integer;
+procedure TPCBPreview.ToolboxSelectionChanged(Sender: TObject);
 begin
-  if (Button <> mbLeft) or FDesigner.TemplateEditMode then Exit;
-  Index := FToolbox.ItemAt(X,Y);
-  if Index >= 0 then begin FToolbox.ItemIndex := Index; FToolbox.BeginDrag(False); end;
+  if (FDesigner <> nil) and FDesigner.Placing and (FDesigner.PlacementTypeID <> FToolbox.SelectedTypeID) then FDesigner.CancelPlacement;
 end;
 procedure TPCBPreview.ToolboxClick(Sender: TObject);
 begin
   FToolDragging := False;
-  if (FToolbox.ItemIndex >= 0) and not FDesigner.TemplateEditMode then
-  begin FDesigner.BeginTypePlacement(FTypes[FToolbox.ItemIndex].TypeID); FDesigner.SetFocus; end;
+  if (FToolbox.SelectedTypeID <> '') and not FDesigner.TemplateEditMode then
+  begin FDesigner.BeginTypePlacement(FToolbox.SelectedTypeID); FDesigner.SetFocus; end;
 end;
 procedure TPCBPreview.ToolboxStartDrag(Sender: TObject; var DragObject: TDragObject);
 begin FToolDragging := True; end;
 procedure TPCBPreview.ToolboxEndDrag(Sender, Target: TObject; X, Y: Integer);
 begin
-  FToolDragging := False; FDesigner.CancelPlacement; FToolbox.ItemIndex := -1;
+  FToolDragging := False; FDesigner.CancelPlacement; FToolbox.ClearSelection;
 end;
-procedure TPCBPreview.ToolboxDoubleClick(Sender: TObject);
-begin ToolboxClick(Sender); end;
 procedure TPCBPreview.SelectToolClicked(Sender: TObject);
-begin FDesigner.CancelPlacement; FToolbox.ItemIndex := -1; end;
+begin FDesigner.CancelPlacement; FToolbox.ClearSelection; end;
 procedure TPCBPreview.PlacementChanged(Sender: TObject);
 var Definition: TERDPCBComponentType; Name: string;
 begin
@@ -402,24 +397,24 @@ begin
   end
   else
   begin
-    if not FToolDragging then FToolbox.ItemIndex := -1;
+    if not FToolDragging and (FToolbox.SelectedTypeID = FDesigner.PlacementTypeID) then FToolbox.ClearSelection;
     FStatus.Caption := 'Select and move objects, or choose another toolbox item.';
   end;
 end;
 procedure TPCBPreview.SurfaceDragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
 begin
-  Accept := (Source = FToolbox) and (FToolbox.ItemIndex >= 0) and not FDesigner.TemplateEditMode;
+  Accept := FToolbox.IsDragSource(Source) and (FToolbox.SelectedTypeID <> '') and not FDesigner.TemplateEditMode;
   if not Accept then Exit;
   if State = dsDragLeave then begin FDesigner.CancelPlacement; Exit; end;
-  if not FDesigner.Placing or (FDesigner.PlacementTypeID <> FTypes[FToolbox.ItemIndex].TypeID) then
-    FDesigner.BeginTypePlacement(FTypes[FToolbox.ItemIndex].TypeID);
+  if not FDesigner.Placing or (FDesigner.PlacementTypeID <> FToolbox.SelectedTypeID) then
+    FDesigner.BeginTypePlacement(FToolbox.SelectedTypeID);
   FDesigner.PreviewPlacementAt(Point(X,Y));
 end;
 procedure TPCBPreview.SurfaceDragDrop(Sender, Source: TObject; X, Y: Integer);
 begin
-  if (Source = FToolbox) and (FToolbox.ItemIndex >= 0) then
+  if FToolbox.IsDragSource(Source) and (FToolbox.SelectedTypeID <> '') then
   begin
-    FDesigner.InsertTypeAt(FTypes[FToolbox.ItemIndex].TypeID, Point(X,Y)); FDesigner.CancelPlacement;
+    FDesigner.InsertTypeAt(FToolbox.SelectedTypeID, Point(X,Y)); FDesigner.CancelPlacement;
   end;
 end;
 procedure TPCBPreview.ToolbarClicked(Sender: TObject);

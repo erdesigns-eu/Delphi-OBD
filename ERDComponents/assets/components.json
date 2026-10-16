@@ -73,5 +73,6 @@
   "TERDDropZone",
   "TERDCommandPalette",
   "TERDRating",
-  "TERDPCBDesigner"
+  "TERDPCBDesigner",
+  "TERDPCBComponentPalette"
 ]

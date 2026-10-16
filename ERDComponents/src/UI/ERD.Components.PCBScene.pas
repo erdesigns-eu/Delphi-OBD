@@ -19,6 +19,7 @@ type
   /// Registered types reuse a base kind's pin rules and editing behavior.
   TERDPCBComponentType = record
     TypeID, DisplayName, NamePrefix, Caption, GlyphText, PropertiesJSON: string;
+    Category, Description: string;
     Kind: TERDPCBItemKind;
     Icon: TERDGlyph;
     Width, Height: Double;
@@ -629,6 +630,15 @@ begin
     Definition := Default(TERDPCBComponentType); Definition.Kind := Kind;
     Definition.TypeID := ERDPCBBuiltInTypeID(Kind); Definition.DisplayName := ERDPCBItemKindName(Kind);
     Definition.NamePrefix := Definition.DisplayName; Definition.Caption := Definition.DisplayName;
+    Definition.Category := 'Components';
+    case Kind of
+      piTimer: Definition.Description := 'Configure a periodic timer interval.';
+      piCounter: Definition.Description := 'Store and configure a counter.';
+      piOutputGroup: Definition.Description := 'Assign a WLED terminal and LED count.';
+      piNote: begin Definition.Category := 'Notes'; Definition.Description := 'Add a resizable text annotation.'; end;
+      piUART, piCANBus, piI2C, piSPI:
+        begin Definition.Category := 'Communication'; Definition.Description := 'Configure ' + Definition.DisplayName + ' pins and communication settings.'; end;
+    end;
     Definition.Width := 16; Definition.Height := 8;
     case Kind of
       piTimer: begin Definition.Value := 1000; Definition.Icon := glClock; end;
@@ -648,6 +658,7 @@ begin
     Definition.TypeID := 'erd.note.' + LowerCase(ERDPCBNoteTypeName(NoteType));
     Definition.DisplayName := ERDPCBNoteTypeName(NoteType) + ' note';
     Definition.NamePrefix := ERDPCBNoteTypeName(NoteType) + 'Note'; Definition.NoteType := NoteType;
+    Definition.Description := 'Add a ' + LowerCase(ERDPCBNoteTypeName(NoteType)) + ' annotation.';
     ERDPCBRegisterComponentType(Definition);
   end;
 end;
