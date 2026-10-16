@@ -92,21 +92,21 @@ begin
   if not FHost.VisibleIssue(AIndex,Value) then
   begin
     Severity := TERDPCBValidationSeverity(-FHost.FVisible[AIndex]-1);
-    APainter.Text(ARect.Left+ScaleValue(8),ARect.Top+ARect.Height/2,
+    APainter.Text(ARect.Left+ScaleValue(8),ARect.Top+ARect.Height div 2,
       ERDPCBValidationSeverityName(Severity)+' ('+IntToStr(FHost.SeverityCount(Severity))+')',12,Palette.ForegroundText,twSemibold,taLeftJustify,ARect.Width-ScaleValue(16)); Exit;
   end;
   case Value.Severity of vsError: begin Ink := Palette.Danger; Icon := glClose; end;
     vsWarning: begin Ink := Palette.Warning; Icon := glAlert; end;
   else Ink := Palette.Accent; Icon := glInfo; end;
   APainter.RoundRect(ARect.Left+ScaleValue(8),ARect.Top+(ARect.Height-ScaleValue(24))/2,ScaleValue(24),ScaleValue(24),ScaleValue(4),ERDMixColor(Ink,ListBackground,0.12),clNone);
-  APainter.GlyphLine(Icon,ARect.Left+ScaleValue(20),ARect.Top+ARect.Height/2,Ink,ScaleValue(96)/96);
+  APainter.GlyphLine(Icon,ARect.Left+ScaleValue(20),ARect.Top+ARect.Height div 2,Ink,ScaleValue(96)/96);
   X := ARect.Left+ScaleValue(42);
-  APainter.Text(X,ARect.Top+ARect.Height/2-ScaleValue(9),Value.MessageText,12,Palette.ForegroundText,twRegular,taLeftJustify,ARect.Right-X-ScaleValue(8));
+  APainter.Text(X,ARect.Top+ARect.Height div 2-ScaleValue(9),Value.MessageText,12,Palette.ForegroundText,twRegular,taLeftJustify,ARect.Right-X-ScaleValue(8));
   Text := Value.ItemName; if Text = '' then Text := 'Design';
   if Value.PropertyName <> '' then Text := Text+' / '+Value.PropertyName;
   if Value.Pin <> '' then Text := Text+' / '+Value.Pin;
   Text := Text+' - '+Value.Code;
-  APainter.Text(X,ARect.Top+ARect.Height/2+ScaleValue(11),Text,11,ERDMixColor(Palette.ForegroundText,ListBackground,0.7),twRegular,taLeftJustify,ARect.Right-X-ScaleValue(8));
+  APainter.Text(X,ARect.Top+ARect.Height div 2+ScaleValue(11),Text,11,ERDMixColor(Palette.ForegroundText,ListBackground,0.7),twRegular,taLeftJustify,ARect.Right-X-ScaleValue(8));
 end;
 procedure TERDPCBValidationList.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin FPressedRow := -1; if Button = mbLeft then FPressedRow := ItemAt(X,Y); inherited; end;
