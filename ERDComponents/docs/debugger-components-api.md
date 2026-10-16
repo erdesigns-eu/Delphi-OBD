@@ -638,3 +638,79 @@ nesting, host-only command dispatch, draft/history navigation, disconnected and
 new sessions, model destruction and DFM configuration. They are added but have
 not been executed in this Linux environment. Delphi Windows still needs to run
 the smoke program and check scrolling, input, themes, DPI and the demo ribbon.
+
+## Visual shape inspector
+
+`TERDShapeInspector` presents a hidden-class neighbourhood as a themed diagram,
+with the current shape in an accent card, its known parent and prototype above,
+and outgoing transition targets below. Connections are antialiased GDI+ curves
+through `TERDPainter`. Click a related card, or use Left/Right and Enter, to fire
+`OnNavigateShape`. Parent shape **0** is a valid root target when depth is nonzero;
+prototype **0** means none. Only relationships supplied in a snapshot are drawn.
+This is a navigable neighbourhood, not an invented complete registry graph.
+
+The diagram shows three outgoing cards per page. Corner arrows, Page Up/Down or
+`ShapeMap.ChangePage` browse all remaining targets. A tiny viewport asks to enlarge
+rather than drawing overlapping cards. `ShapeMap.MapNode`, `NodeCount` and
+`ActivateNode` support host accessibility/navigation integrations. The summary
+alongside the diagram shows exact shape and registry metadata; the lower details
+show properties and transitions. The search box filters details while keeping
+the relationship overview intact. Enter/double-click on a parent/prototype or
+transition detail also navigates; property inspection fires `OnInspectProperty`.
+Layout metadata is read-only and is **not an object's current property values**.
+
+On the VCL thread, call `RequestShape(Session, Generation, ShapeID)` with a
+nonnegative session and strictly increasing generation within that session.
+ShapeID is the full uint32 range, including zero. `OnRequestShape` supplies an
+identity containing session, generation, request ID and target shape ID. The host
+combines `Shapes.getInfo`, `Shapes.getProperties`, `Shapes.getTransitions` and
+optional `Shapes.getRegistryStats` replies into one `TERDShapeSnapshot`, then
+calls `PublishSnapshot` with that exact request. The component owns no transport,
+worker, polling timer or TSVM connection. Navigation events do not fetch data
+implicitly: the host chooses a new generation and requests the selected target.
+
+Publication validates the complete snapshot before replacing the views: shape
+identity, availability enums, unique case-sensitive property names and slots,
+complete property count, unique transition entries (name, target and accessor/data kind),
+self-transition rejection and known transition count. Empty property names are
+valid JavaScript keys. Arrays are copied on receipt and on public lookup; metadata
+counters and offsets remain exact uint32 values rather than floating-point data.
+`MaxItems` defaults to 10000, range 1..100000, for each property/transition array.
+Oversized responses are rejected, not silently truncated; the current NDB API
+returns complete arrays rather than pages. Lowering the limit below retained data
+is rejected. Optional sections can be `shaUnavailable` or `shaError`, with explanatory
+text, but must then supply no array items. Unknown counts are separate flags.
+
+A new request marks retained observations stale and disables navigation and
+property inspection until current data arrives. Invalid or late replies cannot
+consume the current request. `FailSnapshot` keeps stale details and shows the
+provider error; retry with a fresh generation. Model disconnect, session change,
+execution state/location change and model destruction invalidate pending replies.
+Requests may be made while paused or running, but never while disconnected.
+Without a model the host explicitly manages staleness. `ShapeInfo` returns False
+for stale observations; array getters may still return retained stale layout.
+Check `Stale`/`Context` before using retained data in the host.
+
+Source audit: `erdtsvm/src/debug/ndb_types.h` and `ndb_server.cpp` in ERD-TSVM.
+The current server counts `refCount` across young, old and large heap objects.
+Its transition count is a hardcoded zero and `getTransitions` returns a placeholder
+empty array; mark `TransitionCountAvailable=False` and transitions unavailable.
+Registry `maxDepth` and `dictionaryModeCount` are also placeholders: leave their
+availability flags False. Do not turn those placeholders into measured zeros or
+an authoritative graph with no edges. The diagram explicitly labels unavailable
+outgoing transitions. A real known empty array is shown as no outgoing transitions.
+
+The separate **Shape inspector** demo page uses synthetic relationships to exercise
+click navigation, transition paging, dictionary mode and layout inspection. Its
+ribbon can switch to current NDB placeholder behaviour, simulate provider failure,
+disconnect or start another synthetic session. It never connects to a runtime.
+DFM saves limits/model/events and appearance, excluding snapshots, relationship
+cards, search state and duplicate internal controls. Internal tree callbacks/data
+and the owned map must remain under the inspector's control.
+
+Added Windows smoke cases cover complete/atomic validation, exact uint32 data,
+array ownership, diagram geometry and navigation, root zero, transition paging,
+filtered property inspection, unavailable data, stale/late/session replies, DFM
+and model lifetime. They still need Delphi Windows execution and visual checks
+for theme, DPI, small sizes and keyboard/mouse navigation; Linux checks do not
+execute VCL rendering.

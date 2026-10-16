@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.DebugConsole, ERD.Components.RuntimeMonitor, ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
+  ERD.Components.ShapeInspector, ERD.Components.DebugConsole, ERD.Components.RuntimeMonitor, ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.PCBValidation, ERD.Components.PCBValidationPanel, ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
@@ -161,6 +161,16 @@ type
     procedure Cleared(Sender: TObject);
     procedure Inspect(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
     procedure Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
+  end;
+  TShapeProbe = class
+  public
+    Requests, Navigations, Inspections: Integer;
+    Last: TERDShapeRequest;
+    Target: Cardinal;
+    PropertyName: string;
+    procedure Request(Sender: TObject; const Context: TERDShapeRequest);
+    procedure Navigate(Sender: TObject; const Context: TERDShapeRequest; TargetShapeID: Cardinal);
+    procedure Inspect(Sender: TObject; const Context: TERDShapeRequest; const Value: TERDShapeProperty);
   end;
   TConsoleProbe = class
   public
@@ -501,6 +511,13 @@ procedure TFiberProbe.Inspect(Sender: TObject; const Context: TERDFiberRequest; 
 begin Inc(Inspections); end;
 procedure TFiberProbe.Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
 begin Inc(Navigations); end;
+procedure TShapeProbe.Request(Sender: TObject; const Context: TERDShapeRequest);
+begin Inc(Requests); Last := Context; end;
+procedure TShapeProbe.Navigate(Sender: TObject; const Context: TERDShapeRequest; TargetShapeID: Cardinal);
+begin Inc(Navigations); Last := Context; Target := TargetShapeID; end;
+procedure TShapeProbe.Inspect(Sender: TObject; const Context: TERDShapeRequest; const Value: TERDShapeProperty);
+begin Inc(Inspections); Last := Context; PropertyName := Value.Name; end;
+
 procedure TConsoleProbe.Command(Sender: TObject; Value: Int64; const CommandText: string);
 begin Inc(Calls); Session := Value; Text := CommandText; end;
 procedure TConsoleProbe.Inspect(Sender: TObject; const Entry: TERDConsoleEntry);
@@ -4007,6 +4024,74 @@ begin
   finally Monitor.Free; Probe.Free; Model.Free; Form.Free; end;
 end;
 
+procedure TestShapeInspector;
+var Form: TForm; Inspector, CopyInspector: TERDShapeInspector; Model: TERDDebugModel; Probe: TShapeProbe;
+    Request, Old: TERDShapeRequest; Snapshot: TERDShapeSnapshot; Info: TERDShapeInfo;
+    Props: TArray<TERDShapeProperty>; Edges: TArray<TERDShapeTransition>; Value: TERDInspectValue;
+    MapNode, Other: TERDShapeMapNode; Node: PVirtualNode; Stream: TMemoryStream; I, J: Integer; Overlap: TRect;
+begin
+  Form := TForm.Create(nil); Model := TERDDebugModel.Create(nil); Probe := TShapeProbe.Create;
+  Inspector := TERDShapeInspector.Create(Form); Inspector.Parent := Form;
+  try
+    Inspector.DebugModel := Model; Inspector.OnRequestShape := Probe.Request; Inspector.OnNavigateShape := Probe.Navigate; Inspector.OnInspectProperty := Probe.Inspect;
+    Request := Inspector.RequestShape(Model.Session,0,42); Check(Request.RequestID = 0, 'Disconnected shape inspector refuses requests');
+    Model.SetExecution(dsPaused); Request := Inspector.RequestShape(Model.Session,0,42);
+    Check(Inspector.Pending and (Probe.Requests = 1) and (Probe.Last.ShapeID = 42), 'Shape request carries session, generation and exact target');
+    Snapshot := Default(TERDShapeSnapshot); Snapshot.Info.ID := 42; Snapshot.Info.ParentID := 0; Snapshot.Info.Depth := 1;
+    Snapshot.Info.PrototypeShapeID := 7; Snapshot.Info.PropertyCount := 2; Snapshot.Info.RefCount := High(Cardinal);
+    Snapshot.Info.TransitionCountAvailable := True; Snapshot.Info.TransitionCount := 5;
+    SetLength(Snapshot.Properties,2); Snapshot.Properties[0].Name := ''; Snapshot.Properties[0].Offset := 0; Snapshot.Properties[0].Writable := True;
+    Snapshot.Properties[1].Name := 'name'; Snapshot.Properties[1].Offset := High(Cardinal); Snapshot.Properties[1].IsAccessor := True;
+    SetLength(Snapshot.Transitions,5);
+    for I := 0 to 4 do begin Snapshot.Transitions[I].PropertyName := 'extra'+IntToStr(I); Snapshot.Transitions[I].TargetShapeID := 100+I; end;
+    Snapshot.Registry.Available := True; Snapshot.Registry.TotalShapes := 50;
+    Snapshot.Properties[1].Name := ''; Check(not Inspector.PublishSnapshot(Request,Snapshot) and Inspector.Pending, 'Duplicate property names reject snapshot without consuming request'); Snapshot.Properties[1].Name := 'name';
+    Snapshot.Properties[1].Offset := 0; Check(not Inspector.PublishSnapshot(Request,Snapshot), 'Duplicate property slots reject shape layout'); Snapshot.Properties[1].Offset := High(Cardinal);
+    Snapshot.Info.ID := 43; Check(not Inspector.PublishSnapshot(Request,Snapshot), 'Response for another shape cannot replace requested shape'); Snapshot.Info.ID := 42;
+    Snapshot.Transitions[1].PropertyName := 'extra0'; Snapshot.Transitions[1].TargetShapeID := 100;
+    Check(not Inspector.PublishSnapshot(Request,Snapshot), 'Exact duplicate transition edges reject snapshot'); Snapshot.Transitions[1].TargetShapeID := 101;
+    Check(Inspector.PublishSnapshot(Request,Snapshot) and Inspector.ShapeInfo(Info) and (Info.RefCount = High(Cardinal)), 'Complete snapshot preserves exact uint32 counters');
+    Snapshot.Properties[1].Name := 'mutated'; Snapshot.Transitions[0].TargetShapeID := 999;
+    Props := Inspector.ShapeProperties; Edges := Inspector.ShapeTransitions;
+    Check((Props[1].Name = 'name') and (Edges[0].TargetShapeID = 100), 'Shape inspector owns copied property and transition arrays');
+    Props[1].Name := 'external'; Check(Inspector.PropertyTree.ValueByID('property:1',Value) and (Value.Name = 'name') and (Value.ValueText = '4294967295'), 'Property slot remains exact and getter arrays do not mutate retained snapshot');
+    Check(Inspector.SummaryTree.ValueByID('maxDepth',Value) and (Value.Availability = vaUnavailable), 'Unimplemented registry statistic is unavailable rather than measured zero');
+    Check(Inspector.ShapeMap.NodeCount = 6, 'Relationship map shows current, parent, prototype and first three outgoing cards');
+    for I := 0 to Inspector.ShapeMap.NodeCount-1 do
+    begin
+      Inspector.ShapeMap.MapNode(I,MapNode);
+      Check((MapNode.Bounds.Left >= 0) and (MapNode.Bounds.Right <= Inspector.ShapeMap.ClientWidth), 'Diagram cards fit the viewport');
+      for J := I+1 to Inspector.ShapeMap.NodeCount-1 do begin Inspector.ShapeMap.MapNode(J,Other); Check(not IntersectRect(Overlap,MapNode.Bounds,Other.Bounds), 'Relationship cards do not overlap'); end;
+    end;
+    Inspector.Height := 240; Check(Inspector.ShapeMap.NodeCount = 0, 'Tiny diagram suppresses overlapping cards and requests a larger viewport'); Inspector.Height := 640;
+    Inspector.ShapeMap.ActivateNode(1); Check((Probe.Navigations = 1) and (Probe.Target = 0) and (Probe.Last.ShapeID = 42), 'Visual parent card can navigate to valid root shape zero');
+    Inspector.ShapeMap.ChangePage(1); Check((Inspector.ShapeMap.TransitionPage = 1) and (Inspector.ShapeMap.NodeCount = 5), 'Large transition fan-out is paged without hiding available edges');
+    Inspector.ShapeMap.ActivateNode(3); Check(Probe.Target = 103, 'Second diagram page navigates correct transition target');
+    Inspector.SearchText := 'name'; Check((Inspector.PropertyTree.RootNodeCount = 1) and (Inspector.TransitionTree.RootNodeCount = 0), 'Details filter searches properties and transitions');
+    Node := Inspector.PropertyTree.GetFirst; Inspector.PropertyTree.FocusedNode := Node; Inspector.PropertyTree.Selected[Node] := True;
+    Inspector.InspectSelectedProperty; Check((Probe.Inspections = 1) and (Probe.PropertyName = 'name'), 'Filtered property inspection returns original layout metadata');
+    Old := Request; Request := Inspector.RequestShape(Model.Session,1,42);
+    Check(not Inspector.PublishSnapshot(Old,Snapshot) and not Inspector.ShapeMap.ActivateNode(1), 'New request rejects late reply and disables stale diagram navigation');
+    Check(Inspector.FailSnapshot(Request,'provider failed') and Inspector.Stale and (Inspector.ErrorText = 'provider failed'), 'Failure retains visibly stale data');
+    Request := Inspector.RequestShape(Model.Session,2,42); Snapshot.Info.TransitionCountAvailable := False;
+    Snapshot.Transitions := nil; Snapshot.TransitionsAvailability := shaUnavailable;
+    Check(Inspector.PublishSnapshot(Request,Snapshot) and (Inspector.ShapeMap.NodeCount = 3), 'Unavailable transition endpoint does not invent an empty known graph');
+    Inspector.SearchText := ''; Check(Inspector.TransitionTree.ValueByID('status',Value) and (Value.Availability = vaUnavailable), 'Unavailable transition data has an explicit detail status');
+    Model.SetExecution(dsRunning); Check(Inspector.Stale, 'Execution-state change invalidates live shape observations');
+    Request := Inspector.RequestShape(Model.Session,3,42); Model.BeginSession;
+    Check(not Inspector.PublishSnapshot(Request,Snapshot), 'Session reset rejects outstanding shape snapshot');
+    Model.SetExecution(dsPaused); Request := Inspector.RequestShape(Model.Session,0,42); Check(Inspector.PublishSnapshot(Request,Snapshot), 'Fresh session permits generation restart');
+    Inspector.OnRequestShape := nil; Inspector.OnNavigateShape := nil; Inspector.OnInspectProperty := nil; Inspector.DebugModel := nil;
+    Inspector.MaxItems := 20; Inspector.SearchText := 'name'; RegisterClass(TERDShapeInspector); CopyInspector := TERDShapeInspector.Create(Form); Stream := TMemoryStream.Create;
+    try
+      Stream.WriteComponent(Inspector); Stream.Position := 0; Stream.ReadComponent(CopyInspector);
+      Check((CopyInspector.MaxItems = 20) and CopyInspector.Stale and (CopyInspector.SearchText = '') and (CopyInspector.ShapeMap.NodeCount = 0) and
+        (CopyInspector.PropertyTree.RootNodeCount = 0) and (CopyInspector.ComponentCount = 5), 'DFM retains limits without graph data, filters or duplicate internal controls');
+    finally Stream.Free; CopyInspector.Free; end;
+    Inspector.DebugModel := Model; FreeAndNil(Model); Check((Inspector.DebugModel = nil) and Inspector.Stale, 'Destroyed debug model safely detaches shape inspector');
+  finally Inspector.Free; Probe.Free; Model.Free; Form.Free; end;
+end;
+
 procedure TestDebugConsole;
 var Form: TForm; Console, CopyConsole: TERDDebugConsole; Model: TERDDebugModel; Probe: TConsoleProbe;
     Entry: TERDConsoleEntry; Entries: TArray<TERDConsoleEntry>; History: TArray<string>;
@@ -5509,7 +5594,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;

@@ -1,7 +1,7 @@
 ﻿unit Showcase;
 interface
 uses
-  ConsolePreview, RuntimePreview, DebugPreview,
+  ShapePreview, ConsolePreview, RuntimePreview, DebugPreview,
   ERD.Components.LSP, ERD.Components.LanguageServices, ERD.Components.CodeEditor, ERD.Components.Syntax,
   PCBPreview,
   ERD.Components.TextInput,
@@ -654,6 +654,7 @@ type
     DebugPage: TDebugPreview;
     RuntimePage: TRuntimePreview;
     ConsolePage: TConsolePreview;
+    ShapePage: TShapePreview;
     CodePage: TERDPanel;
     CodeEditor: TERDCodeEditor;
     CodeUsingNativeService: Boolean;
@@ -1110,6 +1111,9 @@ begin
   ConsolePage := TConsolePreview.Create(Self); ConsolePage.Parent := DemoPages;
   ConsolePage.Align := alClient; ConsolePage.Visible := False; ConsolePage.AttachRibbon(Ribbon);
   PageTabs.Tabs.Add.Caption := 'Debug console';
+  ShapePage := TShapePreview.Create(Self); ShapePage.Parent := DemoPages;
+  ShapePage.Align := alClient; ShapePage.Visible := False; ShapePage.AttachRibbon(Ribbon);
+  PageTabs.Tabs.Add.Caption := 'Shape inspector';
   Menu := nil;
   TitleBar.Menu := MainMenu;
   TitleBar.Ribbon := Ribbon;
@@ -1355,6 +1359,7 @@ begin
   if DebugPage <> nil then begin DebugPage.Visible := PageTabs.TabIndex = 8; DebugPage.SetRibbonActive(DebugPage.Visible); end;
   if RuntimePage <> nil then begin RuntimePage.Visible := PageTabs.TabIndex = 9; RuntimePage.SetRibbonActive(RuntimePage.Visible); end;
   if ConsolePage <> nil then begin ConsolePage.Visible := PageTabs.TabIndex = 10; ConsolePage.SetRibbonActive(ConsolePage.Visible); end;
+  if ShapePage <> nil then begin ShapePage.Visible := PageTabs.TabIndex = 11; ShapePage.SetRibbonActive(ShapePage.Visible); end;
 end;
 
 procedure TShowcaseForm.CommandSelected(Sender: TObject);

@@ -95,7 +95,7 @@ still needs end-to-end verification for the selected runtime/transport.
 | `TERDRuntimeMonitor` | Isolate status, heap summary, GC/scheduler/cache pages, timestamp and availability | Compose existing controls plus the time-series chart |
 | `TERDDebugConsole` | Virtualized bounded log, severity/channel filters, timestamps, copy/search; optional input/history | Shared item-list infrastructure; input emits host events |
 | `TERDDisassemblyView` | Bytecode address, instruction, operands, symbol/source link and current instruction marker | Monospace virtual grid; host supplies disassembly and metadata |
-| `TERDShapeInspector` | Shape metadata, property-layout table, known parent/prototype links | Data grid + details; full transition graph requires missing NDB data |
+| `TERDShapeInspector` | Shape metadata, property-layout table, known parent/prototype links | Implemented: antialiased relationship cards + details, paged outgoing edges; full registry graph requires missing NDB data |
 | `TERDDockHost` | Dockable tool panels, auto-hide/floating state and layout persistence | Generic library component; useful before the IDE shell is built |
 
 A generic node graph, flame graph and raw-memory viewer are possible later visual

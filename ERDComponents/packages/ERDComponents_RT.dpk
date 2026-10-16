@@ -19,6 +19,7 @@ contains
   ERD.Components.FiberList in '..\src\UI\ERD.Components.FiberList.pas',
   ERD.Components.RuntimeMonitor in '..\src\UI\ERD.Components.RuntimeMonitor.pas',
   ERD.Components.DebugConsole in '..\src\UI\ERD.Components.DebugConsole.pas',
+  ERD.Components.ShapeInspector in '..\src\UI\ERD.Components.ShapeInspector.pas',
   ERD.Components.TimeSeries in '..\src\UI\ERD.Components.TimeSeries.pas',
   ERD.Components.PCBLibrary in '..\src\UI\ERD.Components.PCBLibrary.pas',
   ERD.Components.PCBRoute in '..\src\UI\ERD.Components.PCBRoute.pas',
