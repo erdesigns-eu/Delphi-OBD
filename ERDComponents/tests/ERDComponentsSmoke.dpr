@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
+  ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.PCBValidation, ERD.Components.PCBValidationPanel, ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
@@ -112,6 +112,14 @@ type
     NavigatedLine: Integer;
     procedure Navigate(Sender: TObject; const DocumentUri: string; Line: Integer);
     procedure CommitCell(Column: TColumnIndex; const Value: string);
+  end;
+  TStackProbe = class
+  public
+    Calls, Navigations, Line: Integer;
+    LastFrame: TERDStackFrame;
+    LastContext: TERDStackRequest;
+    procedure Selected(Sender: TObject; const Context: TERDStackRequest; const Frame: TERDStackFrame);
+    procedure Navigate(Sender: TObject; const DocumentUri: string; SourceLine, Column: Integer);
   end;
   TDebugCommandProbe = class
   public
@@ -393,6 +401,10 @@ procedure TBreakpointPanelProbe.Navigate(Sender: TObject; const DocumentUri: str
 begin NavigatedUri := DocumentUri; NavigatedLine := Line; end;
 procedure TBreakpointPanelProbe.CommitCell(Column: TColumnIndex; const Value: string);
 begin DoNewText(FocusedNode,Column,Value); end;
+procedure TStackProbe.Selected(Sender: TObject; const Context: TERDStackRequest; const Frame: TERDStackFrame);
+begin Inc(Calls); LastFrame := Frame; LastContext := Context; end;
+procedure TStackProbe.Navigate(Sender: TObject; const DocumentUri: string; SourceLine, Column: Integer);
+begin Inc(Navigations); Line := SourceLine; end;
 procedure TDebugCommandProbe.Execute(Sender: TObject; Value: TERDDebugCommand);
 begin Inc(Calls); Command := Value; end;
 procedure TValueChildrenProbe.Request(Sender: TObject; const Value: TERDValueRequest);
@@ -3570,10 +3582,58 @@ begin
     Panel.SetSelectedEnabled(True);
     for Item in Model.Breakpoints do Check(Item.Enabled, 'Multi-selection enables every selected breakpoint');
     Stream := TMemoryStream.Create;
-    try Stream.WriteComponent(Panel); Check(Stream.Size > 0, 'Breakpoint panel streams configuration'); finally Stream.Free; end;
+    try Panel.OnNavigate := nil; Stream.WriteComponent(Panel); Check(Stream.Size > 0, 'Breakpoint panel streams configuration'); finally Stream.Free; end;
     Panel.DeleteSelectedBreakpoints; Check((Panel.RootNodeCount = 0) and (Length(Model.Breakpoints) = 0), 'Multi-delete uses stable identities during model refresh');
     FreeAndNil(Model); Check((Panel.DebugModel = nil) and (Other.DebugModel = nil), 'Model destruction detaches every breakpoint panel');
   finally Other.Free; Panel.Free; Model.Free; end;
+end;
+
+procedure TestCallStack;
+var Form: TForm; Model: TERDDebugModel; Stack, CopyStack: TERDCallStack; Probe: TStackProbe;
+    Request, Old: TERDStackRequest; Threads: TArray<TERDStackThread>; Frames: TArray<TERDStackFrame>;
+    Frame: TERDStackFrame; Calls: Integer; Stream: TMemoryStream;
+begin
+  Form := TForm.Create(nil); Model := TERDDebugModel.Create(nil); Stack := TERDCallStack.Create(Form); Stack.Parent := Form; Probe := TStackProbe.Create;
+  try
+    Stack.DebugModel := Model; Stack.OnFrameSelected := Probe.Selected; Stack.OnNavigate := Probe.Navigate;
+    Request := Stack.BeginSnapshot(Model.Session,0); Check(Request.RequestID = 0, 'Running/disconnected model cannot begin a stack snapshot');
+    Model.SetExecution(dsPaused,'file:///stack.ts',4);
+    SetLength(Threads,2); Threads[0].ID := 1; Threads[0].Name := 'Main'; Threads[1].ID := 2; Threads[1].Name := 'Worker';
+    SetLength(Frames,3);
+    Frames[0].ID := 0; Frames[0].ThreadID := 1; Frames[0].Name := 'callee'; Frames[0].DocumentUri := 'file:///stack.ts'; Frames[0].Line := 4;
+    Frames[1].ID := 1; Frames[1].ThreadID := 1; Frames[1].Name := 'caller'; Frames[1].DocumentUri := 'file:///stack.ts'; Frames[1].Line := 9;
+    Frames[2].ID := 2; Frames[2].ThreadID := 2; Frames[2].Name := '[native]';
+    Request := Stack.BeginSnapshot(Model.Session,0);
+    Check(Stack.PublishSnapshot(Request,Threads,Frames) and (Stack.RootNodeCount = 2), 'Stack snapshot groups frames under threads');
+    Check((Probe.Calls = 1) and Stack.SelectedFrame(Frame) and (Frame.ID = 0), 'DAP frame zero is valid and the top frame loads scopes once');
+    Check(Stack.SelectFrame(1,1) and (Probe.LastFrame.ID = 1) and (Probe.LastContext.RequestID = Request.RequestID), 'Selecting caller emits scoped frame event');
+    Check((Model.ExecutionLine = 4) and (Model.ExecutionUri = 'file:///stack.ts'), 'Inspecting caller does not move execution position');
+    Stack.NavigateSelected; Check((Probe.Navigations = 1) and (Probe.Line = 9), 'Caller navigates to its own source line');
+    Stack.SelectFrame(2,2); Stack.NavigateSelected; Check(Probe.Navigations = 1, 'Native frame without source stays inspectable without invalid navigation');
+    Frames[0].Name := 'mutated'; Check(Stack.SelectFrame(1,0) and Stack.SelectedFrame(Frame) and (Frame.Name = 'callee'), 'Stack owns a copy of published snapshot arrays');
+    Old := Request; Request := Stack.BeginSnapshot(Model.Session,1);
+    Check(Stack.Stale and Stack.Pending and not Stack.SelectedFrame(Frame), 'Pending refresh disables actions on retained old frames');
+    Check(not Stack.PublishSnapshot(Old,Threads,Frames), 'Outdated stack replies are rejected');
+    Frames[1].ID := 0; Check(not Stack.PublishSnapshot(Request,Threads,Frames) and Stack.Pending, 'Duplicate frame identities reject snapshot atomically'); Frames[1].ID := 1;
+    Frames[2].ThreadID := 99; Check(not Stack.PublishSnapshot(Request,Threads,Frames), 'Unknown thread rejects snapshot'); Frames[2].ThreadID := 2;
+    Check(Stack.PublishSnapshot(Request,Threads,Frames), 'Corrected pending snapshot can still be published');
+    Calls := Probe.Calls; Model.SetExecution(dsRunning); Stack.SelectFrame(1,1); Stack.NavigateSelected;
+    Check(Stack.Stale and not Stack.SelectedFrame(Frame) and (Probe.Calls = Calls) and (Probe.Navigations = 1), 'Continue makes old frame selection and navigation inactive');
+    Model.SetExecution(dsPaused,'file:///stack.ts',4); Request := Stack.BeginSnapshot(Model.Session,2);
+    Model.SetExecution(dsPaused,'file:///stack.ts',5);
+    Check(not Stack.PublishSnapshot(Request,Threads,Frames), 'Changed paused location invalidates in-flight stack reply');
+    Request := Stack.BeginSnapshot(Model.Session,3); Check(Stack.FailSnapshot(Request) and not Stack.Pending and Stack.Stale, 'Failed request retains only stale display data');
+    Request := Stack.BeginSnapshot(Model.Session,4); Model.BeginSession;
+    Check(not Stack.PublishSnapshot(Request,Threads,Frames), 'Previous debug session cannot republish stack frames');
+    Model.SetExecution(dsPaused,'file:///stack.ts',4); Request := Stack.BeginSnapshot(Model.Session,0);
+    Check(Stack.PublishSnapshot(Request,Threads,Frames), 'New session allows generation zero');
+    RegisterClass(TERDCallStack); CopyStack := TERDCallStack.Create(Form); Stream := TMemoryStream.Create;
+    try
+      Stack.OnFrameSelected := nil; Stack.OnNavigate := nil; Stack.DebugModel := nil; Stream.WriteComponent(Stack); Stream.Position := 0; Stream.ReadComponent(CopyStack);
+      Check((CopyStack.RootNodeCount = 0) and CopyStack.Stale, 'DFM does not retain runtime stack frames');
+    finally Stream.Free; CopyStack.Free; end;
+    Stack.DebugModel := Model; FreeAndNil(Model); Check(Stack.DebugModel = nil, 'Model destruction safely detaches call stack');
+  finally Stack.Free; Probe.Free; Model.Free; Form.Free; end;
 end;
 
 procedure TestValueTreeSnapshots;
@@ -5005,7 +5065,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestValueTreeSnapshots; TestTimeSeriesHistory;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestValueTreeSnapshots; TestTimeSeriesHistory;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;

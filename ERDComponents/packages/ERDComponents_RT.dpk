@@ -12,6 +12,7 @@ contains
   ERD.Components.DebugModel in '..\src\UI\ERD.Components.DebugModel.pas',
   ERD.Components.ValueTree in '..\src\UI\ERD.Components.ValueTree.pas',
   ERD.Components.BreakpointPanel in '..\src\UI\ERD.Components.BreakpointPanel.pas',
+  ERD.Components.CallStack in '..\src\UI\ERD.Components.CallStack.pas',
   ERD.Components.TimeSeries in '..\src\UI\ERD.Components.TimeSeries.pas',
   ERD.Components.PCBLibrary in '..\src\UI\ERD.Components.PCBLibrary.pas',
   ERD.Components.PCBRoute in '..\src\UI\ERD.Components.PCBRoute.pas',

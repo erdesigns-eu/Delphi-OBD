@@ -97,6 +97,7 @@
         <DCCReference Include="..\src\UI\ERD.Components.DebugModel.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.ValueTree.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.BreakpointPanel.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.CallStack.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.TimeSeries.pas"/>
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="vcl.dcp"/>

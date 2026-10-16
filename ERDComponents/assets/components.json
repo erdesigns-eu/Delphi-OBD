@@ -80,5 +80,6 @@
   "TERDDebugModel",
   "TERDValueTree",
   "TERDTimeSeriesChart",
-  "TERDBreakpointPanel"
+  "TERDBreakpointPanel",
+  "TERDCallStack"
 ]

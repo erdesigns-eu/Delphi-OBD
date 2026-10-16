@@ -2,7 +2,7 @@
 interface
 procedure Register;
 implementation
-uses ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.TimeSeries, ERD.Components.ValueTree, ERD.Components.PCBValidationPanel, ERD.Components.PCBObjectTree, ERD.Components.PCBComponentPalette, ERD.Components.PCBDesigner, ERD.Components.CodeEditor, ERD.Components.TextInput, ERD.Components.Rating, ERD.Components.CommandPalette, ERD.Components.DropZone, ERD.Components.LoadingIndicator, ERD.Components.LinkLabel, ERD.Components.DateTimePicker, ERD.Components.TimePicker, ERD.Components.CheckListBox, ERD.Components.PropertyEditors, ERD.Components.PopupList, ERD.Components.Icons, ERD.Components.Control, ERD.Components.MediaControls, ERD.Components.CommonControls, System.Classes, DesignIntf, ERD.Components.VirtualTree, ERD.Components.Backstage,
+uses ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.TimeSeries, ERD.Components.ValueTree, ERD.Components.PCBValidationPanel, ERD.Components.PCBObjectTree, ERD.Components.PCBComponentPalette, ERD.Components.PCBDesigner, ERD.Components.CodeEditor, ERD.Components.TextInput, ERD.Components.Rating, ERD.Components.CommandPalette, ERD.Components.DropZone, ERD.Components.LoadingIndicator, ERD.Components.LinkLabel, ERD.Components.DateTimePicker, ERD.Components.TimePicker, ERD.Components.CheckListBox, ERD.Components.PropertyEditors, ERD.Components.PopupList, ERD.Components.Icons, ERD.Components.Control, ERD.Components.MediaControls, ERD.Components.CommonControls, System.Classes, DesignIntf, ERD.Components.VirtualTree, ERD.Components.Backstage,
   ERD.Components.Buttons,
   ERD.Components.Calendar,
   ERD.Components.Card,
@@ -50,7 +50,7 @@ begin
   RegisterNoIcon([TERDDialogText, TERDTextInput, TERDTextArea, TERDCodeEditor]);
   RegisterERDPropertyEditors([
     TERDTextInput, TERDTextArea, TERDCodeEditor,
-    TERDDebugModel, TERDBreakpointPanel, TERDValueTree, TERDTimeSeriesChart,
+    TERDDebugModel, TERDBreakpointPanel, TERDCallStack, TERDValueTree, TERDTimeSeriesChart,
     TERDPCBDesigner, TERDPCBComponentPalette, TERDPCBObjectTree, TERDPCBValidationPanel, TERDRating,
     TERDCommandPalette, TERDCommandItem, TERDCommands,
     TERDDropZone,
@@ -180,7 +180,7 @@ begin
     TERDTrackBar,
     TERDVirtualStringTree]);
   RegisterComponents('ERDesigns Components', [
-    TERDDebugModel, TERDBreakpointPanel, TERDValueTree, TERDTimeSeriesChart,
+    TERDDebugModel, TERDBreakpointPanel, TERDCallStack, TERDValueTree, TERDTimeSeriesChart,
     TERDPCBDesigner, TERDPCBComponentPalette, TERDPCBObjectTree, TERDPCBValidationPanel, TERDRating,
     TERDCommandPalette,
     TERDDropZone,

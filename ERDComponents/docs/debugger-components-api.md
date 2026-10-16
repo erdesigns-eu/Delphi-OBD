@@ -1,7 +1,7 @@
 # Debug component foundation
 
 This first implementation provides `TERDDebugModel`, `TERDValueTree` and
-`TERDTimeSeriesChart` and `TERDBreakpointPanel`, plus debug gutter/execution rendering in `TERDCodeEditor`.
+`TERDTimeSeriesChart`, `TERDBreakpointPanel` and `TERDCallStack`, plus debug gutter/execution rendering in `TERDCodeEditor`.
 The separate Debugger components demo page exercises them through a synthetic
 host. It does not start or attach to TSVM, acknowledge actual device breakpoints,
 evaluate real expressions or execute TypeScript. DAP/NDB transport adapters and
@@ -161,3 +161,57 @@ inline editing and revision invalidation, resolved-line navigation, selection
 identity across additions/deletions, multi-enable/disable/delete, streaming and
 model destruction. Also check light/dark themes, horizontal scrolling, checkbox
 clicks, F2/Enter/Escape editing and double-click navigation in Delphi.
+
+## Call stack
+
+`TERDCallStack` is a standalone read-only ERD virtual tree. It groups stack
+frames by thread, with function, canonical source URI, one-based line/column and
+selection/stale state. Native/source-unavailable frames remain selectable for
+inspection, but do not raise source navigation. Thread IDs must be positive;
+frame IDs must be non-negative and unique across the complete snapshot (frame
+zero is valid). Frames for each thread keep their input order, top frame first.
+
+The component has no DAP/NDB transport. The host aggregates its thread/stackTrace
+responses (including any backend pages) into a complete snapshot on the VCL UI
+thread. NDB fiber summaries alone are not full stack frames.
+
+1. Optionally assign the same `DebugModel` as the editor. With a model assigned,
+   stack requests require its current session and paused state.
+2. Call `BeginSnapshot(Session, Generation)` for each stop/step. Generation must
+   increase within a session. A refused request has RequestID zero; do not start
+   backend work for it. Pending refreshes retain the previous display as stale.
+3. Capture the returned `TERDStackRequest` with the asynchronous backend work.
+   Call `PublishSnapshot(Request, Threads, Frames)` when the complete snapshot is
+   ready. The component copies the arrays and rejects outdated request/session/
+   generation tokens and invalid or duplicate IDs without replacing the display.
+   `FailSnapshot(Request)` invalidates only that still-pending request.
+4. Successful publication selects the first thread's first available frame and
+   raises `OnFrameSelected(Sender, Context, Frame)`. Frame identity is scoped to
+   this snapshot; it is not retained across stops, because backends may reuse IDs.
+   A host loads the selected frame's scopes/locals/watches using that context and
+   must reject late scope responses after selection changes. Repeated column
+   focus changes on the same frame do not repeat the selection event.
+5. `OnNavigate(Sender, DocumentUri, Line, Column)` fires on double-click/Enter for
+   a frame with a source location. The host opens/selects the document and reveals
+   its source line. Selecting or navigating a caller does not modify the debug
+   model's execution location or move the editor's execution arrow.
+
+`SelectedFrame`, `SelectFrame(ThreadID, FrameID)`, `NavigateSelected` and
+`CopySelectedFrame` are available to a host ribbon; Ctrl+C copies the selected
+frame's name and location. Thread headers do not represent stack frames.
+
+Continue, disconnect, session changes or a changed paused source location in the
+assigned model automatically call `MarkStale`, invalidate pending replies and
+suppress frame-selection/navigation/copy actions. Without a model the host calls
+`MarkStale` itself on resume/disconnect. Begin a fresh generation at every stop,
+including a stop at the same source location. Successful empty snapshots clear
+the stack. Runtime frames, pending contexts and active selection are not streamed
+to DFM; the model reference and normal visual settings are configuration.
+
+The synthetic demo includes main/worker threads, a caller and a native frame.
+The locals preview labels its selected demo frame; it does not retrieve real
+TSVM scopes. Windows smoke cases were added for frame zero, grouping, selection
+and execution separation, navigation without source, copied snapshot arrays,
+request/generation/session rejection, invalid atomic updates, resume and failure,
+DFM streaming and model lifetime. These tests and visual light/dark, scrolling,
+keyboard and DPI checks still require Delphi on Windows.

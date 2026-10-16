@@ -2,13 +2,15 @@
 interface
 uses Winapi.Windows, ERD.Components.Control, System.Classes, System.SysUtils, System.Types, System.Math, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls,
   ERD.Components.Panel, ERD.Components.Types, ERD.Components.CodeEditor,
-  ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries, ERD.Components.Ribbon;
+  ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries, ERD.Components.Ribbon;
 type
   TDebugPreview = class(TERDPanel)
   private
     FModel: TERDDebugModel;
     FEditor: TERDCodeEditor;
     FValues: TERDValueTree;
+    FStack: TERDCallStack;
+    FDebugSide: TERDPanel;
     FBreakpoints: TERDBreakpointPanel;
     FChart: TERDTimeSeriesChart;
     FStatus: TLabel;
@@ -16,13 +18,17 @@ type
     FRibbon: TERDRibbon;
     FTab: TERDRibbonTab;
     FTick: Integer;
-    FGeneration: Int64;
+    FGeneration, FStackGeneration: Int64;
+    FSelectedFrame: string;
     procedure RibbonClick(Sender: TObject);
     procedure DebugCommand(Sender: TObject; Command: TERDDebugCommand);
     procedure ModelChanged(Sender: TObject);
     procedure Children(Sender: TObject; const Request: TERDValueRequest);
     procedure Tick(Sender: TObject);
     procedure RefreshValues;
+    procedure RefreshStack;
+    procedure FrameSelected(Sender: TObject; const Context: TERDStackRequest; const Frame: TERDStackFrame);
+    procedure NavigateFrame(Sender: TObject; const DocumentUri: string; Line, Column: Integer);
     procedure NavigateBreakpoint(Sender: TObject; const DocumentUri: string; Line: Integer);
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
@@ -53,8 +59,11 @@ begin
   FBreakpoints := TERDBreakpointPanel.Create(Self); FBreakpoints.Parent := Self;
   FBreakpoints.Align := alBottom; FBreakpoints.Height := ScaleValue(190);
   FBreakpoints.DebugModel := FModel; FBreakpoints.OnNavigate := NavigateBreakpoint;
-  FValues := TERDValueTree.Create(Self); FValues.Parent := Self; FValues.Align := alRight;
-  FValues.Width := ScaleValue(390); FValues.OnRequestChildren := Children;
+  FDebugSide := TERDPanel.Create(Self); FDebugSide.Parent := Self; FDebugSide.Align := alRight; FDebugSide.Width := ScaleValue(390);
+  FStack := TERDCallStack.Create(Self); FStack.Parent := FDebugSide; FStack.Align := alTop; FStack.Height := ScaleValue(180);
+  FStack.DebugModel := FModel; FStack.OnFrameSelected := FrameSelected; FStack.OnNavigate := NavigateFrame;
+  FValues := TERDValueTree.Create(Self); FValues.Parent := FDebugSide; FValues.Align := alClient;
+  FValues.OnRequestChildren := Children;
   FEditor := TERDCodeEditor.Create(Self); FEditor.Parent := Self; FEditor.Align := alClient;
   FEditor.DocumentUri := 'demo:///debug-example.ts'; FEditor.DebugModel := FModel; FEditor.ShowDebugGutter := True;
   FEditor.Text := '// Synthetic debugger demo - no VM connected'+sLineBreak+
@@ -64,7 +73,7 @@ begin
     '  console.log(status);'+sLineBreak+
     '}'+sLineBreak+'updateStatus();'+sLineBreak;
   FModel.AddBreakpoint(FEditor.DocumentUri,4); FModel.AddBreakpoint(FEditor.DocumentUri,5); FModel.BeginSession;
-  FModel.SetExecution(dsPaused,FEditor.DocumentUri,4); RefreshValues;
+  FModel.SetExecution(dsPaused,FEditor.DocumentUri,4); RefreshStack;
   FTimer := TTimer.Create(Self); FTimer.Interval := 1000; FTimer.OnTimer := Tick;
   ModelChanged(Self);
 end;
@@ -89,10 +98,28 @@ begin
   case FModel.State of dsPaused: StateText := 'Paused'; dsRunning: StateText := 'Running'; else StateText := 'Stopped'; end;
   FStatus.Caption := 'DEMO DATA - no TSVM connected | '+StateText+' | gutter/F9: breakpoint, Shift+click/Ctrl+F9: enabled | F10: step';
 end;
+procedure TDebugPreview.RefreshStack;
+var Request: TERDStackRequest; Threads: TArray<TERDStackThread>; Frames: TArray<TERDStackFrame>;
+begin
+  Inc(FStackGeneration); Request := FStack.BeginSnapshot(FModel.Session,FStackGeneration);
+  SetLength(Threads,2); Threads[0].ID := 1; Threads[0].Name := 'Main (demo)'; Threads[1].ID := 2; Threads[1].Name := 'Worker (demo)';
+  SetLength(Frames,3);
+  Frames[0].ID := 0; Frames[0].ThreadID := 1; Frames[0].Name := 'updateStatus'; Frames[0].DocumentUri := FEditor.DocumentUri; Frames[0].Line := FModel.ExecutionLine; Frames[0].Column := 3;
+  Frames[1].ID := 1; Frames[1].ThreadID := 1; Frames[1].Name := '<module>'; Frames[1].DocumentUri := FEditor.DocumentUri; Frames[1].Line := 7; Frames[1].Column := 1;
+  Frames[2].ID := 2; Frames[2].ThreadID := 2; Frames[2].Name := '[native wait]';
+  FStack.PublishSnapshot(Request,Threads,Frames);
+end;
+procedure TDebugPreview.FrameSelected(Sender: TObject; const Context: TERDStackRequest; const Frame: TERDStackFrame);
+begin
+  FSelectedFrame := Frame.Name; RefreshValues;
+end;
+procedure TDebugPreview.NavigateFrame(Sender: TObject; const DocumentUri: string; Line, Column: Integer);
+begin NavigateBreakpoint(Sender,DocumentUri,Line); end;
 procedure TDebugPreview.RefreshValues;
 var Roots: TArray<TERDInspectValue>;
 begin
-  SetLength(Roots,3);
+  SetLength(Roots,4);
+  Roots[3].ID := 'frame'; Roots[3].Name := 'Selected frame (demo)'; Roots[3].ValueText := FSelectedFrame; Roots[3].TypeName := 'string';
   Roots[0].ID := 'status'; Roots[0].Name := 'status'; Roots[0].Path := 'status';
   Roots[0].ValueText := '{ color, count }'; Roots[0].TypeName := 'object'; Roots[0].HasChildren := True;
   Roots[1].ID := 'counter'; Roots[1].Name := 'counter'; Roots[1].Path := 'counter';
@@ -120,12 +147,12 @@ var Line: Integer;
 begin
   case Command of
     dcContinue: begin FModel.SetExecution(dsRunning); FValues.MarkStale; end;
-    dcPause: begin FModel.SetExecution(dsPaused,FEditor.DocumentUri,4); RefreshValues; FEditor.RevealDebugLine(4); end;
+    dcPause: begin FModel.SetExecution(dsPaused,FEditor.DocumentUri,4); RefreshStack; FEditor.RevealDebugLine(4); end;
     dcStepOver,dcStepInto,dcStepOut:
       if FModel.State = dsPaused then
       begin
         Line := FModel.ExecutionLine+1; if Line > 7 then Line := 2;
-        FModel.SetExecution(dsPaused,FEditor.DocumentUri,Line); RefreshValues; FEditor.RevealDebugLine(Line);
+        FModel.SetExecution(dsPaused,FEditor.DocumentUri,Line); RefreshStack; FEditor.RevealDebugLine(Line);
       end;
     dcStop: begin FModel.SetExecution(dsDisconnected); FValues.MarkStale; end;
   end;
@@ -138,7 +165,7 @@ begin
     0..5: FModel.RequestCommand(TERDDebugCommand(Tag));
     6: for Item in FModel.Breakpoints do
       FModel.PublishBreakpoint(FModel.Session,Item.ID,Item.Revision,bpsVerified,Item.Line,'Verified by synthetic demo host');
-    7: begin FModel.BeginSession; FModel.SetExecution(dsPaused,FEditor.DocumentUri,4); RefreshValues; end;
+    7: begin FModel.BeginSession; FModel.SetExecution(dsPaused,FEditor.DocumentUri,4); RefreshStack; end;
     8: FChart.Paused := not FChart.Paused;
   end;
 end;
