@@ -304,8 +304,9 @@ procedure TERDDebugConsole.ApplyLimits;
 var Entries: TArray<TERDConsoleEntry>; Entry: TERDConsoleEntry; I, Start, Chars: Integer;
 begin
   Entries := StoredEntries; FBuffer := nil; SetLength(FBuffer,FMaxEntries); FHead := 0; FCount := 0; FTextChars := 0;
-  for Entry in Entries do
+  for I := 0 to High(Entries) do
   begin
+    Entry := Entries[I];
     LimitEntry(Entry);
     while (FCount > 0) and ((FCount >= FMaxEntries) or (FTextChars+Length(Entry.Text)+Length(Entry.Channel) > FMaxTextChars)) do EvictOldest;
     FBuffer[(FHead+FCount) mod Length(FBuffer)] := Entry; Inc(FCount); Inc(FTextChars,Length(Entry.Text)+Length(Entry.Channel));
