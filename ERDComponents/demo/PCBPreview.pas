@@ -209,7 +209,7 @@ var Pins: TArray<TERDPCBValidationPin>; Context: TERDPCBValidationContext; Chann
 begin
   FValidationTimer.Enabled := False;
   // Scene notifications can precede EndEdit; wait until the drag completes.
-  if FDesigner.MouseCapture then begin FValidationTimer.Enabled := True; Exit; end;
+  if Vcl.Controls.GetCaptureControl = FDesigner then begin FValidationTimer.Enabled := True; Exit; end;
   UpdateLayoutButtons;
   HasTemplate := (FDesigner.ChannelCount > 0) or (FDesigner.TemplateID <> '') or (FDesigner.BoardFileName <> '');
   Key := FDesigner.Scene.ContentJSON+#0+BoolToStr(HasTemplate,True); SetLength(Pins,FDesigner.ChannelCount);
