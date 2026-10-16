@@ -231,7 +231,7 @@ def import_board(source, placements):
         channels.append({'pin': ref + '.2', 'gpio': gpio, 'route': routes[0]})
     if len(channels) != 28:
         raise ValueError(f'Expected 28 verified outputs, found {len(channels)}')
-    return {'schema': 1, 'template_id': 'erd-pick-to-light-esp32-s3-v1', 'name': 'ESP32 WS2812B driver',
+    return {'schema': 1, 'appearance': {'board_color': '#17624A', 'pad_color': '#D8BA62', 'silkscreen_color': '#F1F5EB'}, 'template_id': 'erd-pick-to-light-esp32-s3-v1', 'name': 'ESP32 WS2812B driver',
             'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
             'units': 'mm', 'y_axis': 'up', 'components': components, 'pads': pads,
             'silkscreen': silk, 'outline': outline, 'channels': channels,

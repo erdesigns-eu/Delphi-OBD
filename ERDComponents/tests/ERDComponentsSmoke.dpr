@@ -22,6 +22,7 @@ uses
   ERD.Components.Types, ERD.Components.Icons, ERD.Components.IconCatalog,
   ERD.Components.Buttons, ERD.Components.Panel, ERD.Components.Chips,
   ERD.Components.VirtualTree, ERD.Components.VT.BaseTree, ERD.Components.VT.Types,
+  PCBPreview in '../demo/PCBPreview.pas',
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
@@ -2801,6 +2802,68 @@ begin MouseUp(mbLeft,[],P.X,P.Y); end;
 procedure TPCBDragProbe.Escape;
 var Key: Word;
 begin Key := VK_ESCAPE; KeyDown(Key,[]); end;
+procedure TestPCBBoardRouting;
+var Geometry: TERDPCBConnectionGeometry; Board: TRect; P: TPointF; I, CaseIndex: Integer; Source: TPoint;
+begin
+  Board := Rect(100,100,300,200);
+  for CaseIndex := 0 to 3 do
+  begin
+    case CaseIndex of 0: Source := Point(200,190); 1: Source := Point(110,150);
+      2: Source := Point(290,150); else Source := Point(200,110); end;
+    Geometry := ERDBuildPCBBoardConnection(Source,Point(50,50),nil,Board,1);
+    Check(Length(Geometry.Samples) > 2, 'Connection routes around board from every terminal side');
+    Check((Geometry.Samples[0].X = Source.X) and (Geometry.Samples[0].Y = Source.Y), 'Board routing preserves the real terminal endpoint');
+    Check((Geometry.Samples[1].X = Source.X) or (Geometry.Samples[1].Y = Source.Y), 'Terminal leaves the PCB normally instead of diagonally crossing it');
+    for I := 1 to High(Geometry.Samples)-1 do
+    begin
+      P := Geometry.Samples[I];
+      Check(not ((P.X > Board.Left) and (P.X < Board.Right) and (P.Y > Board.Top) and (P.Y < Board.Bottom)), 'External route samples stay outside the physical board');
+    end;
+  end;
+end;
+procedure TestPCBLayoutToolbar;
+var Form: TForm; Preview: TPCBPreview; Designer: TERDPCBDesigner; Ribbon: TERDRibbon; ItemButton: TERDRibbonItem; Tab: TERDRibbonTab; Group: TERDRibbonGroup;
+    I, J, A, B, C, Tag: Integer; Before: string; Item: TERDPCBDesignItem; P, Q: TPoint;
+begin
+  Form := TForm.Create(nil);
+  try
+    Ribbon := TERDRibbon.Create(Form);
+    Preview := TPCBPreview.Create(Form); Preview.Parent := Form; Preview.SetBounds(0,0,1200,800);
+    Preview.AttachRibbon(Ribbon); Preview.SetRibbonActive(True);
+    Tab := Ribbon.Tabs[Ribbon.Tabs.Count-1];
+    Designer := nil;
+    for I := 0 to Preview.ComponentCount-1 do if Preview.Components[I] is TERDPCBDesigner then Designer := TERDPCBDesigner(Preview.Components[I]);
+    Check(Designer <> nil, 'PCB demo exposes an independently hosted designer');
+    Designer.ClearBoard; A := Designer.AddDesignItem(piNote,PointF(0,0));
+    B := Designer.AddDesignItem(piNote,PointF(60,30)); C := Designer.AddDesignItem(piNote,PointF(150,80)); Designer.FitBoard;
+    for Tag := 20 to 27 do
+    begin
+      Designer.Scene.SelectAll; Designer.Scene.ResetHistory; Before := Designer.Scene.ContentJSON;
+      ItemButton := nil;
+      for I := 0 to Tab.Groups.Count-1 do
+      begin Group := Tab.Groups[I]; for J := 0 to Group.Items.Count-1 do if Group.Items[J].Tag = Tag then ItemButton := Group.Items[J]; end;
+      Check((ItemButton <> nil) and ItemButton.Enabled, 'PCB ribbon layout action is enabled for sufficient selected objects');
+      ItemButton.Execute;
+      Check(Designer.Scene.ContentJSON <> Before, 'Actual PCB ribbon command changes layout');
+      Check(Designer.Scene.SelectionCount = 3, 'Ribbon layout preserves multiselection');
+      if Tag = 20 then
+      begin
+        P := Designer.BoardToClient(PointF(Designer.Scene.Item(A).X,Designer.Scene.Item(A).Y));
+        Q := Designer.BoardToClient(PointF(Designer.Scene.Item(C).X,Designer.Scene.Item(C).Y));
+        Check(Abs(P.X-Q.X) <= 1, 'Left ribbon command aligns selected visual edges');
+      end;
+      Designer.Undo; Check((Designer.Scene.ContentJSON = Before) and not Designer.Scene.CanUndo, 'Ribbon layout is one atomic undo step');
+    end;
+    Designer.Scene.Select(A);
+    for I := 0 to Tab.Groups.Count-1 do for J := 0 to Tab.Groups[I].Items.Count-1 do
+      if Tab.Groups[I].Items[J].Tag in [20..27] then Check(not Tab.Groups[I].Items[J].Enabled, 'PCB ribbon disables layout with only one selected object');
+    Designer.Scene.Select(B,True); Item := Designer.Scene.Item(B); Item.Locked := True; Designer.Scene.UpdateItem(B,Item);
+    for I := 0 to Tab.Groups.Count-1 do for J := 0 to Tab.Groups[I].Items.Count-1 do
+      if Tab.Groups[I].Items[J].Tag in [20..27] then Check(not Tab.Groups[I].Items[J].Enabled, 'Locked objects do not falsely enable ribbon layout');
+    Preview.SetRibbonActive(False); Check(not Tab.Visible, 'PCB ribbon tab is hidden when leaving the PCB page');
+    Preview.Free; Check(Ribbon.Tabs.Count = 0, 'Destroying PCB host removes its ribbon tab and callbacks');
+  finally Form.Free; end;
+end;
 procedure TestPCBLayout;
 var Correction: TPointF; XGuide, YGuide: TERDPCBLayoutGuide; Targets: TArray<TRectF>;
     Moving, Board: TRectF;
@@ -3327,7 +3390,7 @@ end;
 procedure TestPCBConnections;
 var Form: TForm; Designer: TERDPCBDesigner; BoardFile, Text, Before: string;
     A, B, I: Integer; Geometry: TERDPCBConnectionGeometry; Boxes: TArray<TRect>; Failed: Boolean;
-    P, Q, Hit: TPoint; ID: string; Role: TERDPCBPinRole; Updates: TArray<TERDPCBDesignItem>;
+    P, Q, Hit, BoardTop, BoardBottom: TPoint; ID: string; Role: TERDPCBPinRole; Updates: TArray<TERDPCBDesignItem>;
 begin
   SetLength(Boxes, 1); Boxes[0] := Rect(40,20,60,80);
   Geometry := ERDBuildPCBConnection(Point(0,0), Point(100,100), Boxes, 1);
@@ -3354,7 +3417,11 @@ begin
     P := Designer.BoardToClient(PointF(2,8));
     Q := Designer.BoardToClient(PointF(Designer.Scene.Item(A).X, Designer.Scene.Item(A).Y));
     Q.X := Q.X + MulDiv(16, Designer.CurrentPPI, 96); Q.Y := Q.Y - MulDiv(32, Designer.CurrentPPI, 96);
-    Geometry := ERDBuildPCBConnection(P, Q, nil, Designer.CurrentPPI / 96);
+    BoardTop := Designer.BoardToClient(PointF(0,10)); BoardBottom := Designer.BoardToClient(PointF(10,0));
+    Hit := Designer.BoardToClient(PointF(Designer.Scene.Item(B).X,Designer.Scene.Item(B).Y));
+    SetLength(Boxes,1); Boxes[0] := Rect(Hit.X,Hit.Y-MulDiv(32,Designer.CurrentPPI,96),Hit.X+MulDiv(32,Designer.CurrentPPI,96),Hit.Y);
+    Geometry := ERDBuildPCBBoardConnection(P,Q,Boxes,Rect(BoardTop.X,BoardTop.Y,BoardBottom.X,BoardBottom.Y),Designer.CurrentPPI/96);
+    Check(Length(Geometry.Samples) > 0, 'Board-aware painted connection has hit-test samples');
     Hit := Point(Round(Geometry.Samples[Length(Geometry.Samples) div 2].X),
       Round(Geometry.Samples[Length(Geometry.Samples) div 2].Y));
     Check(Designer.HitTestConnection(Hit, ID, Role) and (ID = Designer.Scene.Item(A).ID) and
@@ -3504,6 +3571,19 @@ begin
       '"components":[{"reference":"U7","device":"terminal","position":[5,5]}],' +
       '"silkscreen":[],"outline":[[[0,0],[10,0],[10,10],[0,10],[0,0]]]}';
     TFile.WriteAllText(BoardFile, Text, TEncoding.UTF8); Designer.LoadBoard(BoardFile);
+    Check(Designer.TemplateBoardColor = RGB($17,$62,$4A), 'Older templates default to physical green solder mask');
+    TemplateFile := TPath.GetTempFileName;
+    try
+      Designer.TemplateBoardColor := RGB($16,$40,$90); Designer.SaveTemplate(TemplateFile);
+      Snapshot := TFile.ReadAllText(TemplateFile,TEncoding.UTF8);
+      Check(Pos('"board_color":"#164090"',Snapshot) > 0, 'Template stores portable RGB mask color');
+      Designer.LoadBoard(TemplateFile); Check(Designer.TemplateBoardColor = RGB($16,$40,$90), 'Template color survives reload');
+      TFile.WriteAllText(TemplateFile,StringReplace(Snapshot,'#164090','not-a-color',[]),TEncoding.UTF8); Failed := False;
+      try Designer.LoadBoard(TemplateFile); except on E: EConvertError do Failed := True; end;
+      Check(Failed and (Designer.TemplateBoardColor = RGB($16,$40,$90)), 'Malformed template colors reject before changing the loaded appearance');
+    finally TFile.Delete(TemplateFile); end;
+    Designer.LoadBoard(BoardFile);
+
     Form.Show; Designer.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(250, 150));
     Check(Designer.SelectedPin = 'U7.2', 'PCB hit testing selects a pad in board coordinates');
     Check(Designer.SelectedPad.Net = 'OUT_GPIO4', 'PCB selection retains electrical identity');
@@ -4587,6 +4667,8 @@ begin
     TestPCBComponentPalette;
     TestPCBObjectTree;
     TestPCBLayout;
+    TestPCBBoardRouting;
+    TestPCBLayoutToolbar;
     TestPCBMagneticDrag;
     TestPCBSelectionHandles;
     TestPCBValidation;

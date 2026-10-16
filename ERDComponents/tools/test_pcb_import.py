@@ -22,6 +22,8 @@ class PCBImportTests(unittest.TestCase):
         self.assertEqual(self.board, expected)
         self.assertEqual(len(self.board['components']), 135)
         self.assertEqual(len(self.board['pads']), 496)
+        self.assertEqual(self.board['appearance']['board_color'], '#17624A')
+        self.assertEqual(self.board['appearance']['silkscreen_color'], '#F1F5EB')
 
     def test_assembled_bodies_and_terminal_groups(self):
         components = {c['reference']: c for c in self.board['components']}

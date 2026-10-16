@@ -253,3 +253,63 @@ move the selected unlocked objects as a group without resizing them. Nonvisual
 handles always move their component; its glyph stays at the fixed DPI-scaled size.
 The complete visible handle is hit-testable, including the portion outside the body.
 Handle dragging uses the existing snapping and single-step undo transaction.
+
+## Layout commands and board-aware connections
+
+Alignment and equal-spacing commands apply the complete set of changed objects
+atomically, preserving multiselection and producing one undo step/notification.
+The PCB ribbon enables alignment with two unlocked selected objects and distribution
+with three. Hints explain the required selection. The status bar distinguishes an
+applied layout from a selection that already matches it.
+
+Connections treat the physical PCB rectangle as a routing obstacle as well as
+notes/other scene objects. A pin exits normally through the nearest board edge;
+the external route stays outside the print and retains rounded/bezier bends.
+A target on or near the board receives its own normal entry corridor. Painting,
+selection hit testing and previews use the same geometry and route cache. The board-aware
+router never falls back to a curve through the print when no safe route is found.
+
+### PCB ribbon layout commands
+
+The demo attaches the PCB preview to the existing application ribbon. The PCB tab
+contains **Uitlijnen** (Left, Center X, Right, Top, Center Y, Bottom) and **Verdelen**
+(Space X, Space Y). The separate eight-button row is removed and the local header
+is shorter. The tab appears when the PCB page is active. Commands preserve the
+same selection requirements, hints, atomic updates and undo behavior.
+
+Check page switching, light/dark theme, ribbon overflow, classic/simplified ribbon
+modes and closing the demo after a command. The preview detaches its tab/callbacks
+when it or the borrowed ribbon is destroyed. Core designer components do not own
+or require a ribbon.
+
+## Physical template appearance
+
+A template can carry its own manufacturing colors, separate from UI theme colors:
+
+```json
+"appearance": {
+  "board_color": "#17624A",
+  "pad_color": "#D8BA62",
+  "silkscreen_color": "#F1F5EB"
+}
+```
+
+Colors are RGB strings. Older templates default to green solder mask, gold pads
+and pale silkscreen. The bundled ESP32 output-board template and its importer now
+include these defaults. Invalid colors reject during loading before replacing the
+loaded geometry/appearance. Existing BoardColor/PadColor/OutlineColor properties
+remain optional component-level overrides.
+
+In the demo, enable **Edit template pins**, open the PCB ribbon's **Template → PCB
+color** command, choose a color and **Save template**. Other revisions can use a
+separate mask color without altering the UI theme. Hosts can set
+`TemplateBoardColor` directly. The color is retained in normalized template data,
+embedded BoardData and project/template saves. Pin geometry, identity and scene
+undo history are unaffected by this template-authoring change.
+
+Assembled drawing uses turquoise terminal housings and metal screw heads, a silver
+USB shell with dark opening, dark IC packages with exposed gold contacts, a metal
+ESP32 shield, resistor end caps, and distinct large electrolytic versus small SMD
+capacitors. These are schematic top views based on the imported body/pad geometry;
+they do not invent copper tracks or change terminal hit areas. UI selection,
+handles, notes and connection lines keep the ERD theme colors.

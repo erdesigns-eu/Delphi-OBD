@@ -1095,7 +1095,7 @@ begin
   CreateUnicodePreviews;
   CreateCodePreview;
   PCBPage := TPCBPreview.Create(Self); PCBPage.Parent := DemoPages;
-  PCBPage.Align := alClient; PCBPage.Visible := False;
+  PCBPage.Align := alClient; PCBPage.Visible := False; PCBPage.AttachRibbon(Ribbon);
   PageTabs.Tabs.Add.Caption := 'PCB designer';
   Menu := nil;
   TitleBar.Menu := MainMenu;
@@ -1337,7 +1337,8 @@ begin
   FilesColorsPage.Visible := PageTabs.TabIndex = 4;
   DialogsPage.Visible := PageTabs.TabIndex = 5;
   if CodePage <> nil then CodePage.Visible := PageTabs.TabIndex = 6;
-  if PCBPage <> nil then PCBPage.Visible := PageTabs.TabIndex = 7;
+  if PCBPage <> nil then
+  begin PCBPage.Visible := PageTabs.TabIndex = 7; PCBPage.SetRibbonActive(PCBPage.Visible); end;
 end;
 
 procedure TShowcaseForm.CommandSelected(Sender: TObject);

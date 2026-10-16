@@ -236,3 +236,33 @@ verified. No automated Windows smoke-run log was supplied.
 - Select one unlocked note: resize from its corners and edges as before.
 - Include locked objects: subdued handles, default cursor, no movement from their handles.
 - Check neighboring/overlapping objects and high DPI: handles should remain above the scene objects.
+
+### Layout buttons and PCB obstacle routing
+
+- Select three or more unlocked notes at unequal positions; exercise all eight actual PCB ribbon commands, undoing between actions.
+- Verify selection stays intact and each action undoes in one step; already matching layouts should be explained in the status bar.
+- Select one object or lock enough selected objects: unavailable layout actions must be disabled with explanatory hints.
+- Connect a bottom-edge terminal to a Counter placed left of the board: leave the terminal downward, then route below/around the PCB instead of diagonally across it.
+- Repeat at top, left and right edges, and with notes beside the board; inspect rounded bends, hit testing and previews.
+- Move the connected component and zoom/pan; cached routes must update to the current board bounds.
+
+### PCB ribbon layout commands
+
+The demo attaches the PCB preview to the existing application ribbon. The PCB tab
+contains **Uitlijnen** (Left, Center X, Right, Top, Center Y, Bottom) and **Verdelen**
+(Space X, Space Y). The separate eight-button row is removed and the local header
+is shorter. The tab appears when the PCB page is active. Commands preserve the
+same selection requirements, hints, atomic updates and undo behavior.
+
+Check page switching, light/dark theme, ribbon overflow, classic/simplified ribbon
+modes and closing the demo after a command. The preview detaches its tab/callbacks
+when it or the borrowed ribbon is destroyed. Core designer components do not own
+or require a ribbon.
+
+### Physical PCB appearance
+
+- Load the bundled PCB in light/dark UI themes: solder mask remains green, terminals turquoise, pads gold and silkscreen light.
+- Inspect USB, ESP32 shield, dark ICs, resistor end caps and large versus small capacitors at several zoom levels.
+- Enable template editing, choose PCB color through the ribbon, save as a separate revision and reload it.
+- Verify the chosen color survives template/project save and embedded DFM BoardData; malformed RGB must not replace the loaded template.
+- Confirm physical material colors do not obscure themed terminal selection, handles or wire endpoints.

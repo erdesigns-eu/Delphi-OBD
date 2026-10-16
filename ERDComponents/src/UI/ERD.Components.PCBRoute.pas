@@ -12,6 +12,9 @@ type
   end;
 function ERDBuildPCBConnection(const FromPoint, ToPoint: TPoint; const Obstacles: TArray<TRect>;
   Scale: Single): TERDPCBConnectionGeometry;
+/// Route outside the physical board, with short normal entry/exit corridors.
+function ERDBuildPCBBoardConnection(const FromPoint, ToPoint: TPoint; const Obstacles: TArray<TRect>;
+  const Board: TRect; Scale: Single): TERDPCBConnectionGeometry;
 function ERDPCBConnectionDistance(const Geometry: TERDPCBConnectionGeometry; const P: TPointF): Double;
 // Screen-coordinate orthogonal routing around expanded scene rectangles.
 function ERDPCBRoute(const StartPoint, EndPoint: TPoint;
@@ -106,26 +109,22 @@ begin
     SetLength(Result, N);
   finally Reverse.Free; Open.Free; Ys.Free; Xs.Free; end;
 end;
-function ERDBuildPCBConnection(const FromPoint, ToPoint: TPoint; const Obstacles: TArray<TRect>;
-  Scale: Single): TERDPCBConnectionGeometry;
-var Direction, Gap, Stub, Bend, StartY, EndY, Radius, LengthIn, LengthOut: Single;
-    Route, Points: TArray<TPoint>; I, N: Integer; Blocked: Boolean;
-    A, B, C, Previous, BeforeCorner, AfterCorner: TPointF; Segment, Expanded: TRect; Box: TRect;
-  procedure AddSegment(const P0, P1, P2, P3: TPointF; Cubic: Boolean);
+procedure AddPCBPathSegment(var Geometry: TERDPCBConnectionGeometry;
+  const P0, P1, P2, P3: TPointF; Cubic: Boolean; Scale: Single);
   var S, Steps, K, Count: Integer; T, U, LengthEstimate: Double; Sample: TPointF;
   begin
-    S := Length(Result.Segments); SetLength(Result.Segments, S + 1);
-    Result.Segments[S].Cubic := Cubic; Result.Segments[S].Points[0] := P0;
-    Result.Segments[S].Points[1] := P1; Result.Segments[S].Points[2] := P2; Result.Segments[S].Points[3] := P3;
-    Count := Length(Result.Samples);
-    if Count = 0 then begin SetLength(Result.Samples, 1); Result.Samples[0] := P0; Count := 1; end;
+    S := Length(Geometry.Segments); SetLength(Geometry.Segments, S + 1);
+    Geometry.Segments[S].Cubic := Cubic; Geometry.Segments[S].Points[0] := P0;
+    Geometry.Segments[S].Points[1] := P1; Geometry.Segments[S].Points[2] := P2; Geometry.Segments[S].Points[3] := P3;
+    Count := Length(Geometry.Samples);
+    if Count = 0 then begin SetLength(Geometry.Samples, 1); Geometry.Samples[0] := P0; Count := 1; end;
     Steps := 1;
     if Cubic then
     begin
       LengthEstimate := Hypot(P1.X-P0.X, P1.Y-P0.Y) + Hypot(P2.X-P1.X, P2.Y-P1.Y) + Hypot(P3.X-P2.X, P3.Y-P2.Y);
       Steps := Max(16, Min(256, Ceil(LengthEstimate / (4 * Max(0.1, Scale)))));
     end;
-    SetLength(Result.Samples, Count + Steps);
+    SetLength(Geometry.Samples, Count + Steps);
     for K := 1 to Steps do
     begin
       T := K / Steps; U := 1 - T;
@@ -135,9 +134,16 @@ var Direction, Gap, Stub, Bend, StartY, EndY, Radius, LengthIn, LengthOut: Singl
         Sample.Y := U*U*U*P0.Y + 3*U*U*T*P1.Y + 3*U*T*T*P2.Y + T*T*T*P3.Y;
       end
       else Sample := P3;
-      Result.Samples[Count + K - 1] := Sample;
+      Geometry.Samples[Count + K - 1] := Sample;
     end;
   end;
+function ERDBuildPCBConnection(const FromPoint, ToPoint: TPoint; const Obstacles: TArray<TRect>;
+  Scale: Single): TERDPCBConnectionGeometry;
+var Direction, Gap, Stub, Bend, StartY, EndY, Radius, LengthIn, LengthOut: Single;
+    Route, Points: TArray<TPoint>; I, N: Integer; Blocked: Boolean;
+    A, B, C, Previous, BeforeCorner, AfterCorner: TPointF; Segment, Expanded: TRect; Box: TRect;
+  procedure AddSegment(const P0, P1, P2, P3: TPointF; Cubic: Boolean);
+  begin AddPCBPathSegment(Result,P0,P1,P2,P3,Cubic,Scale); end;
   procedure Line(const P0, P1: TPointF);
   begin AddSegment(P0, P0, P1, P1, False); end;
 begin
@@ -181,6 +187,63 @@ begin
     Line(Previous, BeforeCorner); AddSegment(BeforeCorner, B, B, AfterCorner, True); Previous := AfterCorner;
   end;
   Line(Previous, PointF(ToPoint.X, ToPoint.Y));
+end;
+function ERDBuildPCBBoardConnection(const FromPoint, ToPoint: TPoint; const Obstacles: TArray<TRect>;
+  const Board: TRect; Scale: Single): TERDPCBConnectionGeometry;
+var StartGate, EndGate: TPoint; Boxes: TArray<TRect>; Route, Points: TArray<TPoint>;
+    Margin, I, N: Integer; Distances: array[0..3] of Integer;
+    A, B, C, Previous, BeforeCorner, AfterCorner: TPointF; Radius, LengthIn, LengthOut: Single;
+  function Gate(const P: TPoint): TPoint;
+  var Expanded: TRect; Edge, J: Integer;
+  begin
+    Result := P; Expanded := Board; Expanded.Inflate(Margin,Margin);
+    if not Expanded.Contains(P) then Exit;
+    if P.X < Board.Left then Edge := 0
+    else if P.X > Board.Right then Edge := 1
+    else if P.Y < Board.Top then Edge := 2
+    else if P.Y > Board.Bottom then Edge := 3
+    else
+    begin
+      Distances[0] := P.X-Board.Left; Distances[1] := Board.Right-P.X;
+      Distances[2] := P.Y-Board.Top; Distances[3] := Board.Bottom-P.Y; Edge := 0;
+      for J := 1 to 3 do if Distances[J] < Distances[Edge] then Edge := J;
+    end;
+    case Edge of 0: Result.X := Board.Left-Margin; 1: Result.X := Board.Right+Margin;
+      2: Result.Y := Board.Top-Margin; 3: Result.Y := Board.Bottom+Margin; end;
+  end;
+  procedure Append(const P: TPoint);
+  var Count: Integer;
+  begin
+    Count := Length(Points); if (Count > 0) and (Points[Count-1] = P) then Exit;
+    if Count >= 2 then
+      if ((Points[Count-2].X = Points[Count-1].X) and (Points[Count-1].X = P.X)) or
+        ((Points[Count-2].Y = Points[Count-1].Y) and (Points[Count-1].Y = P.Y)) then
+      begin Points[Count-1] := P; Exit; end;
+    SetLength(Points,Count+1); Points[Count] := P;
+  end;
+  procedure Line(const P0, P1: TPointF);
+  begin if P0 <> P1 then AddPCBPathSegment(Result,P0,P0,P1,P1,False,Scale); end;
+begin
+  if Board.IsEmpty then Exit(ERDBuildPCBConnection(FromPoint,ToPoint,Obstacles,Scale));
+  Result := Default(TERDPCBConnectionGeometry); Scale := Max(0.1,Scale);
+  Margin := Max(1,Ceil(24*Scale)); StartGate := Gate(FromPoint); EndGate := Gate(ToPoint);
+  Boxes := Copy(Obstacles); N := Length(Boxes); SetLength(Boxes,N+1); Boxes[N] := Board;
+  Route := ERDPCBRoute(StartGate,EndGate,Boxes,Max(1,Round(8*Scale)));
+  // A failed route must never fall back to a diagonal curve through the physical PCB.
+  if Length(Route) = 0 then Exit;
+  Append(FromPoint); for I := 0 to High(Route) do Append(Route[I]); Append(ToPoint);
+  Previous := PointF(FromPoint.X,FromPoint.Y);
+  for I := 1 to High(Points)-1 do
+  begin
+    A := PointF(Points[I-1].X,Points[I-1].Y); B := PointF(Points[I].X,Points[I].Y); C := PointF(Points[I+1].X,Points[I+1].Y);
+    LengthIn := Hypot(B.X-A.X,B.Y-A.Y); LengthOut := Hypot(C.X-B.X,C.Y-B.Y);
+    if (LengthIn = 0) or (LengthOut = 0) then Continue;
+    Radius := Min(4*Scale,Min(LengthIn,LengthOut)/2);
+    BeforeCorner := PointF(B.X+(A.X-B.X)*Radius/LengthIn,B.Y+(A.Y-B.Y)*Radius/LengthIn);
+    AfterCorner := PointF(B.X+(C.X-B.X)*Radius/LengthOut,B.Y+(C.Y-B.Y)*Radius/LengthOut);
+    Line(Previous,BeforeCorner); AddPCBPathSegment(Result,BeforeCorner,B,B,AfterCorner,True,Scale); Previous := AfterCorner;
+  end;
+  Line(Previous,PointF(ToPoint.X,ToPoint.Y));
 end;
 function ERDPCBConnectionDistance(const Geometry: TERDPCBConnectionGeometry; const P: TPointF): Double;
 var I: Integer; A, B: TPointF; DX, DY, T, Denominator: Double;

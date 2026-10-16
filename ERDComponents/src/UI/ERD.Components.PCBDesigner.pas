@@ -90,6 +90,7 @@ type
     FTemplateID, FTemplateName: string;
     FTemplateEditMode: Boolean;
     FBoardColor, FPadColor, FOutlineColor, FSelectionColor: TColor;
+    FTemplateBoardColor, FTemplatePadColor, FTemplateSilkColor: TColor;
     FShowPads, FShowLabels, FShowComponentOutlines, FShowDrills, FShowBodies: Boolean;
     FViewBounds: TRectF;
     FZoom, FPanX, FPanY, FMaxX, FMaxY: Double;
@@ -156,6 +157,7 @@ type
     procedure SetZoom(Value: Double);
     function IsZoomStored: Boolean;
     procedure SetBoardColor(Value: TColor);
+    procedure SetTemplateBoardColor(Value: TColor);
     procedure SetPadColor(Value: TColor);
     procedure SetOutlineColor(Value: TColor);
     procedure SetSelectionColor(Value: TColor);
@@ -232,6 +234,7 @@ type
       const GPIO, LabelText: string);
     property TemplateID: string read FTemplateID;
     property TemplateName: string read FTemplateName;
+    property TemplateBoardColor: TColor read FTemplateBoardColor write SetTemplateBoardColor;
     procedure CopySelected;
     procedure Paste;
     procedure Undo;
@@ -363,6 +366,8 @@ begin
   A := TJSONArray(Value); SetLength(Result, A.Count);
   for I := 0 to A.Count - 1 do Result[I] := PolygonValue(A.Items[I]);
 end;
+function PCBColorText(Color: TColor): string; forward;
+function PCBReadColor(Appearance: TJSONObject; const Name: string; DefaultColor: TColor): TColor; forward;
 constructor TERDPCBDesigner.Create(AOwner: TComponent);
 begin
   inherited; FZoom := 1; Width := 700; Height := 400; TabStop := True;
@@ -377,6 +382,7 @@ begin
   FShowLabels := True;
   FShowComponentOutlines := True;
   FShowDrills := True;
+  FTemplateBoardColor := $004A6217; FTemplatePadColor := $0062BAD8; FTemplateSilkColor := $00EBF5F1;
   FBoardColor := clDefault;
   FPadColor := clDefault;
   FOutlineColor := clDefault;
@@ -438,14 +444,16 @@ begin
   Result := True;
 end;
 function TERDPCBDesigner.BuildConnectionGeometry(const FromPoint, ToPoint: TPoint; TargetIndex: Integer): TERDPCBConnectionGeometry;
-var Key: string; Boxes: TArray<TRect>; I, N: Integer;
+var Key: string; Boxes: TArray<TRect>; I, N: Integer; Board: TRect; P, Q: TPoint;
 begin
   Key := IntToStr(FromPoint.X) + ',' + IntToStr(FromPoint.Y) + ':' +
     IntToStr(ToPoint.X) + ',' + IntToStr(ToPoint.Y) + ':' + IntToStr(TargetIndex);
   if FRouteCache.TryGetValue(Key, Result) then Exit;
   SetLength(Boxes, FScene.Count); N := 0;
   for I := 0 to FScene.Count - 1 do if I <> TargetIndex then begin Boxes[N] := ItemRect(I); Inc(N); end;
-  SetLength(Boxes, N); Result := ERDBuildPCBConnection(FromPoint, ToPoint, Boxes, ScaleValue(96) / 96);
+  SetLength(Boxes,N);
+  P := ScreenPoint(PointF(0,FMaxY)); Q := ScreenPoint(PointF(FMaxX,0)); Board := Rect(P.X,P.Y,Q.X,Q.Y);
+  Result := ERDBuildPCBBoardConnection(FromPoint,ToPoint,Boxes,Board,ScaleValue(96)/96);
   if FRouteCache.Count >= 256 then FRouteCache.Clear;
   FRouteCache.AddOrSetValue(Key, Result);
 end;
@@ -742,7 +750,7 @@ begin
   finally Painter.Free; end;
 end;
 procedure TERDPCBDesigner.AlignSelected(Alignment: TERDPCBAlignment);
-var I: Integer; Bounds, R: TRect; Value: TERDPCBDesignItem; DX, DY: Integer; Found: Boolean;
+var I, N: Integer; Bounds, R: TRect; Value: TERDPCBDesignItem; DX, DY: Double; Found: Boolean; Values: TArray<TERDPCBDesignItem>;
 begin
   FinishNoteEdit(True); CancelGesture; UpdateTransform; Found := False;
   for I := 0 to FScene.Count - 1 do
@@ -754,29 +762,26 @@ begin
         Bounds.Top := Min(Bounds.Top, R.Top); Bounds.Bottom := Max(Bounds.Bottom, R.Bottom); end;
     end;
   if not Found then Exit;
-  FScene.BeginEdit;
-  try
     for I := 0 to FScene.Count - 1 do
       if FScene.Item(I).Selected and not FScene.Item(I).Locked then
       begin
         R := ItemRect(I); DX := 0; DY := 0;
         case Alignment of
           paLeft: DX := Bounds.Left - R.Left;
-          paHorizontalCenter: DX := (Bounds.Left + Bounds.Right - R.Left - R.Right) div 2;
+          paHorizontalCenter: DX := (Bounds.Left + Bounds.Right - R.Left - R.Right) / 2;
           paRight: DX := Bounds.Right - R.Right;
           paTop: DY := Bounds.Top - R.Top;
-          paVerticalCenter: DY := (Bounds.Top + Bounds.Bottom - R.Top - R.Bottom) div 2;
+          paVerticalCenter: DY := (Bounds.Top + Bounds.Bottom - R.Top - R.Bottom) / 2;
           paBottom: DY := Bounds.Bottom - R.Bottom;
         end;
         Value := FScene.Item(I); Value.X := Value.X + DX / FScreenScale; Value.Y := Value.Y - DY / FScreenScale;
-        FScene.UpdateItem(I, Value);
+        N := Length(Values); SetLength(Values,N+1); Values[N] := Value;
       end;
-    FScene.EndEdit;
-  except FScene.CancelEdit; raise; end;
+  FScene.UpdateItems(Values);
 end;
 procedure TERDPCBDesigner.DistributeSelected(Horizontal: Boolean);
 var Items: TArray<Integer>; I, J, Swap, N: Integer; R, First, Last: TRect;
-    Total, Gap, Next, Delta: Double; Value: TERDPCBDesignItem;
+    Total, Gap, Next, Delta: Double; Value: TERDPCBDesignItem; Values: TArray<TERDPCBDesignItem>;
   function Position(Index: Integer): Integer;
   var Bounds: TRect;
   begin Bounds := ItemRect(Index); if Horizontal then Result := Bounds.Left else Result := Bounds.Top; end;
@@ -799,17 +804,15 @@ begin
   First := ItemRect(Items[0]); Last := ItemRect(Items[N - 1]);
   if Horizontal then begin Gap := (Last.Right - First.Left - Total) / (N - 1); Next := First.Left + First.Width + Gap; end
   else begin Gap := (Last.Bottom - First.Top - Total) / (N - 1); Next := First.Top + First.Height + Gap; end;
-  FScene.BeginEdit;
-  try
+  SetLength(Values,N-2);
     for I := 1 to N - 2 do
     begin
       R := ItemRect(Items[I]); Value := FScene.Item(Items[I]);
       if Horizontal then begin Delta := Next - R.Left; Value.X := Value.X + Delta / FScreenScale; Next := Next + R.Width + Gap; end
       else begin Delta := Next - R.Top; Value.Y := Value.Y - Delta / FScreenScale; Next := Next + R.Height + Gap; end;
-      FScene.UpdateItem(Items[I], Value);
+      Values[I-1] := Value;
     end;
-    FScene.EndEdit;
-  except FScene.CancelEdit; raise; end;
+  FScene.UpdateItems(Values);
 end;
 procedure TERDPCBDesigner.ClearGuides;
 begin FGuideX := Default(TERDPCBLayoutGuide); FGuideY := Default(TERDPCBLayoutGuide); end;
@@ -1078,12 +1081,18 @@ begin
   finally Root.Free; end;
 end;
 function TERDPCBDesigner.BuildTemplateJSON: string;
-var Root: TJSONValue; Obj, Pin: TJSONObject; Items, Members: TJSONArray; C: TERDPCBChannel; T: TERDPCBTerminal; Member: string;
+var Root: TJSONValue; Obj, Pin, Appearance: TJSONObject; Items, Members: TJSONArray; C: TERDPCBChannel; T: TERDPCBTerminal; Member: string;
 begin
   Root := TJSONObject.ParseJSONValue(FBoardJSON);
   try
     if not (Root is TJSONObject) then raise EConvertError.Create('Load a board before saving a template');
-    Obj := TJSONObject(Root); Obj.RemovePair('template_id').Free; Obj.AddPair('template_id', FTemplateID);
+    Obj := TJSONObject(Root);
+    Appearance := TJSONObject(Obj.GetValue('appearance'));
+    if Appearance = nil then begin Appearance := TJSONObject.Create; Obj.AddPair('appearance',Appearance); end;
+    Appearance.RemovePair('board_color').Free; Appearance.RemovePair('pad_color').Free; Appearance.RemovePair('silkscreen_color').Free;
+    Appearance.AddPair('board_color',PCBColorText(FTemplateBoardColor));
+    Appearance.AddPair('pad_color',PCBColorText(FTemplatePadColor)); Appearance.AddPair('silkscreen_color',PCBColorText(FTemplateSilkColor));
+    Obj.RemovePair('template_id').Free; Obj.AddPair('template_id', FTemplateID);
     Obj.RemovePair('programmable_pins').Free; Items := TJSONArray.Create; Obj.AddPair('programmable_pins', Items);
     for C in FChannels do
     begin
@@ -1337,7 +1346,8 @@ begin
   FBoardFileName := FileName;
 end;
 procedure TERDPCBDesigner.LoadBoardJSON(const Data: string);
-var Root: TJSONValue; Obj: TJSONObject; A: TJSONArray; I, J: Integer;
+var Root: TJSONValue; Obj, Appearance: TJSONObject; AppearanceValue: TJSONValue;
+    TemplateBoardColor, TemplatePadColor, TemplateSilkColor: TColor; A: TJSONArray; I, J: Integer;
     Pads: TArray<TERDPCBPad>; Channels: TArray<TERDPCBChannel>;
     Components: TArray<TERDPCBComponent>; Terminals: TArray<TERDPCBTerminal>; MemberArray: TJSONArray; Paths, Outline: TArray<TArray<TPointF>>;
     Hash, TemplateID, TemplateName, Member: string; MaxX, MaxY: Double; PinData: TJSONValue; ExplicitPins, Found, HasSignal: Boolean; K, L, M: Integer; Capability: TERDPCBPinCapability;
@@ -1351,6 +1361,12 @@ begin
       raise EConvertError.Create('Unsupported board coordinate system');
     Hash := Root.GetValue<string>('source_sha256');
     TemplateID := Root.GetValue<string>('template_id', Hash); TemplateName := Root.GetValue<string>('name', 'PCB template');
+    AppearanceValue := TJSONObject(Root).GetValue('appearance');
+    if (AppearanceValue <> nil) and not (AppearanceValue is TJSONObject) then raise EConvertError.Create('Invalid template appearance');
+    Appearance := TJSONObject(AppearanceValue);
+    TemplateBoardColor := PCBReadColor(Appearance,'board_color',$004A6217);
+    TemplatePadColor := PCBReadColor(Appearance,'pad_color',$0062BAD8);
+    TemplateSilkColor := PCBReadColor(Appearance,'silkscreen_color',$00EBF5F1);
     A := Root.GetValue<TJSONArray>('pads'); SetLength(Pads, A.Count);
     for I := 0 to A.Count - 1 do
     begin
@@ -1435,6 +1451,7 @@ begin
     for I := 0 to High(Outline) do for J := 0 to High(Outline[I]) do
     begin MaxX := Max(MaxX, Outline[I][J].X); MaxY := Max(MaxY, Outline[I][J].Y); end;
     if (MaxX <= 0) or (MaxY <= 0) then raise EConvertError.Create('Board outline is empty');
+    FTemplateBoardColor := TemplateBoardColor; FTemplatePadColor := TemplatePadColor; FTemplateSilkColor := TemplateSilkColor;
     FPads := Pads; FChannels := Channels; FComponents := Components;
     FPaths := Paths; FOutline := Outline; FTerminals := Terminals; FBoardHash := Hash; FMaxX := MaxX; FMaxY := MaxY;
     FScene.LoadJSON('{"format":"erd-pcb-scene","version":1,"items":[]}'); FScene.ResetHistory;
@@ -1487,6 +1504,7 @@ begin
   FPads := nil; FChannels := nil; FComponents := nil; FTerminals := nil; FPaths := nil; FOutline := nil;
   FScene.LoadJSON('{"format":"erd-pcb-scene","version":1,"items":[]}'); FScene.ResetHistory;
   FTemplateID := ''; FTemplateName := '';
+  FTemplateBoardColor := $004A6217; FTemplatePadColor := $0062BAD8; FTemplateSilkColor := $00EBF5F1;
   FBoardJSON := ''; FBoardHash := ''; FBoardFileName := ''; FMaxX := 0; FMaxY := 0;
   FSelected := ''; SetHot('');
   if not (csLoading in ComponentState) then FitBoard else Invalidate;
@@ -1523,6 +1541,27 @@ begin
 end;
 function TERDPCBDesigner.HitTestPin(const ClientPoint: TPoint): string;
 begin Result := PadAt(ClientPoint.X, ClientPoint.Y); end;
+function PCBColorText(Color: TColor): string;
+var Value: Cardinal;
+begin Value := ColorToRGB(Color); Result := '#'+IntToHex(GetRValue(Value),2)+IntToHex(GetGValue(Value),2)+IntToHex(GetBValue(Value),2); end;
+function PCBReadColor(Appearance: TJSONObject; const Name: string; DefaultColor: TColor): TColor;
+var Text: string; Value: Integer;
+begin
+  Result := DefaultColor; if Appearance = nil then Exit;
+  Text := Appearance.GetValue<string>(Name,PCBColorText(DefaultColor));
+  if (Length(Text) <> 7) or (Text[1] <> '#') or not TryStrToInt('$'+Copy(Text,2,6),Value) then
+    raise EConvertError.Create('Template '+Name+' must use #RRGGBB');
+  Result := RGB((Value shr 16) and 255,(Value shr 8) and 255,Value and 255);
+end;
+procedure TERDPCBDesigner.SetTemplateBoardColor(Value: TColor);
+begin
+  Value := ColorToRGB(Value);
+  if (Value < 0) or (Value > $FFFFFF) then raise EArgumentException.Create('Template board color must be an RGB color');
+  if FBoardJSON = '' then raise EInvalidOperation.Create('Load a template before changing its board color');
+  if Value = FTemplateBoardColor then Exit;
+  FTemplateBoardColor := Value; FBoardJSON := BuildTemplateJSON; FStaticDirty := True; Invalidate;
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
 procedure TERDPCBDesigner.SetBoardColor(Value: TColor);
 begin if FBoardColor <> Value then begin FBoardColor := Value; FStaticDirty := True; Invalidate; end; end;
 procedure TERDPCBDesigner.SetPadColor(Value: TColor);
@@ -1632,12 +1671,12 @@ begin
         'PCB designer - set BoardFileName or call LoadBoard',12,Palette.Subtle,twRegular,False);
       PaintGrid(ACanvas); Exit;
     end;
-    BoardInk := ResolveColor(FBoardColor,Palette.GaugeFace); PadInk := ResolveColor(FPadColor,Palette.Subtle);
-    OutlineInk := ResolveColor(FOutlineColor,Palette.NeutralDark); Accent := ResolveColor(FSelectionColor,Palette.Accent);
+    BoardInk := ResolveColor(FBoardColor,FTemplateBoardColor); PadInk := ResolveColor(FPadColor,FTemplatePadColor);
+    OutlineInk := ResolveColor(FOutlineColor,FTemplateSilkColor); Accent := ResolveColor(FSelectionColor,Palette.Accent);
     Painter.RoundRect(FScreenX,FScreenY-FMaxY*FScreenScale,FMaxX*FScreenScale,FMaxY*FScreenScale,
       2*FScreenScale,BoardInk,Palette.NeutralLight);
     PaintGrid(ACanvas);
-    if FShowComponentOutlines then DrawPaths(FPaths,OutlineInk); DrawPaths(FOutline,Palette.NeutralDark);
+    if FShowComponentOutlines then DrawPaths(FPaths,OutlineInk); DrawPaths(FOutline,FTemplateSilkColor);
     if FShowPads then for I := 0 to High(FPads) do
     begin
       Fill := PadInk; Stroke := Palette.NeutralDark; Width := 1;
@@ -1653,7 +1692,7 @@ begin
       if (FScreenScale >= ScaleValue(8)) or (ChannelIndex(FComponents[I].Reference+'.2') >= 0) or (FComponents[I].Reference = 'U6') then
       begin
         P := ScreenPoint(FComponents[I].Position);
-        Painter.TextBlockF(P.X+ScaleValue(3),P.Y+ScaleValue(5),ScaleValue(160),ScaleValue(16),FComponents[I].Reference,10,Palette.ForegroundText,twRegular,False);
+        Painter.TextBlockF(P.X+ScaleValue(3),P.Y+ScaleValue(5),ScaleValue(160),ScaleValue(16),FComponents[I].Reference,10,FTemplateSilkColor,twRegular,False);
       end;
   finally Painter.Free; end;
 end;
@@ -1778,6 +1817,22 @@ end;
 procedure TERDPCBDesigner.PaintBodies(ACanvas: TCanvas);
 var I, J, K, Radius, TerminalID: Integer; Value: TERDPCBComponent; Poly: TArray<TGPPointF>;
     R, Inner: TRect; P: TPoint; Pad: TERDPCBPad; Fill, Stroke, Accent: TColor; Painter: TERDPainter;
+  procedure Contacts(const Bounds: TRect);
+  var Size: Single;
+  begin
+    if Bounds.Width >= Bounds.Height then
+    begin
+      Size := Bounds.Width/5;
+      Painter.RectangleF(Bounds.Left,Bounds.Top,Size,Bounds.Height,$00CDD4D8,clNone);
+      Painter.RectangleF(Bounds.Right-Size,Bounds.Top,Size,Bounds.Height,$00CDD4D8,clNone);
+    end
+    else
+    begin
+      Size := Bounds.Height/5;
+      Painter.RectangleF(Bounds.Left,Bounds.Top,Bounds.Width,Size,$00CDD4D8,clNone);
+      Painter.RectangleF(Bounds.Left,Bounds.Bottom-Size,Bounds.Width,Size,$00CDD4D8,clNone);
+    end;
+  end;
 begin
   UpdateTransform; Painter := TERDPainter.Create(ACanvas,Palette,ScaleValue(96));
   try
@@ -1789,44 +1844,64 @@ begin
       for J := 0 to High(Poly) do
       begin R.Left := Min(R.Left,Floor(Poly[J].X)); R.Right := Max(R.Right,Ceil(Poly[J].X));
         R.Top := Min(R.Top,Floor(Poly[J].Y)); R.Bottom := Max(R.Bottom,Ceil(Poly[J].Y)); end;
-      Fill := Palette.NeutralLight;
-      if Value.Role = 'terminal' then Fill := ERDMixColor(Palette.GaugeFace,Palette.Success,0.8)
-      else if (Value.Role = 'ic') or (Value.Role = 'resistor') then Fill := Palette.Subtle;
-      Painter.Shape(Poly,True,Fill,Palette.NeutralDark);
+      Fill := $00B8BDC2;
+      if Value.Role = 'terminal' then Fill := $00B6B82B
+      else if (Value.Role = 'ic') or (Value.Role = 'resistor') then Fill := $002B2927
+      else if Value.Role = 'module' then Fill := $00408726
+      else if Value.Role = 'capacitor' then Fill := $007E909D
+      else if Value.Role = 'led' then Fill := $00B3D8C9;
+      Painter.Shape(Poly,True,Fill,$0045413D);
       Painter.ClipRectF(R.Left+1,R.Top+1,Max(0,R.Width-1),Max(0,R.Height-1));
       try
         if Value.Role = 'terminal' then
           for Pad in FPads do if Pad.Reference = Value.Reference then
           begin
             P := ScreenPoint(Pad.Position); Radius := Max(ScaleValue(2),Round(0.8*FScreenScale));
-            Painter.Ellipse(P.X-Radius,P.Y-Radius,2*Radius,2*Radius,Palette.GaugeFace,Palette.NeutralDark);
-            Painter.LineF(P.X-Radius/2,P.Y+Radius/2,P.X+Radius/2,P.Y-Radius/2,Palette.NeutralDark);
+            Painter.Ellipse(P.X-Radius,P.Y-Radius,2*Radius,2*Radius,$00E4E8EA,$00666969);
+            Painter.LineF(P.X-Radius/2,P.Y+Radius/2,P.X+Radius/2,P.Y-Radius/2,$00595755);
+            Painter.LineF(P.X-Radius/2,P.Y-Radius/2,P.X+Radius/2,P.Y+Radius/2,$00FAFCFC,0.7);
           end;
         if Value.Role = 'usb' then
         begin
           Inner := R;
           if R.Width > R.Height then InflateRect(Inner,-Max(2,R.Width div 6),-Max(2,R.Height div 3))
           else InflateRect(Inner,-Max(2,R.Width div 3),-Max(2,R.Height div 6));
-          Painter.RoundRect(Inner.Left,Inner.Top,Inner.Width,Inner.Height,ScaleValue(3)/2,Palette.NeutralDark,clNone);
+          Painter.RoundRect(R.Left+1,R.Top+1,R.Width-2,R.Height-2,ScaleValue(2),$00D9DCDD,$00858B8F);
+          Painter.RoundRect(Inner.Left,Inner.Top,Inner.Width,Inner.Height,ScaleValue(3)/2,$00333333,$007D8285);
         end
         else if Value.Role = 'module' then
         begin
           Inner := R; InflateRect(Inner,-Max(1,R.Width div 12),-Max(1,R.Height div 12));
           if R.Height > R.Width then Dec(Inner.Bottom,R.Height div 4) else Dec(Inner.Right,R.Width div 4);
-          Painter.RectangleF(Inner.Left,Inner.Top,Inner.Width,Inner.Height,Palette.GaugeFace,Palette.NeutralDark);
+          Painter.RectangleF(Inner.Left,Inner.Top,Inner.Width,Inner.Height,$00CDD3D8,$00777B80);
           for K := 1 to 4 do
-          begin P := Point(R.Left+R.Width*K div 5,R.Bottom-R.Height div 8); Painter.LineF(P.X,P.Y,P.X,R.Bottom-R.Height div 20,Palette.NeutralDark); end;
+          begin P := Point(R.Left+R.Width*K div 5,R.Bottom-R.Height div 8); Painter.LineF(P.X,P.Y,P.X,R.Bottom-R.Height div 20,FTemplatePadColor); end;
         end
         else if Value.Role = 'button' then
         begin
           Inner := R; InflateRect(Inner,-Max(1,R.Width div 4),-Max(1,R.Height div 4));
-          Painter.Ellipse(Inner.Left,Inner.Top,Inner.Width,Inner.Height,Palette.Subtle,Palette.NeutralDark);
+          Painter.Ellipse(Inner.Left,Inner.Top,Inner.Width,Inner.Height,$00E3E5E8,$00707070);
         end
         else if Value.Role = 'capacitor' then
         begin
-          Inner := R; InflateRect(Inner,-Max(1,R.Width div 8),-Max(1,R.Height div 8));
-          Painter.Ellipse(Inner.Left,Inner.Top,Inner.Width,Inner.Height,Palette.GaugeFace,Palette.NeutralDark);
-          Painter.LineF((R.Left+R.Right)/2,R.Top,(R.Left+R.Right)/2,R.Bottom,Palette.NeutralDark);
+          Inner := R; InflateRect(Inner,-Max(1,R.Width div 10),-Max(1,R.Height div 10));
+          if (Min(R.Width,R.Height)/FScreenScale >= 4) and (R.Width < 2*R.Height) and (R.Height < 2*R.Width) then
+          begin
+            Painter.Ellipse(Inner.Left,Inner.Top,Inner.Width,Inner.Height,$00ECEEEE,$00616569);
+            Painter.Pie(Inner.Left,Inner.Top,Inner.Width,Inner.Height,90,180,$00221F1E);
+            Painter.Ellipse(Inner.Left,Inner.Top,Inner.Width,Inner.Height,clNone,$00B4BDC2);
+          end
+          else begin Painter.RectangleF(Inner.Left,Inner.Top,Inner.Width,Inner.Height,$008FAEC3,$00687880); Contacts(Inner); end;
+        end
+        else if Value.Role = 'resistor' then Contacts(R)
+        else if Value.Role = 'ic' then
+        begin
+          for Pad in FPads do if Pad.Reference = Value.Reference then
+            Painter.Shape(PCBScreenPolygon(Pad.Polygon,FScreenScale,FScreenX,FScreenY),True,FTemplatePadColor,$00758D9B,0.5);
+          Inner := R; InflateRect(Inner,-Max(1,R.Width div 12),-Max(1,R.Height div 12));
+          Painter.RectangleF(Inner.Left,Inner.Top,Inner.Width,Inner.Height,$0034302D,$00605B55);
+          if Min(R.Width,R.Height) > ScaleValue(14) then
+            Painter.Ellipse(Inner.Left+2,Inner.Top+2,ScaleValue(2),ScaleValue(2),$00A3A5A7,clNone);
         end;
       finally Painter.ResetClip; end;
     end;
