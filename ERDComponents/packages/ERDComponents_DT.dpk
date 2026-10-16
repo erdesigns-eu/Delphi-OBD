@@ -17,6 +17,7 @@ contains
   ERD.Components.LocalsPanel in '..\src\UI\ERD.Components.LocalsPanel.pas',
   ERD.Components.WatchPanel in '..\src\UI\ERD.Components.WatchPanel.pas',
   ERD.Components.DisassemblyView in '..\src\UI\ERD.Components.DisassemblyView.pas',
+  ERD.Components.FiberList in '..\src\UI\ERD.Components.FiberList.pas',
   ERD.Components.TimeSeries in '..\src\UI\ERD.Components.TimeSeries.pas',
   ERD.Components.PCBLibrary in '..\src\UI\ERD.Components.PCBLibrary.pas',
   ERD.Components.PCBRoute in '..\src\UI\ERD.Components.PCBRoute.pas',

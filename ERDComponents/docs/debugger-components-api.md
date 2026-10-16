@@ -2,7 +2,7 @@
 
 The component set provides `TERDDebugModel`, `TERDValueTree`,
 `TERDTimeSeriesChart`, `TERDBreakpointPanel`, `TERDCallStack` and
-`TERDLocalsPanel`, `TERDWatchPanel` and `TERDDisassemblyView`, plus
+`TERDLocalsPanel`, `TERDWatchPanel`, `TERDDisassemblyView` and `TERDFiberList`, plus
 debug gutter/execution rendering in
 `TERDCodeEditor`.
 The separate Debugger components demo page exercises them through a synthetic
@@ -405,3 +405,71 @@ markers, source/no-source navigation, copied arrays, malformed/old window replie
 previous/next offsets, unavailable placeholders, resume/session invalidation,
 provider errors, DFM and model destruction. Delphi build and visual tests remain
 unrun in the Linux cloud.
+
+## Fiber / scheduler list
+
+`TERDFiberList` is a standalone read-only ERD virtual tree for scheduler summaries.
+Columns show fiber ID, a themed status chip, call stack depth, function index,
+bytecode offset, optional resolved function name and optional source location.
+It does not turn NDB fiber summaries into DAP frames or query TSVM itself.
+
+Source checked: Scheduler.getFibers/getFiberInfo in TSVM ndb_server.cpp provide
+id, state, callStackDepth, functionIndex and bytecodeOffset. getFibers excludes
+DEAD fibers and probes scheduler IDs; its cost/poll cadence belongs to the host.
+Function names and source mapping are optional host metadata, not NDB fields.
+The component preserves unknown state strings; NEW/RUNNABLE/RUNNING/WAITING/
+BLOCKED/SUSPENDED/SUSPENDED_YIELD/WAITING_FOR_CALLBACKS/DEAD remain valid labels.
+
+- Assign the shared DebugModel if desired. Requests work while running **or**
+  paused; pause/resume does not invalidate scheduler telemetry. Disconnect and
+  session changes do. Without a model the host calls MarkStale itself.
+- RequestSnapshot(Session, Generation) returns a TERDFiberRequest and raises
+  OnRequestFibers. Use a strictly increasing generation within each session,
+  including retry. A refused request has RequestID zero. The host controls polling,
+  backpressure and response marshalling to the VCL UI thread.
+- PublishSnapshot(Request, Fibers) accepts only the current pending token and
+  validates the complete snapshot before replacing it. IDs must be positive and
+  unique. Available depth/index/offset values must be nonnegative; zero is valid.
+  Source line/column are nonnegative (zero means unknown). Arrays are copied.
+  Empty snapshots clear all rows. Older/duplicate/previous-session replies are
+  refused without changing the display.
+- faUnavailable displays explicit unavailable details instead of invented zeros;
+  it suppresses navigation but can still raise an inspect event so the host can
+  request fresh details. Unknown states are shown using a neutral theme color.
+- SearchText filters case-insensitively across ID, state, resolved name and source
+  URI. StateFilter is a case-insensitive exact state match; empty means all.
+  Both are host-settable runtime properties, so a later IDE can use its own toolbar.
+- Selection survives row reorder/refresh by fiber ID within the same session.
+  Removed or filtered-out selections are cleared, never retargeted to another
+  row. New sessions do not restore recycled IDs. No fiber is selected implicitly.
+- OnFiberSelected(Context, Fiber) fires for a new selected ID or an updated sample
+  of the selected ID; column changes do not repeat it. OnSelectionCleared tells
+  the host to clear its external details. Context is the **published** snapshot,
+  not the latest pending poll. Reject late detail replies when selection/context
+  no longer matches. Last successful data remains actionable during a same-session
+  poll; failed polling marks it stale and disables actions.
+- Double-click/Enter raises OnInspectFiber. Ctrl+Enter / NavigateSelected raises
+  OnNavigate with the full summary, including function index and bytecode offset.
+  The host resolves source or opens a disassembly view. These events never pause
+  the runtime, change the editor execution arrow or assume a DAP thread mapping.
+  SelectFiber/SelectedFiber expose selection; Ctrl+C copies summary values.
+- FailSnapshot shows a provider error in the header/tooltip and keeps old rows
+  subdued. Start a fresh generation to retry. MarkStale invalidates pending
+  requests, clears the actionable selection and retains display data only.
+
+Runtime rows, filters, selection, tokens and fixed Header schema/column widths
+are not streamed. Model reference and normal visual settings are configuration;
+the host may persist column widths separately. There are no transport or timer
+components inside the list.
+
+The Fibers demo tab uses synthetic data: statuses change, transient IDs appear
+and disappear, and one detail sample periodically becomes unavailable. Selecting
+or inspecting a row updates the separate demo label; navigation uses demo source
+or bytecode metadata. The demo timer is the host and stops fetching on disconnect.
+
+Added Windows smoke cases cover running/paused requests, atomic duplicate-ID
+rejection, copied snapshots, stable-ID selection and row reordering, detail context
+refresh, filters, disappeared fibers, unknown states, unavailable data, error/retry,
+empty snapshots, session changes, DFM and model lifetime. These tests and visual
+light/dark, DPI, chip clipping, keyboard and scrollbar checks require Delphi on
+Windows and are not executed in the Linux cloud.

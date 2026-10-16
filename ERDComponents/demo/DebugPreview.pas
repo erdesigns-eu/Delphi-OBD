@@ -2,7 +2,7 @@
 interface
 uses Winapi.Windows, ERD.Components.Control, System.Classes, System.SysUtils, System.Types, System.Math, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls,
   ERD.Components.Panel, ERD.Components.Types, ERD.Components.CodeEditor,
-  ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.Tabs, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries, ERD.Components.Ribbon;
+  ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.Tabs, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries, ERD.Components.Ribbon;
 type
   TDebugPreview = class(TERDPanel)
   private
@@ -12,6 +12,10 @@ type
     FWatches: TERDWatchPanel;
     FSideTabs: TERDTabs;
     FDisassembly: TERDDisassemblyView;
+    FFibers: TERDFiberList;
+    FFiberHost: TERDPanel;
+    FFiberStatus: TLabel;
+    FFiberGeneration: Int64;
     FStack: TERDCallStack;
     FDebugSide: TERDPanel;
     FBreakpoints: TERDBreakpointPanel;
@@ -30,6 +34,11 @@ type
     procedure EvaluateWatches(Sender: TObject; const Context: TERDWatchContext; const Expressions: TArray<TERDWatchExpression>);
     procedure WatchVariables(Sender: TObject; const Context: TERDWatchContext; const Request: TERDValueRequest; const Parent: TERDInspectValue);
     procedure DisassemblyRequested(Sender: TObject; const Request: TERDDisassemblyRequest);
+    procedure RefreshFibers;
+    procedure FibersRequested(Sender: TObject; const Request: TERDFiberRequest);
+    procedure FiberSelected(Sender: TObject; const Context: TERDFiberRequest; const Fiber: TERDFiberInfo);
+    procedure FiberSelectionCleared(Sender: TObject);
+    procedure NavigateFiber(Sender: TObject; const Context: TERDFiberRequest; const Fiber: TERDFiberInfo);
     procedure ScopesRequested(Sender: TObject; const Context: TERDLocalsRequest);
     procedure RefreshStack;
     procedure FrameSelected(Sender: TObject; const Context: TERDStackRequest; const Frame: TERDStackFrame);
@@ -75,10 +84,16 @@ begin
   FWatches.AddWatch('status.count'); FWatches.AddWatch('status'); FWatches.AddWatch('missing');
   FDisassembly := TERDDisassemblyView.Create(Self); FDisassembly.Parent := FDebugSide; FDisassembly.Align := alClient; FDisassembly.Visible := False;
   FDisassembly.DebugModel := FModel; FDisassembly.PageSize := 16; FDisassembly.OnRequestInstructions := DisassemblyRequested; FDisassembly.OnNavigate := NavigateFrame;
+  FFiberHost := TERDPanel.Create(Self); FFiberHost.Parent := FDebugSide; FFiberHost.Align := alClient; FFiberHost.Visible := False;
+  FFiberStatus := TLabel.Create(Self); FFiberStatus.Parent := FFiberHost; FFiberStatus.Align := alBottom; FFiberStatus.AutoSize := False; FFiberStatus.Height := ScaleValue(48);
+  FFibers := TERDFiberList.Create(Self); FFibers.Parent := FFiberHost; FFibers.Align := alClient; FFibers.DebugModel := FModel;
+  FFibers.OnRequestFibers := FibersRequested; FFibers.OnFiberSelected := FiberSelected; FFibers.OnInspectFiber := FiberSelected;
+  FFibers.OnSelectionCleared := FiberSelectionCleared; FFibers.OnNavigate := NavigateFiber; FiberSelectionCleared(Self);
   FSideTabs := TERDTabs.Create(Self); FSideTabs.Parent := FDebugSide; FSideTabs.Top := FStack.Height; FSideTabs.Align := alTop;
   with FSideTabs.Tabs.Add do begin Caption := 'Locals'; Page := FValues; end;
   with FSideTabs.Tabs.Add do begin Caption := 'Watches'; Page := FWatches; end;
   with FSideTabs.Tabs.Add do begin Caption := 'Bytecode'; Page := FDisassembly; end;
+  with FSideTabs.Tabs.Add do begin Caption := 'Fibers'; Page := FFiberHost; end;
   FSideTabs.TabIndex := 0;
   FEditor := TERDCodeEditor.Create(Self); FEditor.Parent := Self; FEditor.Align := alClient;
   FEditor.DocumentUri := 'demo:///debug-example.ts'; FEditor.DebugModel := FModel; FEditor.ShowDebugGutter := True;
@@ -98,6 +113,7 @@ begin
   if FTimer <> nil then begin FTimer.Enabled := False; FTimer.OnTimer := nil; end;
   AttachRibbon(nil);
   if FModel <> nil then begin FModel.OnChange := nil; FModel.OnCommand := nil; end;
+  if FFibers <> nil then begin FFibers.OnRequestFibers := nil; FFibers.OnFiberSelected := nil; FFibers.OnInspectFiber := nil; FFibers.OnSelectionCleared := nil; FFibers.OnNavigate := nil; end;
   if FDisassembly <> nil then FDisassembly.OnRequestInstructions := nil;
   if FWatches <> nil then begin FWatches.OnEvaluate := nil; FWatches.OnRequestVariables := nil; end;
   if FValues <> nil then begin FValues.OnRequestScopes := nil; FValues.OnRequestVariables := nil; end;
@@ -108,7 +124,7 @@ begin
   if DocumentUri = FEditor.DocumentUri then begin FEditor.RevealDebugLine(Line); FEditor.SetFocus; end;
 end;
 procedure TDebugPreview.ThemeChanged;
-begin inherited; if FStatus <> nil then FStatus.Font.Color := Palette.ForegroundText; end;
+begin inherited; if FStatus <> nil then FStatus.Font.Color := Palette.ForegroundText; if FFiberStatus <> nil then FFiberStatus.Font.Color := Palette.ForegroundText; end;
 procedure TDebugPreview.ModelChanged(Sender: TObject);
 var StateText: string;
 begin
@@ -126,7 +142,7 @@ begin
   Frames[1].ID := 1; Frames[1].ThreadID := 1; Frames[1].Name := '<module>'; Frames[1].DocumentUri := FEditor.DocumentUri; Frames[1].Line := 7; Frames[1].Column := 1;
   Frames[2].ID := 2; Frames[2].ThreadID := 2; Frames[2].Name := '[native wait]';
   FStack.PublishSnapshot(Request,Threads,Frames);
-  FDisassembly.RequestInstructions(FModel.Session,FStackGeneration,'demo-bytecode');
+  FDisassembly.RequestInstructions(FModel.Session,FStackGeneration,'demo-bytecode'); RefreshFibers;
 end;
 procedure TDebugPreview.FrameSelected(Sender: TObject; const Context: TERDStackRequest; const Frame: TERDStackFrame);
 begin
@@ -175,6 +191,35 @@ begin
   end;
   FDisassembly.PublishInstructions(Request,Items,'demo:'+IntToHex((FModel.ExecutionLine-1)*4,4));
 end;
+procedure TDebugPreview.RefreshFibers;
+begin
+  if (FFibers = nil) or (FModel.State = dsDisconnected) then Exit;
+  Inc(FFiberGeneration); FFibers.RequestSnapshot(FModel.Session,FFiberGeneration);
+end;
+procedure TDebugPreview.FibersRequested(Sender: TObject; const Request: TERDFiberRequest);
+var Fibers: TArray<TERDFiberInfo>;
+begin
+  SetLength(Fibers,2); if FTick mod 6 < 3 then SetLength(Fibers,3);
+  Fibers[0].ID := 1; Fibers[0].State := 'RUNNING'; if FModel.State = dsPaused then Fibers[0].State := 'SUSPENDED';
+  Fibers[0].CallStackDepth := 3; Fibers[0].FunctionName := 'updateStatus (demo)'; Fibers[0].DocumentUri := FEditor.DocumentUri;
+  Fibers[0].Line := Max(1,FModel.ExecutionLine); Fibers[0].BytecodeOffset := (Fibers[0].Line-1)*4;
+  Fibers[1].ID := 2; Fibers[1].State := 'WAITING'; if FTick mod 4 = 0 then Fibers[1].State := 'RUNNABLE';
+  Fibers[1].CallStackDepth := 1; Fibers[1].FunctionIndex := 5; Fibers[1].BytecodeOffset := 12; Fibers[1].FunctionName := 'worker (demo)';
+  if FTick mod 8 = 0 then Fibers[1].Availability := faUnavailable;
+  if Length(Fibers) = 3 then begin Fibers[2].ID := 100+FTick div 6; Fibers[2].State := 'WAITING_FOR_CALLBACKS'; Fibers[2].FunctionIndex := 7; end;
+  FFibers.PublishSnapshot(Request,Fibers);
+end;
+procedure TDebugPreview.FiberSelected(Sender: TObject; const Context: TERDFiberRequest; const Fiber: TERDFiberInfo);
+begin
+  FFiberStatus.Caption := 'DEMO Fiber '+IntToStr(Fiber.ID)+' - '+Fiber.State+sLineBreak+'Double-click: inspect; Ctrl+Enter: navigate';
+end;
+procedure TDebugPreview.FiberSelectionCleared(Sender: TObject);
+begin if FFiberStatus <> nil then FFiberStatus.Caption := 'Select a fiber (synthetic data).'+sLineBreak+'Double-click: inspect; Ctrl+Enter: navigate'; end;
+procedure TDebugPreview.NavigateFiber(Sender: TObject; const Context: TERDFiberRequest; const Fiber: TERDFiberInfo);
+begin
+  if (Fiber.DocumentUri <> '') and (Fiber.Line > 0) then NavigateFrame(Sender,Fiber.DocumentUri,Fiber.Line,Fiber.Column)
+  else if FModel.State = dsPaused then begin FSideTabs.TabIndex := 2; FDisassembly.RequestInstructions(FModel.Session,FStackGeneration,'demo-bytecode',Fiber.BytecodeOffset div 4); end;
+end;
 procedure TDebugPreview.ScopesRequested(Sender: TObject; const Context: TERDLocalsRequest);
 var Scopes: TArray<TERDDebugScope>;
 begin
@@ -216,7 +261,7 @@ procedure TDebugPreview.Tick(Sender: TObject);
 begin
   if not Showing then Exit;
   Inc(FTick);
-  FChart.Series[0].AddSample(FTick,100+20*Sin(FTick/8)); FChart.Series[1].AddSample(FTick,192);
+  FChart.Series[0].AddSample(FTick,100+20*Sin(FTick/8)); FChart.Series[1].AddSample(FTick,192); RefreshFibers;
 end;
 procedure TDebugPreview.DebugCommand(Sender: TObject; Command: TERDDebugCommand);
 var Line: Integer;

@@ -84,5 +84,6 @@
   "TERDCallStack",
   "TERDLocalsPanel",
   "TERDWatchPanel",
-  "TERDDisassemblyView"
+  "TERDDisassemblyView",
+  "TERDFiberList"
 ]

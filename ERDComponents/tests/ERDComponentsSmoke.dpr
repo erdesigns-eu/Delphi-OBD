@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
+  ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.PCBValidation, ERD.Components.PCBValidationPanel, ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
@@ -150,6 +150,17 @@ type
     Calls, Navigations, Line: Integer;
     procedure Request(Sender: TObject; const Value: TERDDisassemblyRequest);
     procedure Navigate(Sender: TObject; const DocumentUri: string; SourceLine, Column: Integer);
+  end;
+  TFiberProbe = class
+  public
+    Calls, Selections, Clears, Inspections, Navigations: Integer;
+    Last: TERDFiberRequest;
+    Fiber: TERDFiberInfo;
+    procedure Request(Sender: TObject; const Context: TERDFiberRequest);
+    procedure Selected(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
+    procedure Cleared(Sender: TObject);
+    procedure Inspect(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
+    procedure Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
   end;
   TDebugCommandProbe = class
   public
@@ -466,6 +477,16 @@ procedure TDisassemblyProbe.Request(Sender: TObject; const Value: TERDDisassembl
 begin Inc(Calls); Last := Value; end;
 procedure TDisassemblyProbe.Navigate(Sender: TObject; const DocumentUri: string; SourceLine, Column: Integer);
 begin Inc(Navigations); Line := SourceLine; end;
+procedure TFiberProbe.Request(Sender: TObject; const Context: TERDFiberRequest);
+begin Inc(Calls); Last := Context; end;
+procedure TFiberProbe.Selected(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
+begin Inc(Selections); Last := Context; Fiber := Value; end;
+procedure TFiberProbe.Cleared(Sender: TObject);
+begin Inc(Clears); end;
+procedure TFiberProbe.Inspect(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
+begin Inc(Inspections); end;
+procedure TFiberProbe.Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
+begin Inc(Navigations); end;
 procedure TDebugCommandProbe.Execute(Sender: TObject; Value: TERDDebugCommand);
 begin Inc(Calls); Command := Value; end;
 procedure TValueChildrenProbe.Request(Sender: TObject; const Value: TERDValueRequest);
@@ -3856,6 +3877,60 @@ begin
   finally View.Free; Probe.Free; Model.Free; Form.Free; end;
 end;
 
+procedure TestFiberList;
+var Form: TForm; Model: TERDDebugModel; List, CopyList: TERDFiberList; Probe: TFiberProbe;
+    Request, Old: TERDFiberRequest; Fibers: TArray<TERDFiberInfo>; Fiber: TERDFiberInfo;
+    Swap: TERDFiberInfo; Selections, Clears: Integer; Stream: TMemoryStream;
+begin
+  Form := TForm.Create(nil); Model := TERDDebugModel.Create(nil); List := TERDFiberList.Create(Form); List.Parent := Form; Probe := TFiberProbe.Create;
+  try
+    List.DebugModel := Model; List.OnRequestFibers := Probe.Request; List.OnFiberSelected := Probe.Selected;
+    List.OnSelectionCleared := Probe.Cleared; List.OnInspectFiber := Probe.Inspect; List.OnNavigate := Probe.Navigate;
+    Request := List.RequestSnapshot(Model.Session,0); Check(Request.RequestID = 0, 'Disconnected model cannot request live fibers');
+    Model.SetExecution(dsRunning); Request := List.RequestSnapshot(Model.Session,0);
+    Check((Request.RequestID > 0) and List.Pending and (Probe.Calls = 1), 'Fiber requests work during execution');
+    SetLength(Fibers,2); Fibers[0].ID := 1; Fibers[0].State := 'RUNNING'; Fibers[0].FunctionName := 'main';
+    Fibers[1].ID := 2; Fibers[1].State := 'WAITING'; Fibers[1].CallStackDepth := 3; Fibers[1].FunctionIndex := 7; Fibers[1].BytecodeOffset := 12;
+    Fibers[1].ID := 1; Check(not List.PublishSnapshot(Request,Fibers) and List.Pending, 'Duplicate fiber identities reject snapshot atomically'); Fibers[1].ID := 2;
+    Check(List.PublishSnapshot(Request,Fibers) and not List.Stale and (List.RootNodeCount = 2), 'Valid scheduler snapshot is published');
+    Check(List.SelectFiber(2) and (Probe.Fiber.ID = 2), 'Fiber selection exposes stable ID');
+    Selections := Probe.Selections; List.FocusedColumn := 2; Check(Probe.Selections = Selections, 'Column focus does not repeat fiber selection event');
+    Old := Request; Request := List.RequestSnapshot(Model.Session,1);
+    Check(List.SelectedFiber(Fiber) and (List.Context.RequestID = Old.RequestID), 'Polling retains last valid sample with its published context');
+    Swap := Fibers[0]; Fibers[0] := Fibers[1]; Fibers[1] := Swap; Fibers[0].State := 'RUNNABLE';
+    Check(List.PublishSnapshot(Request,Fibers) and List.SelectedFiber(Fiber) and (Fiber.ID = 2) and (Fiber.State = 'RUNNABLE'), 'Reordered rows retain selected fiber identity');
+    Check((Probe.Selections = Selections+1) and (Probe.Last.RequestID = Request.RequestID), 'New selected sample publishes fresh detail context');
+    Fibers[0].State := 'mutated'; Check(List.SelectedFiber(Fiber) and (Fiber.State = 'RUNNABLE'), 'Fiber list owns snapshot values');
+    List.InspectSelected; List.NavigateSelected;
+    Check((Probe.Inspections = 1) and (Probe.Navigations = 1) and (Model.State = dsRunning), 'Inspect and navigate are host events without execution changes');
+    Clears := Probe.Clears; List.StateFilter := 'running';
+    Check((List.RootNodeCount = 1) and not List.SelectedFiber(Fiber) and (Probe.Clears = Clears+1), 'Filtering out selection clears it without retargeting another row');
+    List.StateFilter := ''; List.SearchText := 'MAIN'; Check(List.RootNodeCount = 1, 'Search is case-insensitive across symbols');
+    List.SearchText := ''; List.SelectFiber(2);
+    Old := Request; Request := List.RequestSnapshot(Model.Session,2); SetLength(Fibers,1); Fibers[0].ID := 1; Fibers[0].State := 'NEW_BACKEND_STATE';
+    Check(not List.PublishSnapshot(Old,Fibers), 'Superseded fiber reply is rejected');
+    Check(List.PublishSnapshot(Request,Fibers) and not List.SelectedFiber(Fiber), 'Vanished selected fiber does not select replacement row');
+    List.SelectFiber(1); Check(List.SelectedFiber(Fiber) and (Fiber.State = 'NEW_BACKEND_STATE'), 'Unknown backend states remain intact');
+    Request := List.RequestSnapshot(Model.Session,3); Fibers[0].Availability := faUnavailable;
+    Check(List.PublishSnapshot(Request,Fibers) and (List.Text[List.FocusedNode,2] = '<unavailable>'), 'Unavailable details are not displayed as measured zero');
+    List.NavigateSelected; Check(Probe.Navigations = 1, 'Unavailable program counter cannot navigate');
+    Request := List.RequestSnapshot(Model.Session,4); Model.SetExecution(dsPaused,'file:///fibers.ts',1);
+    Check(List.PublishSnapshot(Request,Fibers), 'Pause does not invalidate scheduler telemetry request');
+    Request := List.RequestSnapshot(Model.Session,5); Check(List.FailSnapshot(Request,'Scheduler unavailable') and List.Stale and (List.ErrorText <> ''), 'Failed snapshot keeps stale display and error');
+    Request := List.RequestSnapshot(Model.Session,6); Check(List.PublishSnapshot(Request,nil) and not List.Stale and (List.RootNodeCount = 0), 'Empty current snapshot clears fiber list');
+    Request := List.RequestSnapshot(Model.Session,7); Model.BeginSession;
+    Check(not List.PublishSnapshot(Request,Fibers), 'New session rejects pending prior-session telemetry');
+    Model.SetExecution(dsRunning); Request := List.RequestSnapshot(Model.Session,0); Check(List.PublishSnapshot(Request,Fibers), 'New session accepts generation zero');
+    List.OnRequestFibers := nil; List.OnFiberSelected := nil; List.OnSelectionCleared := nil; List.OnInspectFiber := nil; List.OnNavigate := nil; List.DebugModel := nil;
+    RegisterClass(TERDFiberList); CopyList := TERDFiberList.Create(Form); Stream := TMemoryStream.Create;
+    try
+      Stream.WriteComponent(List); Stream.Position := 0; Stream.ReadComponent(CopyList);
+      Check(CopyList.Stale and (CopyList.RootNodeCount = 0) and (CopyList.Context.RequestID = 0), 'DFM does not persist runtime fibers or selection');
+    finally Stream.Free; CopyList.Free; end;
+    List.DebugModel := Model; FreeAndNil(Model); Check((List.DebugModel = nil) and List.Stale, 'Model destruction safely detaches fiber list');
+  finally List.Free; Probe.Free; Model.Free; Form.Free; end;
+end;
+
 procedure TestValueTreeSnapshots;
 var Form: TForm; Tree, CopyTree: TERDValueTree; Probe: TValueChildrenProbe;
     Roots, Children: TArray<TERDInspectValue>; Request, Old: TERDValueRequest; Value: TERDInspectValue; Stream: TMemoryStream;
@@ -5285,7 +5360,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestValueTreeSnapshots; TestTimeSeriesHistory;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestValueTreeSnapshots; TestTimeSeriesHistory;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;
