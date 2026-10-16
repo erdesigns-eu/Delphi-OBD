@@ -52,6 +52,7 @@ type
     procedure Navigate(Sender: TObject; const Issue: TERDPCBValidationIssue);
   end;
   TPCBDragProbe = class(TERDPCBDesigner)
+    procedure Render(Bitmap: TBitmap);
     procedure StartAt(const P: TPoint);
     procedure MoveTo(const P: TPoint; Alt: Boolean = False);
     procedure StopAt(const P: TPoint);
@@ -2748,6 +2749,48 @@ begin
     Panel.Clear; Check(Panel.IssueCount = 0, 'Validation report can be cleared independently of any designer');
   finally Report.Free; Probe.Free; Form.Free; end;
 end;
+procedure TPCBDragProbe.Render(Bitmap: TBitmap);
+begin Bitmap.SetSize(ClientWidth,ClientHeight); PaintControl(Bitmap.Canvas); end;
+procedure TestPCBSelectionHandles;
+var Form: TForm; Designer: TPCBDragProbe; Bitmap, Unselected: TBitmap; I, A, B, X, Y, Count: Integer;
+    P, Q: TPoint; First, Second: TERDPCBDesignItem; Before: string;
+begin
+  Form := TForm.Create(nil); Bitmap := TBitmap.Create; Unselected := TBitmap.Create;
+  try
+    Designer := TPCBDragProbe.Create(Form); Designer.Parent := Form; Designer.SetBounds(0,0,700,450);
+    Designer.ScrollBars := System.UITypes.TScrollStyle.ssNone;
+    Designer.SnapToGrid := False; Designer.SnapToObjects := False; Designer.SnapToSpacing := False;
+    A := Designer.AddDesignItem(piNote,PointF(0,0)); B := Designer.AddDesignItem(piNote,PointF(60,0));
+    Designer.FitBoard; Form.Show; Designer.Scene.ClearSelection; Designer.Render(Unselected);
+    Designer.Scene.SelectAll; Designer.Scene.ResetHistory; Designer.Render(Bitmap);
+    for I := A to B do
+    begin
+      First := Designer.Scene.Item(I); P := Designer.BoardToClient(PointF(First.X,First.Y+First.Height));
+      Count := 0;
+      for Y := P.Y-MulDiv(4,Designer.CurrentPPI,96) to P.Y-1 do
+        for X := P.X-MulDiv(4,Designer.CurrentPPI,96) to P.X+MulDiv(4,Designer.CurrentPPI,96) do
+          if Bitmap.Canvas.Pixels[X,Y] <> Unselected.Canvas.Pixels[X,Y] then Inc(Count);
+      Check(Count > 0, 'Every note in a multiselection has an exterior selection handle');
+    end;
+    First := Designer.Scene.Item(A); Second := Designer.Scene.Item(B); Before := Designer.Scene.ContentJSON;
+    P := Designer.BoardToClient(PointF(First.X,First.Y+First.Height)); Dec(P.X,1); Dec(P.Y,1); Q := Point(P.X+15,P.Y+10);
+    Designer.StartAt(P); Designer.MoveTo(Q,True); Designer.StopAt(Q);
+    Check((Designer.Scene.SelectionCount = 2) and (Designer.Scene.Item(A).Width = First.Width) and
+      (Designer.Scene.Item(B).Width = Second.Width) and (Designer.Scene.Item(A).X <> First.X) and
+      (Abs((Designer.Scene.Item(A).X-First.X)-(Designer.Scene.Item(B).X-Second.X)) < 0.001), 'Dragging an exterior multi-note handle moves the group without resizing');
+    Designer.Undo; Check(Designer.Scene.ContentJSON = Before, 'Moving selection by its handles is one undo step');
+    Designer.Scene.ClearSelection;
+    A := Designer.AddDesignItem(piTimer,PointF(0,-50)); Designer.FitBoard; First := Designer.Scene.Item(A); Designer.Scene.ResetHistory;
+    P := Designer.BoardToClient(PointF(First.X,First.Y)); Dec(P.X,1); Inc(P.Y,1); Q := Point(P.X+20,P.Y+12);
+    Designer.StartAt(P); Designer.MoveTo(Q,True); Designer.StopAt(Q);
+    Check((Designer.Scene.Item(A).Width = First.Width) and (Designer.Scene.Item(A).Height = First.Height) and
+      (Designer.Scene.Item(A).X <> First.X), 'Exterior nonvisual handles move the fixed-size component and cannot resize it');
+    Designer.Undo; Designer.Scene.Select(B); First := Designer.Scene.Item(B);
+    P := Designer.BoardToClient(PointF(First.X+First.Width,First.Y+First.Height)); Q := Point(P.X+20,P.Y-10);
+    Designer.StartAt(P); Designer.MoveTo(Q,True); Designer.StopAt(Q);
+    Check(Designer.Scene.Item(B).Width > First.Width, 'Single unlocked note retains its resize handles');
+  finally Unselected.Free; Bitmap.Free; Form.Free; end;
+end;
 procedure TPCBDragProbe.StartAt(const P: TPoint);
 begin MouseDown(mbLeft,[],P.X,P.Y); end;
 procedure TPCBDragProbe.MoveTo(const P: TPoint; Alt: Boolean);
@@ -4545,6 +4588,7 @@ begin
     TestPCBObjectTree;
     TestPCBLayout;
     TestPCBMagneticDrag;
+    TestPCBSelectionHandles;
     TestPCBValidation;
     TestPCBValidationPanel;
     TestPCBThemeContrast;

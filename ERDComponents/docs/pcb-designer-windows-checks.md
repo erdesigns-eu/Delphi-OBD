@@ -227,3 +227,12 @@ verified. No automated Windows smoke-run log was supplied.
 - Toggle AntiAlias; verify the geometry setting does not alter hit targets or object sizes.
 - Exercise custom OnDrawItemGlyph handlers, placement, handles, snapping and connection rewiring.
 - Compare the code editor, inspector and other existing controls: their original text APIs are unchanged.
+
+### Selection handles
+
+- Select four notes: all four must show eight clear square handles in both themes.
+- Drag the part of a multi-note handle outside its body: move the full group without resizing or losing selection; undo once.
+- Select a nonvisual component: handles remain visible and draggable, but do not resize its fixed glyph.
+- Select one unlocked note: resize from its corners and edges as before.
+- Include locked objects: subdued handles, default cursor, no movement from their handles.
+- Check neighboring/overlapping objects and high DPI: handles should remain above the scene objects.

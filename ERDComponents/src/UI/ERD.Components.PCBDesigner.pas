@@ -139,6 +139,7 @@ type
     function ItemRect(Index: Integer): TRect;
     function ItemAt(const P: TPoint): Integer;
     function GripAt(const P: TPoint): Integer;
+    function SelectionHandleAt(const P: TPoint): Integer;
     function GripRect(const R: TRect; Index: Integer): TRect;
     function Snap(Value: Double): Double;
     procedure PaintBoardLayer(ACanvas: TCanvas);
@@ -1763,6 +1764,17 @@ begin
   UpdateTransform; R := ItemRect(Index);
   for I := 0 to 7 do if PtInRect(GripRect(R, I), P) then Exit(I);
 end;
+function TERDPCBDesigner.SelectionHandleAt(const P: TPoint): Integer;
+var I, J: Integer; Value: TERDPCBDesignItem; R: TRect;
+begin
+  Result := -1; if FTemplateEditMode then Exit; UpdateTransform;
+  for I := FScene.Count-1 downto 0 do
+  begin
+    Value := FScene.Item(I); if not Value.Selected then Continue;
+    R := ItemRect(I);
+    for J := 0 to 7 do if PtInRect(GripRect(R,J),P) then Exit(I);
+  end;
+end;
 procedure TERDPCBDesigner.PaintBodies(ACanvas: TCanvas);
 var I, J, K, Radius, TerminalID: Integer; Value: TERDPCBComponent; Poly: TArray<TGPPointF>;
     R, Inner: TRect; P: TPoint; Pad: TERDPCBPad; Fill, Stroke, Accent: TColor; Painter: TERDPainter;
@@ -1943,8 +1955,6 @@ begin
           end;
           Painter.TextBlockF(LinkRect.Left,LinkRect.Top,LinkRect.Width,LinkRect.Height,Value.Caption,12,Palette.ForegroundText);
         finally Painter.ResetClip; end;
-        if Value.Selected and not Value.Locked and (FScene.SelectionCount = 1) then
-          for J := 0 to 7 do begin Grip := GripRect(R,J); Painter.RectangleF(Grip.Left,Grip.Top,Grip.Width,Grip.Height,Palette.Background,Palette.Accent); end;
         Continue;
       end;
       Stroke := Palette.NeutralDark; Width := 1;
@@ -1971,6 +1981,17 @@ begin
       Text := Value.Name; if Value.Locked then Text := Text+' [locked]';
       LinkRect := Rect(R.Left-ScaleValue(64),R.Bottom+ScaleValue(3),R.Right+ScaleValue(64),R.Bottom+ScaleValue(22));
       Painter.TextBlockF(LinkRect.Left,LinkRect.Top,LinkRect.Width,LinkRect.Height,Text,11,Ink,twRegular,False,taCenter);
+    end;
+    // Handles identify every selected object, including multiselection and fixed-size glyphs.
+    for I := 0 to FScene.Count-1 do
+    begin
+      Value := FScene.Item(I); if not Value.Selected then Continue;
+      R := ItemRect(I); Stroke := Palette.Accent; if Value.Locked then Stroke := Palette.Subtle;
+      for J := 0 to 7 do
+      begin
+        Grip := GripRect(R,J);
+        Painter.RectangleF(Grip.Left,Grip.Top,Grip.Width,Grip.Height,Palette.Background,Stroke);
+      end;
     end;
     ConnectionIndex := FScene.IndexOf(FConnectionID);
     if (ConnectionIndex >= 0) and ConnectionAnchors(ConnectionIndex,FConnectionRole,P,Q) then
@@ -2111,10 +2132,10 @@ begin
     end;
   end;
   Index := ItemAt(P);
-  if not FTemplateEditMode and (Index < 0) and (PadAt(X,Y) = '') and HitTestConnection(P, ID, Role) then
+  if not FTemplateEditMode and (Index < 0) and (SelectionHandleAt(P) < 0) and (PadAt(X,Y) = '') and HitTestConnection(P, ID, Role) then
   begin SelectConnection(ID, Role); Exit; end;
   ClearConnectionSelection;
-  FGrip := GripAt(P); Index := ItemAt(P);
+  FGrip := GripAt(P); Index := SelectionHandleAt(P); if Index < 0 then Index := ItemAt(P);
   if FTemplateEditMode then begin FGrip := -1; Index := -1; end;
   if FGrip >= 0 then
   begin
@@ -2187,7 +2208,7 @@ begin
       if FScene.Item(ConnectionIndex).Locked then Cursor := crDefault else Cursor := crCross;
       Exit;
     end;
-  if not FTemplateEditMode and (ItemAt(Point(X,Y)) < 0) and (PadAt(X,Y) = '') and
+  if not FTemplateEditMode and (ItemAt(Point(X,Y)) < 0) and (SelectionHandleAt(Point(X,Y)) < 0) and (PadAt(X,Y) = '') and
     HitTestConnection(Point(X,Y), ID, Role) then
   begin SetHot(''); SetHotConnection(ID, Role); Cursor := crHandPoint; Exit; end;
   SetHotConnection('', prPrimary);
@@ -2196,7 +2217,9 @@ begin
     0, 4: Cursor := crSizeNWSE; 2, 6: Cursor := crSizeNESW;
     1, 5: Cursor := crSizeNS; 3, 7: Cursor := crSizeWE;
   else
-    if ItemAt(Point(X, Y)) >= 0 then Cursor := crSizeAll
+    Grip := SelectionHandleAt(Point(X,Y)); if Grip < 0 then Grip := ItemAt(Point(X,Y));
+    if Grip >= 0 then
+    begin if FScene.Item(Grip).Locked then Cursor := crDefault else Cursor := crSizeAll; end
     else begin Hot := PadAt(X, Y); SetHot(Hot); if Hot <> '' then Cursor := crHandPoint else Cursor := crDefault; end;
   end;
 end;

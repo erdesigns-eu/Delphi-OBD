@@ -240,3 +240,16 @@ Hit testing, world coordinates, pin assignment, dragging and undo remain model A
 The palette, object tree and validation panel opt into shared `TextF` for floating
 text geometry. Existing `Text`, `WrapText` and editor text metrics remain unchanged.
 The `OnDrawItemGlyph` canvas hook remains available for host-owned custom drawing.
+
+## Selection handles
+
+Every selected scene object shows eight themed square handles, including all
+objects in a multiselection and fixed-size nonvisual components. Handles are drawn
+after all bodies and labels so nearby objects cannot cover them. Locked objects
+use subdued handles and remain immovable.
+
+A single unlocked note retains eight resize handles. In multiselection, handles
+move the selected unlocked objects as a group without resizing them. Nonvisual
+handles always move their component; its glyph stays at the fixed DPI-scaled size.
+The complete visible handle is hit-testable, including the portion outside the body.
+Handle dragging uses the existing snapping and single-step undo transaction.
