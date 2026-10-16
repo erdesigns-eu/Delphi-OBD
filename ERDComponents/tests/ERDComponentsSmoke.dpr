@@ -2766,15 +2766,24 @@ begin
     Designer.Scene.SelectAll; Designer.Scene.ResetHistory; Designer.Render(Bitmap);
     for I := A to B do
     begin
-      First := Designer.Scene.Item(I); P := Designer.BoardToClient(PointF(First.X,First.Y+First.Height));
+      First := Designer.Scene.Item(I);
+      if I = A then P := Designer.BoardToClient(PointF(First.X,First.Y+First.Height))
+      else P := Designer.BoardToClient(PointF(First.X+First.Width,First.Y+First.Height));
       Count := 0;
       for Y := P.Y-MulDiv(4,Designer.CurrentPPI,96) to P.Y-1 do
         for X := P.X-MulDiv(4,Designer.CurrentPPI,96) to P.X+MulDiv(4,Designer.CurrentPPI,96) do
           if Bitmap.Canvas.Pixels[X,Y] <> Unselected.Canvas.Pixels[X,Y] then Inc(Count);
-      Check(Count > 0, 'Every note in a multiselection has an exterior selection handle');
+      Check(Count > 0, 'Multiselection has handles on its outer group corners');
     end;
+    First := Designer.Scene.Item(B); P := Designer.BoardToClient(PointF(First.X,First.Y+First.Height));
+    Count := 0;
+    for Y := P.Y-MulDiv(4,Designer.CurrentPPI,96) to P.Y-MulDiv(2,Designer.CurrentPPI,96) do
+      for X := P.X-MulDiv(3,Designer.CurrentPPI,96) to P.X+MulDiv(3,Designer.CurrentPPI,96) do
+        if Bitmap.Canvas.Pixels[X,Y] <> Unselected.Canvas.Pixels[X,Y] then Inc(Count);
+    Check(Count = 0, 'Multiselection does not draw handles on individual interior component corners');
     First := Designer.Scene.Item(A); Second := Designer.Scene.Item(B); Before := Designer.Scene.ContentJSON;
-    P := Designer.BoardToClient(PointF(First.X,First.Y+First.Height)); Dec(P.X,1); Dec(P.Y,1); Q := Point(P.X+15,P.Y+10);
+    P := Designer.BoardToClient(PointF((First.X+Second.X+Second.Width)/2,First.Y+First.Height));
+    Dec(P.Y,1); Q := Point(P.X+15,P.Y+10);
     Designer.StartAt(P); Designer.MoveTo(Q,True); Designer.StopAt(Q);
     Check((Designer.Scene.SelectionCount = 2) and (Designer.Scene.Item(A).Width = First.Width) and
       (Designer.Scene.Item(B).Width = Second.Width) and (Designer.Scene.Item(A).X <> First.X) and

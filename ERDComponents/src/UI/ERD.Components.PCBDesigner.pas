@@ -140,6 +140,7 @@ type
     function ItemRect(Index: Integer): TRect;
     function ItemAt(const P: TPoint): Integer;
     function GripAt(const P: TPoint): Integer;
+    function SelectionHandleBounds(out Bounds: TRect): Integer;
     function SelectionHandleAt(const P: TPoint): Integer;
     function GripRect(const R: TRect; Index: Integer): TRect;
     function Snap(Value: Double): Double;
@@ -1803,16 +1804,27 @@ begin
   UpdateTransform; R := ItemRect(Index);
   for I := 0 to 7 do if PtInRect(GripRect(R, I), P) then Exit(I);
 end;
-function TERDPCBDesigner.SelectionHandleAt(const P: TPoint): Integer;
-var I, J: Integer; Value: TERDPCBDesignItem; R: TRect;
+function TERDPCBDesigner.SelectionHandleBounds(out Bounds: TRect): Integer;
+var I: Integer; Value: TERDPCBDesignItem; R: TRect;
 begin
-  Result := -1; if FTemplateEditMode then Exit; UpdateTransform;
-  for I := FScene.Count-1 downto 0 do
+  Result := -1; Bounds := Rect(0,0,0,0); if FTemplateEditMode then Exit;
+  UpdateTransform;
+  for I := 0 to FScene.Count-1 do
   begin
     Value := FScene.Item(I); if not Value.Selected or Value.Locked then Continue;
     R := ItemRect(I);
-    for J := 0 to 7 do if PtInRect(GripRect(R,J),P) then Exit(I);
+    if Result < 0 then begin Bounds := R; Result := I; end
+    else begin
+      Bounds.Left := Min(Bounds.Left,R.Left); Bounds.Top := Min(Bounds.Top,R.Top);
+      Bounds.Right := Max(Bounds.Right,R.Right); Bounds.Bottom := Max(Bounds.Bottom,R.Bottom);
+    end;
   end;
+end;
+function TERDPCBDesigner.SelectionHandleAt(const P: TPoint): Integer;
+var Index, J: Integer; R: TRect;
+begin
+  Result := -1; Index := SelectionHandleBounds(R); if Index < 0 then Exit;
+  for J := 0 to 7 do if PtInRect(GripRect(R,J),P) then Exit(Index);
 end;
 procedure TERDPCBDesigner.PaintBodies(ACanvas: TCanvas);
 var I, J, K, Radius, TerminalID: Integer; Value: TERDPCBComponent; Poly: TArray<TGPPointF>;
@@ -2071,11 +2083,12 @@ begin
       Painter.GlyphLine(glLock,R.Right+ScaleValue(12),R.Top+ScaleValue(8),
         Palette.ForegroundText,ScaleValue(96)/96);
     end;
-    // Handles identify unlocked selected objects, including multiselection and fixed-size glyphs.
-    for I := 0 to FScene.Count-1 do
+    // One set of handles represents the movable selection as a whole.
+    if SelectionHandleBounds(R) >= 0 then
     begin
-      Value := FScene.Item(I); if not Value.Selected or Value.Locked then Continue;
-      R := ItemRect(I); Stroke := Palette.Accent;
+      Stroke := Palette.Accent;
+      if FScene.SelectionCount > 1 then
+        Painter.RectangleF(R.Left,R.Top,R.Width,R.Height,clNone,Stroke);
       for J := 0 to 7 do
       begin
         Grip := GripRect(R,J);

@@ -243,10 +243,12 @@ The `OnDrawItemGlyph` canvas hook remains available for host-owned custom drawin
 
 ## Selection handles
 
-Every unlocked selected scene object shows eight themed square handles, including
-objects in a multiselection and fixed-size nonvisual components. Handles are drawn
-after all bodies and labels so nearby objects cannot cover them. Locked objects
-have no handles and remain immovable.
+A single unlocked selected scene object shows eight themed square handles.
+Multiselection shows one bounding frame with eight handles around all selected
+unlocked objects; individual objects keep their accent outlines without handles.
+Group handles move the unlocked selection without resizing it. Locked objects
+are excluded from the handle bounds and remain immovable. An entirely locked
+selection has no handles. Handles are drawn above bodies and labels.
 
 A single unlocked note retains eight resize handles. In multiselection, handles
 move the selected unlocked objects as a group without resizing them. Nonvisual
