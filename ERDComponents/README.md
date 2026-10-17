@@ -551,7 +551,8 @@ filters, pauzeren en optionele commando-invoer via een synthetische host.
 De pagina **Shape inspector** toont `TERDShapeInspector` met een visuele boom van
 shape-relaties, klikbare kaarten, property-layouts en expliciet ontbrekende NDB-data.
 De voorbeelddata en navigatie zijn synthetisch; er is geen TSVM-transport ingebouwd.
-Kies **Docking** bovenaan de zijbalk of in de paginatabs. Deze pagina toont `TERDDockHost` met tabgroepen, splitsers, zwevende
+Kies **Docking** bovenaan de zijbalk of in de paginatabs. De paginatabs staan
+vast in de DFM; de startup koppelt docking direct aan zijn tab en zijbalkingang. Deze pagina toont `TERDDockHost` met tabgroepen, splitsers, zwevende
 panelen, auto-hide en layoutopslag. De Office-hintstijl heeft een vetgedrukte
 titel, beschrijving en automatisch overgenomen component-/itemicoon. ERD-controls
 kiezen deze hintstijl zelf; een aparte handler is niet nodig.

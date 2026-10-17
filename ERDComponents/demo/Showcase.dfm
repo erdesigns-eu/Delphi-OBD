@@ -430,6 +430,27 @@
         end
         item
           Caption = 'Dialogs / notifications'
+        end
+        item
+          Caption = 'Code'
+        end
+        item
+          Caption = 'PCB designer'
+        end
+        item
+          Caption = 'Debugger components'
+        end
+        item
+          Caption = 'Runtime monitor'
+        end
+        item
+          Caption = 'Debug console'
+        end
+        item
+          Caption = 'Shape inspector'
+        end
+        item
+          Caption = 'Docking'
         end>
       TabIndex = 0
       OnChange = PageSelected

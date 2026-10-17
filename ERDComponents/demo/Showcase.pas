@@ -648,6 +648,9 @@ type
     procedure BrowseDropFiles(Sender: TObject);
     procedure OpenFile(Sender: TObject);
     procedure IconClicked(Sender: TObject);
+  private
+    FDockingTabIndex: Integer;
+    procedure EnsureDockingNavigation;
   public
     // Runtime-only previews: do not let the form designer manage these fields.
     PCBPage: TPCBPreview;
@@ -933,7 +936,6 @@ begin
   CodeEditor.OnSearchRequested := CodeSearchRequested;
   CodeEditor.OnChange := CodeDocumentChanged;
   CodeSearchChanged(Self);
-  PageTabs.Tabs.Add.Caption := 'Code';
   PageTabs.BringToFront;
 end;
 
@@ -1095,34 +1097,61 @@ begin
   end;
 end;
 
+procedure TShowcaseForm.EnsureDockingNavigation;
+var I, J, Index: Integer; Item: TERDSidebarItem;
+const Captions: array[0..6] of string = ('Code','PCB designer','Debugger components',
+  'Runtime monitor','Debug console','Shape inspector','Docking');
+begin
+  // Restore runtime navigation too if the form designer retained an older tab collection.
+  FDockingTabIndex := -1;
+  for J := 0 to High(Captions) do
+  begin
+    Index := -1;
+    for I := 0 to PageTabs.Tabs.Count-1 do
+      if SameText(PageTabs.Tabs[I].Caption,Captions[J]) then begin Index := I; Break; end;
+    if Index < 0 then
+    begin
+      PageTabs.Tabs.Add.Caption := Captions[J]; Index := PageTabs.Tabs.Count-1;
+    end;
+    if J = High(Captions) then FDockingTabIndex := Index;
+  end;
+  PageTabs.Tabs[FDockingTabIndex].Visible := True;
+  PageTabs.Tabs[FDockingTabIndex].Enabled := True;
+  Item := nil;
+  for I := 0 to Sidebar.Items.Count-1 do
+    if SameText(Sidebar.Items[I].Caption,'Docking') then begin Item := Sidebar.Items[I]; Break; end;
+  if Item = nil then begin Item := Sidebar.Items.Add; Item.Caption := 'Docking'; end;
+  Item.Tag := -FDockingTabIndex; Item.Visible := True; Item.Enabled := True;
+  Item.Footer := False; Item.Index := Min(1,Sidebar.Items.Count-1);
+  Item.Icon.BuiltIn := ei048Venstersnaastelkaar;
+  Item.Hint := 'Docking|Drag tabs to dock or float panels. Use the Docking ribbon to try auto-hide and save layouts.';
+end;
+
 procedure TShowcaseForm.FormCreate(Sender: TObject);
 var Bitmap: TBitmap;
 begin
+  EnsureDockingNavigation;
+  DockPage := TDockPreview.Create(Self); DockPage.Parent := DemoPages;
+  DockPage.Align := alClient; DockPage.Visible := False; DockPage.AttachRibbon(Ribbon);
+  PageTabs.Tabs[FDockingTabIndex].Page := DockPage;
   CreateUnicodePreviews;
   CreateCodePreview;
   PCBPage := TPCBPreview.Create(Self); PCBPage.Parent := DemoPages;
   PCBPage.Align := alClient; PCBPage.Visible := False; PCBPage.AttachRibbon(Ribbon);
-  PageTabs.Tabs.Add.Caption := 'PCB designer';
   DebugPage := TDebugPreview.Create(Self); DebugPage.Parent := DemoPages;
   DebugPage.Align := alClient; DebugPage.Visible := False; DebugPage.AttachRibbon(Ribbon);
-  PageTabs.Tabs.Add.Caption := 'Debugger components';
   RuntimePage := TRuntimePreview.Create(Self); RuntimePage.Parent := DemoPages;
   RuntimePage.Align := alClient; RuntimePage.Visible := False; RuntimePage.AttachRibbon(Ribbon);
-  PageTabs.Tabs.Add.Caption := 'Runtime monitor';
   ConsolePage := TConsolePreview.Create(Self); ConsolePage.Parent := DemoPages;
   ConsolePage.Align := alClient; ConsolePage.Visible := False; ConsolePage.AttachRibbon(Ribbon);
-  PageTabs.Tabs.Add.Caption := 'Debug console';
   ShapePage := TShapePreview.Create(Self); ShapePage.Parent := DemoPages;
   ShapePage.Align := alClient; ShapePage.Visible := False; ShapePage.AttachRibbon(Ribbon);
-  PageTabs.Tabs.Add.Caption := 'Shape inspector';
-  DockPage := TDockPreview.Create(Self); DockPage.Parent := DemoPages;
-  DockPage.Align := alClient; DockPage.Visible := False; DockPage.AttachRibbon(Ribbon);
-  PageTabs.Tabs.Add.Caption := 'Docking';
   Menu := nil;
   TitleBar.Menu := MainMenu;
   TitleBar.Ribbon := Ribbon;
   TitleBar.CommandStyle := csRibbon;
   LayoutChrome(Self);
+  PageTabs.BringToFront;
   PageSelected(Self);
   StatusBar.Panels[2].Control := StatusHost;
   DemoDataGrid.AddRow(['Example file', 'Ready']);
@@ -1364,7 +1393,7 @@ begin
   if RuntimePage <> nil then begin RuntimePage.Visible := PageTabs.TabIndex = 9; RuntimePage.SetRibbonActive(RuntimePage.Visible); end;
   if ConsolePage <> nil then begin ConsolePage.Visible := PageTabs.TabIndex = 10; ConsolePage.SetRibbonActive(ConsolePage.Visible); end;
   if ShapePage <> nil then begin ShapePage.Visible := PageTabs.TabIndex = 11; ShapePage.SetRibbonActive(ShapePage.Visible); end;
-  if DockPage <> nil then begin DockPage.Visible := PageTabs.TabIndex = 12; DockPage.SetRibbonActive(DockPage.Visible); end;
+  if DockPage <> nil then begin DockPage.Visible := PageTabs.TabIndex = FDockingTabIndex; DockPage.SetRibbonActive(DockPage.Visible); end;
 end;
 
 procedure TShowcaseForm.CommandSelected(Sender: TObject);

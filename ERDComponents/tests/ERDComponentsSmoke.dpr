@@ -8,7 +8,7 @@ uses
   System.IOUtils, System.JSON, System.UITypes,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
   Winapi.Windows, Vcl.Clipbrd, Vcl.ActnList, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
-  ERD.Components.Tabs, ERD.Components.Memo, ERD.Components.Menus,
+  ERD.Components.Sidebar, ERD.Components.Tabs, ERD.Components.Memo, ERD.Components.Menus,
   ERD.Components.Rating,
   ERD.Components.CommandPalette,
   ERD.Components.DropZone,
@@ -1108,6 +1108,37 @@ begin
     Form.Free;
     Probe.Free;
   end;
+end;
+
+procedure TestShowcaseDockingNavigation;
+var Form: TShowcaseForm; I, DockIndex: Integer; Item: TERDSidebarItem;
+    Host: TERDDockHost; R: TRect;
+begin
+  Form := TShowcaseForm.Create(nil);
+  try
+    DockIndex := -1; Item := nil; Host := nil;
+    Check(Form.PageTabs.Tabs.Count = 13, 'Demo loads thirteen tabs without runtime duplicates');
+    for I := 0 to Form.PageTabs.Tabs.Count-1 do
+      if Form.PageTabs.Tabs[I].Caption = 'Docking' then DockIndex := I;
+    Check(DockIndex = Form.PageTabs.Tabs.Count-1, 'Docking is the final demo page');
+    for I := 0 to Form.Sidebar.Items.Count-1 do
+      if Form.Sidebar.Items[I].Caption = 'Docking' then Item := Form.Sidebar.Items[I];
+    Check((Item <> nil) and Item.Visible and Item.Enabled and (Item.Index = 1) and
+      (Item.Tag = -DockIndex), 'Visible docking sidebar entry targets the actual docking tab');
+    Check((Form.DockPage <> nil) and (Form.PageTabs.Tabs[DockIndex].Page = Form.DockPage), 'Docking tab is bound to a live demo page');
+    Form.Show; Application.ProcessMessages;
+    Form.SidebarSelected(Form.Sidebar,Item);
+    Check((Form.PageTabs.TabIndex = DockIndex) and Form.DockPage.Visible and
+      not Form.IconsPage.Visible, 'Sidebar navigation opens the docking demo');
+    R := Form.PageTabs.TabBounds(DockIndex);
+    Check((R.Left >= 0) and (R.Right <= Form.PageTabs.ClientWidth), 'Selecting docking reveals the overflowed final tab');
+    for I := 0 to Form.DockPage.ComponentCount-1 do
+      if Form.DockPage.Components[I] is TERDDockHost then Host := TERDDockHost(Form.DockPage.Components[I]);
+    Check((Host <> nil) and (Host.PanelCount = 6) and (Host.ClientWidth > 0) and
+      (Host.ClientHeight > 0), 'Docking demo contains its six panels in a visible viewport');
+    Form.PageTabs.TabIndex := 0; Check(not Form.DockPage.Visible, 'Leaving docking hides its preview');
+    Form.PageTabs.TabIndex := DockIndex; Check(Form.DockPage.Visible, 'Selecting the last tab directly opens docking');
+  finally Form.Free; end;
 end;
 
 procedure TestVirtualTreeDensity;
@@ -5940,7 +5971,7 @@ begin
     TestComboMouseChange;
     TestDemoLayoutAndSpinMargins;
     TestWindowsFocusCuesAndAutoSave;
-    TestVirtualTreeThemeAndLazyNodes; TestVirtualTreeDensity;
+    TestVirtualTreeThemeAndLazyNodes; TestVirtualTreeDensity; TestShowcaseDockingNavigation;
     TestCommonControls;
     TestFeedbackRegressions;
     TestSplitMenuGeometry;
