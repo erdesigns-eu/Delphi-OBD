@@ -18,9 +18,11 @@ type
     Column: TColumnIndex; var Text: string; var Accept: Boolean) of object;
 
   /// <summary>Virtual Treeview V8.5 with ERD palettes and drawing; node/event API is retained.</summary>
-  TERDVirtualStringTree = class(TERDVTVirtualStringTree, IERDThemeAware)
+  TERDVirtualStringTree = class(TERDVTVirtualStringTree, IERDThemeAware, IERDDensityAware, IERDDensitySource)
   private
     FTheme: TERDTheme;
+    FDensity: TERDDensity;
+    FParentDensity: Boolean;
     FOnGetCellEditor: TERDTreeGetEditorEvent;
     FOnValidateCellEdit: TERDTreeValidateEditEvent;
     FVerticalBar: TERDScrollBar;
@@ -32,6 +34,11 @@ type
     FRowHeight: Integer;
     FHeaderHeight: Integer;
     FAlternateRows: Boolean;
+    function GetDensity: TERDDensity;
+    function GetParentDensity: Boolean;
+    procedure SetDensity(Value: TERDDensity);
+    procedure SetParentDensity(Value: Boolean);
+    function IsDensityStored: Boolean;
     procedure SyncScrollBars;
     procedure ScrollChanged(Sender: TObject);
     procedure SetTheme(Value: TERDTheme);
@@ -71,14 +78,18 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure ThemeChanged;
+    procedure DensityChanged; virtual;
     property Palette: TERDThemePalette read GetThemePalette;
     property VerticalScrollBar: TERDScrollBar read FVerticalBar;
     property HorizontalScrollBar: TERDScrollBar read FHorizontalBar;
   published
     property BorderStyle default TFormBorderStyle.bsNone;
     property Theme: TERDTheme read FTheme write SetTheme;
-    /// <summary>Default row height in 96-DPI logical pixels; individual node heights remain available.</summary>
+    property Density: TERDDensity read GetDensity write SetDensity stored IsDensityStored;
+    property ParentDensity: Boolean read FParentDensity write SetParentDensity default True;
+    /// <summary>Desktop row height in 96-DPI logical pixels; tablet density adds touch spacing. Individual node heights remain available.</summary>
     property RowHeight: Integer read FRowHeight write SetRowHeight default 32;
+    /// <summary>Desktop header height in 96-DPI logical pixels; tablet density adds touch spacing.</summary>
     property HeaderHeight: Integer read FHeaderHeight write SetHeaderHeight default 30;
     /// <summary>Select an ERD editor and populate combo choices per cell.</summary>
     property OnNewText;
@@ -331,6 +342,8 @@ constructor TERDVirtualStringTree.Create(AOwner: TComponent);
 var Bitmap: TBitmap; I: Integer;
 begin
   inherited;
+  FDensity := dnDesktop;
+  FParentDensity := True;
   FVerticalBar := TERDScrollBar.Create(Self);
   FVerticalBar.Parent := Self;
   FVerticalBar.TabStop := False;
@@ -392,7 +405,7 @@ begin
     FTheme.FreeNotification(Self);
     FTheme.Attach(Self);
   end;
-  ThemeChanged;
+  DensityChanged;
 end;
 
 function TERDVirtualStringTree.GetThemePalette: TERDThemePalette;
@@ -411,7 +424,7 @@ begin
   if (Operation = opRemove) and (AComponent = FTheme) then
   begin
     FTheme := nil;
-    if not (csDestroying in ComponentState) then ThemeChanged;
+    if not (csDestroying in ComponentState) then DensityChanged;
   end;
 end;
 
@@ -481,9 +494,9 @@ begin
     Font.Style := [];
     Font.Color := P.ForegroundText;
     Header.Font.Assign(Font);
-    Header.Height := MulDiv(FHeaderHeight, PPI, 96);
+    Header.Height := MulDiv(FHeaderHeight+DensityMetrics(Density).Edit-DensityMetrics(dnDesktop).Edit, PPI, 96);
     OldHeight := DefaultNodeHeight;
-    NewHeight := MulDiv(FRowHeight, PPI, 96);
+    NewHeight := MulDiv(FRowHeight+DensityMetrics(Density).Edit-DensityMetrics(dnDesktop).Edit, PPI, 96);
     if OldHeight <> NewHeight then
     begin
       BeginUpdate;
@@ -524,6 +537,48 @@ begin
   ApplyTheme;
   Invalidate;
   if HandleAllocated then SyncScrollBars;
+end;
+
+function TERDVirtualStringTree.GetParentDensity: Boolean;
+begin Result := FParentDensity; end;
+
+function TERDVirtualStringTree.GetDensity: TERDDensity;
+var Source: IERDDensitySource; ThemeSource: TERDTheme;
+begin
+  if FParentDensity and Supports(Owner, IERDDensitySource, Source) then Exit(Source.GetDensity);
+  Result := FDensity; if not FParentDensity then Exit;
+  ThemeSource := FTheme; if ThemeSource = nil then ThemeSource := TERDTheme.FindOnOwner(Self);
+  if ThemeSource = nil then ThemeSource := TERDTheme.GetDefault;
+  if (ThemeSource <> nil) and not (csDestroying in ThemeSource.ComponentState) then Result := ThemeSource.Density;
+end;
+
+function TERDVirtualStringTree.IsDensityStored: Boolean;
+begin Result := not FParentDensity; end;
+
+procedure TERDVirtualStringTree.SetDensity(Value: TERDDensity);
+begin
+  if (FDensity = Value) and not FParentDensity then Exit;
+  FDensity := Value; FParentDensity := False; DensityChanged;
+end;
+
+procedure TERDVirtualStringTree.SetParentDensity(Value: Boolean);
+begin
+  if FParentDensity = Value then Exit;
+  FParentDensity := Value; DensityChanged;
+end;
+
+procedure TERDVirtualStringTree.DensityChanged;
+var I: Integer; Part: TComponent; Source: IERDDensitySource; Aware: IERDDensityAware;
+begin
+  if csDestroying in ComponentState then Exit;
+  ThemeChanged;
+  for I := 0 to ComponentCount-1 do
+  begin
+    Part := Components[I];
+    if not (csDestroying in Part.ComponentState) and
+      Supports(Part, IERDDensitySource, Source) and Source.GetParentDensity and
+      Supports(Part, IERDDensityAware, Aware) then Aware.DensityChanged;
+  end;
 end;
 
 procedure TERDVirtualStringTree.SetRowHeight(Value: Integer);

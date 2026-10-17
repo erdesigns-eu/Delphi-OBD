@@ -129,7 +129,7 @@ type
   /// to draw onto the supplied <c>TCanvas</c>; the base class
   /// handles double-buffering, theme resolution, and DPI
   /// scaling.</summary>
-  TERDCustomControl = class(TCustomControl, IERDThemeAware, IERDDensityAware)
+  TERDCustomControl = class(TCustomControl, IERDThemeAware, IERDDensityAware, IERDDensitySource)
   strict private
     FTheme: TERDTheme;
     FStyle: TERDVisualStyle;
@@ -144,6 +144,7 @@ type
     FEditDown: TERDTileHit;
     procedure SetTheme(AValue: TERDTheme);
     function GetDensity: TERDDensity;
+    function GetParentDensity: Boolean;
     procedure SetDensity(AValue: TERDDensity);
     procedure SetParentDensity(AValue: Boolean);
     function IsDensityStored: Boolean;
@@ -652,16 +653,17 @@ begin
   Invalidate;
 end;
 
+function TERDCustomControl.GetParentDensity: Boolean;
+begin Result := FParentDensity; end;
+
 function TERDCustomControl.GetDensity: TERDDensity;
+var Source: IERDDensitySource;
 begin
-  // A part of a composite control (owned by it) follows the
-  // composite's density; other controls follow the theme.
-  if FParentDensity and (Owner is TERDCustomControl) then
-    Result := TERDCustomControl(Owner).GetDensity
+  if FParentDensity and Supports(Owner, IERDDensitySource, Source) then
+    Result := Source.GetDensity
   else if FParentDensity and (FResolvedTheme <> nil) then
     Result := FResolvedTheme.Density
-  else
-    Result := FDensity;
+  else Result := FDensity;
 end;
 
 procedure TERDCustomControl.SetDensity(AValue: TERDDensity);
@@ -692,19 +694,16 @@ begin
 end;
 
 procedure TERDCustomControl.DensityChanged;
-var
-  I: Integer;
-  Part: TERDCustomControl;
+var I: Integer; Part: TComponent; Source: IERDDensitySource; Aware: IERDDensityAware;
 begin
-  // Owned parts re-measure first, so a composite's own layout code
-  // (which runs after inherited) sees their new sizes.
+  // Include ERD engine adapters, not only descendants of this concrete class.
   for I := 0 to ComponentCount - 1 do
-    if Components[I] is TERDCustomControl then
-    begin
-      Part := TERDCustomControl(Components[I]);
-      if Part.FParentDensity and not (csDestroying in Part.ComponentState) then
-        Part.DensityChanged;
-    end;
+  begin
+    Part := Components[I];
+    if not (csDestroying in Part.ComponentState) and
+      Supports(Part, IERDDensitySource, Source) and Source.GetParentDensity and
+      Supports(Part, IERDDensityAware, Aware) then Aware.DensityChanged;
+  end;
   FBufferDirty := True;
   Invalidate;
 end;

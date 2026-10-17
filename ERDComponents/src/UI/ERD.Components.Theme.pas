@@ -62,6 +62,13 @@ type
     procedure ThemeChanged;
   end;
 
+  // Shared contract for ERD controls and adapters with a different VCL ancestor.
+  IERDDensitySource = interface
+    ['{FA73EF7D-4B5D-4EBC-84AB-901207496849}']
+    function GetDensity: TERDDensity;
+    function GetParentDensity: Boolean;
+  end;
+
   /// <summary>Controls whose layout depends on
   /// <see cref="TERDTheme.Density"/> implement this next to
   /// <see cref="IERDThemeAware"/>; the theme calls

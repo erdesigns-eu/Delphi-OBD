@@ -51,6 +51,19 @@ Office Word, Excel, Access, PowerPoint, Outlook en OneNote elk in Light/Dark.
 Automatic is optioneel. Focusranden volgen de Windows focus-cue-instellingen.
 `ERDThemeName` levert de weergavenaam; custom palettes blijven ondersteund.
 
+`Density` en `ParentDensity` zijn ook beschikbaar op `TERDVirtualStringTree`
+en alle afgeleide bomen. De boomwrapper gebruikt de Virtual Treeview-engine als
+voorouder en biedt hetzelfde density-contract via `IERDDensitySource` en
+`IERDDensityAware`. Owned onderdelen volgen hun ERD-eigenaar; zelfstandige
+controls volgen hun theme. `Density` instellen schakelt `ParentDensity` uit;
+`ParentDensity := True` herstelt de overerving. Dit geldt ook voor de interne
+scrollbars en ERD-celeditors.
+
+Bij bomen blijven `RowHeight` en `HeaderHeight` desktopmaten in logische
+96-DPI-pixels. Tablet-density voegt touchruimte toe voordat DPI-scaling wordt
+toegepast. Afwijkende individuele nodehoogtes blijven behouden; DFM bewaart
+lokale density-overrides. De host hoeft geen rijhoogtes per density te berekenen.
+
 De ribbon heeft drie onafhankelijke keuzes:
 
 - `Theme`: kleuren en licht/donker.

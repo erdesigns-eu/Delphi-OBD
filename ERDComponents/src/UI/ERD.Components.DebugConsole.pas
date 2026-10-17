@@ -451,7 +451,7 @@ begin
   if FInput <> nil then begin FInput.ParentDensity := False; FInput.Density := Density; end;
   if FLevelChoice <> nil then begin FLevelChoice.ParentDensity := False; FLevelChoice.Density := Density; end;
   if FChannelChoice <> nil then begin FChannelChoice.ParentDensity := False; FChannelChoice.Density := Density; end;
-  if FTree <> nil then begin FTree.RowHeight := Metrics.Edit+6; FTree.HeaderHeight := Metrics.Edit+4; RebuildView; end; Resize;
+  if FTree <> nil then RebuildView; Resize;
 end;
 procedure TERDDebugConsole.Resize;
 var H, Margin, Top, Bottom, Half: Integer;

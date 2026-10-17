@@ -1110,6 +1110,57 @@ begin
   end;
 end;
 
+procedure TestVirtualTreeDensity;
+var Form: TForm; Theme, OtherTheme: TERDTheme; Host: TERDPanel; Tree, Direct, CopyTree: TERDVirtualStringTree;
+    Input: TERDEdit; Source: IERDDensitySource; Aware: IERDDensityAware;
+    Node, Custom: PVirtualNode; Stream: TMemoryStream; Delta: Integer;
+begin
+  Form := TForm.Create(nil);
+  try
+    Theme := TERDTheme.Create(Form); Theme.Density := dnDesktop;
+    Host := TERDPanel.Create(Form); Host.Parent := Form; Host.Theme := Theme;
+    Tree := TERDVirtualStringTree.Create(Host); Tree.Parent := Host;
+    Direct := TERDVirtualStringTree.Create(Form); Direct.Parent := Form;
+    Input := TERDEdit.Create(Tree); Input.Parent := Tree;
+    Check(Supports(Tree,IERDDensitySource,Source) and Supports(Tree,IERDDensityAware,Aware), 'ERD tree adapter implements the shared density contract');
+    Source := nil; Aware := nil;
+    Check(Tree.ParentDensity and (Tree.Density = dnDesktop), 'ERD trees inherit density by default');
+    Node := Tree.AddChild(nil); Custom := Tree.AddChild(nil); Tree.NodeHeight[Custom] := MulDiv(80,Tree.CurrentPPI,96);
+    Delta := DensityMetrics(dnTablet).Edit-DensityMetrics(dnDesktop).Edit;
+    Host.Density := dnTablet;
+    Check((Tree.Density = dnTablet) and (Input.Density = dnTablet), 'Owner density propagates across the tree adapter to ERD editor controls');
+    Check((Tree.VerticalScrollBar.Density = dnTablet) and (Tree.HorizontalScrollBar.Density = dnTablet), 'Owned ERD tree scrollbars inherit density');
+    Check((Tree.DefaultNodeHeight = MulDiv(32+Delta,Tree.CurrentPPI,96)) and
+      (Tree.Header.Height = MulDiv(30+Delta,Tree.CurrentPPI,96)), 'Tree density adds touch spacing before DPI scaling');
+    Check((Node.NodeHeight = Tree.DefaultNodeHeight) and (Custom.NodeHeight = MulDiv(80,Tree.CurrentPPI,96)), 'Density remeasures default rows while retaining custom node heights');
+    Tree.Density := dnDesktop;
+    Check(not Tree.ParentDensity and (Tree.DefaultNodeHeight = MulDiv(32,Tree.CurrentPPI,96)) and
+      (Input.Density = dnDesktop), 'A local tree density overrides its composite owner and reaches editor controls');
+    Host.Density := dnDesktop; Host.Density := dnTablet;
+    Check(Tree.Density = dnDesktop, 'Owner changes respect explicit tree overrides');
+    Tree.ParentDensity := True; Check(Tree.Density = dnTablet, 'ParentDensity restores owner inheritance');
+    Theme.Density := dnTablet;
+    Check((Direct.Density = dnTablet) and (Direct.DefaultNodeHeight = MulDiv(32+Delta,Direct.CurrentPPI,96)), 'Standalone trees follow theme density notifications');
+    Host.Density := dnDesktop;
+    Check(Tree.Density = dnDesktop, 'Composite owner override takes precedence over theme density');
+    Direct.RowHeight := 40; Direct.HeaderHeight := 36; Theme.Density := dnDesktop; Theme.Density := dnTablet;
+    Check((Direct.RowHeight = 40) and (Direct.DefaultNodeHeight = MulDiv(40+Delta,Direct.CurrentPPI,96)) and
+      (Direct.Header.Height = MulDiv(36+Delta,Direct.CurrentPPI,96)), 'Custom logical tree dimensions are retained across density changes');
+    Direct.Density := dnDesktop; Theme.Density := dnDesktop; Theme.Density := dnTablet;
+    Check((Direct.Density = dnDesktop) and (Direct.DefaultNodeHeight = MulDiv(40,Direct.CurrentPPI,96)), 'Theme notifications respect local tree density');
+    RegisterClass(TERDVirtualStringTree); CopyTree := TERDVirtualStringTree.Create(Form); Stream := TMemoryStream.Create;
+    try
+      Stream.WriteComponent(Direct); Stream.Position := 0; Stream.ReadComponent(CopyTree);
+      Check(not CopyTree.ParentDensity and (CopyTree.Density = dnDesktop) and (CopyTree.RowHeight = 40), 'DFM preserves explicit density and desktop logical sizes');
+    finally Stream.Free; CopyTree.Free; end;
+    OtherTheme := TERDTheme.Create(Form); OtherTheme.Density := dnDesktop;
+    Input := TERDEdit.Create(Direct); Input.Parent := Direct;
+    Direct.ParentDensity := True; Direct.Theme := OtherTheme;
+    Check((Direct.Density = dnDesktop) and (Input.Density = dnDesktop) and
+      (Direct.DefaultNodeHeight = MulDiv(40,Direct.CurrentPPI,96)), 'Replacing the tree theme also refreshes inherited density and editor parts');
+  finally Form.Free; end;
+end;
+
 procedure TestVirtualTreeThemeAndLazyNodes;
 var
   Form: TShowcaseForm;
@@ -5889,7 +5940,7 @@ begin
     TestComboMouseChange;
     TestDemoLayoutAndSpinMargins;
     TestWindowsFocusCuesAndAutoSave;
-    TestVirtualTreeThemeAndLazyNodes;
+    TestVirtualTreeThemeAndLazyNodes; TestVirtualTreeDensity;
     TestCommonControls;
     TestFeedbackRegressions;
     TestSplitMenuGeometry;

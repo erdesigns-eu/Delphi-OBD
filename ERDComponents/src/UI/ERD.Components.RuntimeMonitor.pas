@@ -160,12 +160,9 @@ begin
   Resize;
 end;
 procedure TERDRuntimeMonitor.DensityChanged;
-var Group: TERDRuntimeGroup;
 begin
   inherited;
   if FTabs <> nil then begin FTabs.ParentDensity := False; FTabs.Density := Density; end;
-  for Group := Low(TERDRuntimeGroup) to High(TERDRuntimeGroup) do if FTables[Group] <> nil then
-  begin FTables[Group].RowHeight := Metrics.Edit+6; FTables[Group].HeaderHeight := Metrics.Edit+4; end;
   Resize;
 end;
 procedure TERDRuntimeMonitor.Resize;
