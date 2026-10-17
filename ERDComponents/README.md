@@ -3,6 +3,7 @@
 Zelfstandige algemene **Delphi VCL**-componentlibrary. Dit zijn onafhankelijke
 kopieën: Delphi-OBD wordt niet aangepast en heeft geen afhankelijkheid van deze
 library. De hele map kan naar een eigen repository worden verplaatst.
+Zie [extractie en zelfstandige verificatie](docs/extraction.md).
 
 - **95 paletcomponenten**: algemene invoer, navigatie, containers, grids, dialogen,
   applicatiechrome, theming en feedback. Zie `assets/components.json`.

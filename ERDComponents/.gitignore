@@ -9,3 +9,13 @@ __pycache__/
 !src/DesignTime/ERD.Components.Palette.res
 !packages/ERDComponents_RT.res
 !packages/ERDComponents_DT.res
+
+# Delphi IDE and per-platform build output; keep the bundled compiler executable.
+Win32/
+Win64/
+Win64x/
+__history/
+__recovery/
+*.map
+*.rsm
+*.drc

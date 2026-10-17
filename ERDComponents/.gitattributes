@@ -1,9 +1,16 @@
-*.pas text eol=crlf
-*.dpr text eol=crlf
-*.dpk text eol=crlf
-*.dproj text eol=crlf
+# Preserve Delphi IDE source formats when this directory becomes a repository root.
+*.pas text eol=crlf whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+*.dpr text eol=crlf whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+*.dpk text eol=crlf whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+*.dfm text eol=crlf whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+*.inc text eol=crlf whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+*.dproj text eol=crlf whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+*.groupproj text eol=crlf whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+*.py text eol=lf
+*.md text eol=lf
+*.json text eol=lf
 *.res binary
+*.exe binary
 *.png binary
 *.bmp binary
 *.svg text eol=lf
-*.py text eol=lf
