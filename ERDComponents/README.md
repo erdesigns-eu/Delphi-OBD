@@ -588,7 +588,7 @@ In de **Docking**-demo opent de projectboom meerdere documenttabs. Diagnostics
 navigeren naar de bijbehorende editor zonder andere documenten te overschrijven.
 De ribbonacties **Save document** en **Close document** werken op het actieve
 bestand. Opslaan bewaart uitsluitend de demotekst in het geheugen; gewijzigde
-documenten tonen nu een themed Save/Don't save/Cancel-dialoog bij sluiten.
+documenten moeten worden opgeslagen voordat sluiten wordt toegestaan.
 
 De documenthost kan nu één `DebugModel` aan alle editors koppelen.
 `NavigateToSource` en `RevealExecutionLocation` gebruiken een host-event om
