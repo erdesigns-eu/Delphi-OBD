@@ -4,7 +4,7 @@ Zelfstandige algemene **Delphi VCL**-componentlibrary. Dit zijn onafhankelijke
 kopieën: Delphi-OBD wordt niet aangepast en heeft geen afhankelijkheid van deze
 library. De hele map kan naar een eigen repository worden verplaatst.
 
-- **94 paletcomponenten**: algemene invoer, navigatie, containers, grids, dialogen,
+- **95 paletcomponenten**: algemene invoer, navigatie, containers, grids, dialogen,
   applicatiechrome, theming en feedback. Zie `assets/components.json`.
 - **320 ingebouwde vectoriconen**, met stabiele identifiers en schaalbare SVGs.
 - Eigen namespace `ERD.Components.*`, classes `TERD*`, interfaces `IERD*`.
@@ -22,7 +22,7 @@ library. De hele map kan naar een eigen repository worden verplaatst.
    De demo gebruikt `TERDTitleBar`; met de keuze Ribbon/Menu wissel je van commandosurface.
    De File-knop opent een echte backstage met eigen Information- en Settings-pagina’s.
    De voorbeeldpagina’s gebruiken `TERDTabs` en `TERDPanel`, zonder standaard PageControl.
-   De 94 geregistreerde componenten staan in de DFM of runtime-voorbeeldpagina's: de sidebar navigeert naar
+   De bestaande componentvoorbeelden staan in de DFM of runtime-voorbeeldpagina's: de sidebar navigeert naar
    iconen, invoer, layout, data, bestanden/kleuren en dialogs/notificaties.
    Dialogknoppen openen de bijbehorende component; toast, hints en popupmenu hebben eigen voorbeelden.
 
@@ -588,7 +588,7 @@ In de **Docking**-demo opent de projectboom meerdere documenttabs. Diagnostics
 navigeren naar de bijbehorende editor zonder andere documenten te overschrijven.
 De ribbonacties **Save document** en **Close document** werken op het actieve
 bestand. Opslaan bewaart uitsluitend de demotekst in het geheugen; gewijzigde
-documenten moeten worden opgeslagen voordat sluiten wordt toegestaan.
+documenten tonen nu een themed Save/Don't save/Cancel-dialoog bij sluiten.
 
 De documenthost kan nu één `DebugModel` aan alle editors koppelen.
 `NavigateToSource` en `RevealExecutionLocation` gebruiken een host-event om
@@ -599,3 +599,11 @@ Documentbeheer zit in de component-API: `SaveAllDocuments`, `CloseAllDocuments`,
 `CloseOtherDocuments` en `CloseDocumentsToRight`. Met `ConfirmClose=True` gebruikt
 de host een eigen themed ERD-dialoog. Asynchrone opslag bevestigt de applicatie
 met `CompleteSave` of `FailSave`; zie de documenthost-API voor queuegedrag.
+
+
+`TERDLEDView` is een zelfstandige component voor horizontale/verticale RGB-strips
+en LED-ringen, met kleuren per pixel, helderheid en selectie via muis/toetsenbord.
+Hij gebruikt de ERD-basis, theme en antialiased GDI+-painter. Kleurframes,
+animatietiming en hardwarekoppeling worden door de host aangeleverd.
+Deze component is op het Delphi-palet geregistreerd; de demo is hiervoor niet
+uitgebreid. Zie [LED view API](docs/led-view-api.md).

@@ -2,7 +2,7 @@
 interface
 procedure Register;
 implementation
-uses ERD.Components.DocumentHost,
+uses ERD.Components.LEDView, ERD.Components.DocumentHost,
     ERD.Components.ProjectTree,
     ERD.Components.DiagnosticList,
     ERD.Components.DockHost,
@@ -90,7 +90,7 @@ begin
   RegisterNoIcon([TERDDialogText, TERDTextInput, TERDTextArea, TERDCodeEditor]);
   RegisterERDPropertyEditors([
     TERDTextInput, TERDTextArea, TERDCodeEditor,
-    TERDDebugModel, TERDBreakpointPanel, TERDCallStack, TERDLocalsPanel, TERDWatchPanel, TERDDisassemblyView, TERDFiberList, TERDRuntimeMonitor, TERDDebugConsole, TERDShapeInspector, TERDDockHost, TERDDiagnosticList, TERDProjectTree, TERDDocumentHost, TERDValueTree, TERDTimeSeriesChart,
+    TERDDebugModel, TERDBreakpointPanel, TERDCallStack, TERDLocalsPanel, TERDWatchPanel, TERDDisassemblyView, TERDFiberList, TERDRuntimeMonitor, TERDDebugConsole, TERDShapeInspector, TERDDockHost, TERDDiagnosticList, TERDProjectTree, TERDDocumentHost, TERDLEDView, TERDValueTree, TERDTimeSeriesChart,
     TERDPCBDesigner, TERDPCBComponentPalette, TERDPCBObjectTree, TERDPCBValidationPanel, TERDRating,
     TERDCommandPalette, TERDCommandItem, TERDCommands,
     TERDDropZone,
@@ -220,7 +220,7 @@ begin
     TERDTrackBar,
     TERDVirtualStringTree]);
   RegisterComponents('ERDesigns Components', [
-    TERDDebugModel, TERDBreakpointPanel, TERDCallStack, TERDLocalsPanel, TERDWatchPanel, TERDDisassemblyView, TERDFiberList, TERDRuntimeMonitor, TERDDebugConsole, TERDShapeInspector, TERDDockHost, TERDDiagnosticList, TERDProjectTree, TERDDocumentHost, TERDValueTree, TERDTimeSeriesChart,
+    TERDDebugModel, TERDBreakpointPanel, TERDCallStack, TERDLocalsPanel, TERDWatchPanel, TERDDisassemblyView, TERDFiberList, TERDRuntimeMonitor, TERDDebugConsole, TERDShapeInspector, TERDDockHost, TERDDiagnosticList, TERDProjectTree, TERDDocumentHost, TERDLEDView, TERDValueTree, TERDTimeSeriesChart,
     TERDPCBDesigner, TERDPCBComponentPalette, TERDPCBObjectTree, TERDPCBValidationPanel, TERDRating,
     TERDCommandPalette,
     TERDDropZone,

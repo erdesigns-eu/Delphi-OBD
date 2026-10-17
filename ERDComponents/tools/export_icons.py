@@ -64,6 +64,7 @@ COMPONENT_ICONS={
     'TERDDiagnosticList': 151,
     'TERDProjectTree': 69,
     'TERDDocumentHost': 69,
+    'TERDLEDView': 111,
     'TERDShapeInspector': 69,
     'TERDDebugConsole': 69,
     'TERDRuntimeMonitor': 111,

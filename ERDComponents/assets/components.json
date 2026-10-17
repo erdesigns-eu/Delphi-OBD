@@ -92,5 +92,6 @@
   "TERDDockHost",
   "TERDDiagnosticList",
   "TERDProjectTree",
-  "TERDDocumentHost"
+  "TERDDocumentHost",
+  "TERDLEDView"
 ]

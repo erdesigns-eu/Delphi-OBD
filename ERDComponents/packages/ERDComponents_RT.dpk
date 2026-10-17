@@ -22,6 +22,7 @@ contains
   ERD.Components.ShapeInspector in '..\src\UI\ERD.Components.ShapeInspector.pas',
   ERD.Components.DockHost in '..\src\UI\ERD.Components.DockHost.pas',
   ERD.Components.DiagnosticList in '..\src\UI\ERD.Components.DiagnosticList.pas',
+  ERD.Components.LEDView in '..\src\UI\ERD.Components.LEDView.pas',
   ERD.Components.DocumentHost in '..\src\UI\ERD.Components.DocumentHost.pas',
   ERD.Components.ProjectTree in '..\src\UI\ERD.Components.ProjectTree.pas',
   ERD.Components.TimeSeries in '..\src\UI\ERD.Components.TimeSeries.pas',

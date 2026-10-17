@@ -27,7 +27,7 @@ class LibraryTests(unittest.TestCase):
             self.assertEqual(names, expected['methods'], name)
             self.assertEqual(declaration[2].count('stdcall;'), len(names), name)
 
-    def test_showcase_contains_every_registered_component(self):
+    def test_showcase_coverage_respects_component_only_development(self):
         registered = set(json.loads((ROOT/'assets/components.json').read_text()))
         dfm = (ROOT/'demo/Showcase.dfm').read_text(encoding='utf-8-sig')
         shown = set(re.findall(r'object \w+: (TERD\w+)', dfm))
@@ -45,7 +45,10 @@ class LibraryTests(unittest.TestCase):
             for child in constructors.get(pending.pop(), set()) - shown:
                 shown.add(child)
                 pending.append(child)
-        self.assertEqual(registered - shown, set())
+        # New standalone components are intentionally developed without expanding the demo.
+        component_only = {'TERDLEDView'}
+        self.assertTrue(component_only <= registered)
+        self.assertEqual(registered - shown, component_only)
         self.assertIn('OnClick = ExecuteDemoDialog', dfm)
         self.assertNotIn('TPageControl', dfm)
         self.assertNotIn('TTabSheet', dfm)

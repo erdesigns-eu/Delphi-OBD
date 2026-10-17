@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.DocumentHost, ERD.Components.ProjectTree, ERD.Components.DiagnosticList, ERD.Components.DockHost, ERD.Components.Hint, ERD.Components.ShapeInspector, ERD.Components.DebugConsole, ERD.Components.RuntimeMonitor, ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
+  ERD.Components.LEDView, ERD.Components.DocumentHost, ERD.Components.ProjectTree, ERD.Components.DiagnosticList, ERD.Components.DockHost, ERD.Components.Hint, ERD.Components.ShapeInspector, ERD.Components.DebugConsole, ERD.Components.RuntimeMonitor, ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.PCBValidation, ERD.Components.PCBValidationPanel, ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
@@ -161,6 +161,18 @@ type
     procedure Cleared(Sender: TObject);
     procedure Inspect(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
     procedure Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
+  end;
+  TLEDViewProbe = class(TERDLEDView)
+  public
+    procedure Press(Key: Word; Shift: TShiftState);
+    procedure ClickPixel(Index: Integer; Shift: TShiftState);
+  end;
+  TLEDViewEvents = class
+  public
+    Changes, Selections, Clicks, LastIndex: Integer;
+    procedure Changed(Sender: TObject);
+    procedure Selected(Sender: TObject);
+    procedure Clicked(Sender: TObject; Index: Integer; Shift: TShiftState);
   end;
   TDocumentManagementProbe = class(TERDDocumentHost)
   public
@@ -4597,6 +4609,99 @@ begin
   finally Host.OnSave := nil; Events.Free; Form.Free; end;
 end;
 
+procedure TLEDViewProbe.Press(Key: Word; Shift: TShiftState);
+begin KeyDown(Key,Shift); end;
+procedure TLEDViewProbe.ClickPixel(Index: Integer; Shift: TShiftState);
+var R: TRectF; P: TPoint;
+begin
+  R := PixelBounds(Index); P := Point(Round(R.CenterPoint.X),Round(R.CenterPoint.Y));
+  MouseDown(mbLeft,Shift,P.X,P.Y); MouseUp(mbLeft,Shift,P.X,P.Y);
+end;
+procedure TLEDViewEvents.Changed(Sender: TObject);
+begin Inc(Changes); end;
+procedure TLEDViewEvents.Selected(Sender: TObject);
+begin Inc(Selections); end;
+procedure TLEDViewEvents.Clicked(Sender: TObject; Index: Integer; Shift: TShiftState);
+begin Inc(Clicks); LastIndex := Index; end;
+procedure TestLEDView;
+var Form: TForm; View, CopyView: TLEDViewProbe; Theme: TERDTheme; Events: TLEDViewEvents;
+    Values, Snapshot: TArray<TColor>; Indices: TArray<Integer>; I, Before: Integer;
+    R: TRectF; Failed: Boolean; Bitmap: TBitmap; Mode: TERDThemeMode; Stream: TMemoryStream;
+begin
+  Form := TForm.Create(nil); Theme := TERDTheme.Create(Form);
+  View := TLEDViewProbe.Create(Form); View.Parent := Form; View.SetBounds(0,0,600,400); View.Theme := Theme;
+  Events := TLEDViewEvents.Create; Bitmap := TBitmap.Create; Stream := TMemoryStream.Create;
+  try
+    View.OnChange := Events.Changed; View.OnSelectionChange := Events.Selected; View.OnPixelClick := Events.Clicked;
+    Check((View.LEDCount = 16) and (View.SelectionCount = 0) and (View.CurrentIndex = -1), 'LED view starts with sixteen off pixels and no selection');
+    SetLength(Values,View.LEDCount); for I := 0 to High(Values) do Values[I] := RGB(I*10,20,30);
+    View.SetColors(Values); Check(Events.Changes = 1, 'A color frame emits one change notification');
+    View.SetColors(Values); Check(Events.Changes = 1, 'Identical frames do not emit redundant changes');
+    Snapshot := View.Colors; Snapshot[0] := clLime;
+    Check(View.PixelColors[0] = Values[0], 'Color snapshots do not expose mutable internal storage');
+    Failed := False; try View.SetColors([clRed]); except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Events.Changes = 1) and (View.PixelColors[0] = Values[0]), 'Wrong-sized frames are rejected before mutation');
+    View.BeginUpdate;
+    try View.PixelColors[0] := clRed; View.PixelColors[1] := clBlue; finally View.EndUpdate; end;
+    Check(Events.Changes = 2, 'Explicit updates coalesce per-pixel changes');
+    View.SetSelection([1,3,3]); Check((View.SelectionCount = 2) and (View.CurrentIndex = 3), 'Selection deduplicates pixel indices');
+    Indices := View.SelectedIndices; Indices[0] := 9; Check(View.Selected[1], 'Selection snapshots are independent');
+    View.SelectPixel(5,True); Check((View.SelectionCount = 3) and View.Selected[3] and View.Selected[4] and View.Selected[5], 'Shift extends from the anchor');
+    View.SelectPixel(4,False,True); Check((View.SelectionCount = 2) and not View.Selected[4], 'Ctrl toggles an individual pixel');
+    Before := Events.Selections; Failed := False;
+    try View.SetSelection([1,99]); except on E: EArgumentOutOfRangeException do Failed := True; end;
+    Check(Failed and (View.SelectionCount = 2) and (Before = Events.Selections), 'Invalid selection does not partially replace the old selection');
+    View.FillColor(clYellow,True); Check((View.PixelColors[3] = clYellow) and (View.PixelColors[5] = clYellow) and (View.PixelColors[4] = Values[4]), 'Selected fill changes only selected pixel colors');
+    View.LEDCount := 4;
+    Check((View.SelectionCount = 1) and View.Selected[3] and (View.CurrentIndex = -1), 'Shrinking removes out-of-range selection and caret while retaining colors');
+    View.LEDCount := 16; View.ClearSelection; View.Press(VK_END,[]); View.Press(VK_HOME,[ssShift]);
+    Check(View.SelectionCount = 16, 'Keyboard range selection covers the strip');
+    View.Press(VK_ESCAPE,[]); View.Press(VK_RIGHT,[]); View.Press(VK_SPACE,[]);
+    Check((View.SelectionCount = 0) and (View.CurrentIndex = 0), 'Space toggles the keyboard pixel without losing its focus index');
+    View.SelectionEnabled := False; View.Press(Ord('A'),[ssCtrl]); View.ClickPixel(2,[]);
+    Check((View.SelectionCount = 0) and (Events.Clicks = 0), 'Selection-disabled view suppresses user selection and pixel actions');
+    View.SelectionEnabled := True; View.ClickPixel(2,[]);
+    Check((View.SelectionCount = 1) and View.Selected[2] and (Events.Clicks = 1) and (Events.LastIndex = 2), 'Pixel clicks select and publish the zero-based index');
+    View.ClearSelection;
+    for I := 0 to View.LEDCount-1 do
+    begin
+      R := View.PixelBounds(I);
+      Check(View.PixelAt(Round(R.CenterPoint.X),Round(R.CenterPoint.Y)) = I, 'Horizontal geometry and hit testing agree');
+    end;
+    R := View.PixelBounds(0); Check(View.PixelAt(Floor(R.Left),Floor(R.Top)) = -1, 'Circular hit testing excludes bounding-box corners');
+    View.Layout := ldlVerticalStrip;
+    Check(View.PixelBounds(1).CenterPoint.Y > View.PixelBounds(0).CenterPoint.Y, 'Vertical strip uses increasing Y coordinates');
+    View.Layout := ldlRing; View.SetBounds(0,0,400,400);
+    Check((View.PixelBounds(0).CenterPoint.Y < 200) and (View.PixelBounds(1).CenterPoint.X > 200), 'Ring starts at twelve oclock and advances clockwise');
+    View.Clockwise := False; Check(View.PixelBounds(1).CenterPoint.X < 200, 'Ring direction can be reversed');
+    View.StartAngle := 0; Check(View.PixelBounds(0).CenterPoint.X > 200, 'Ring start angle rotates the pixel positions');
+    for I := 0 to View.LEDCount-1 do
+    begin
+      R := View.PixelBounds(I);
+      Check((R.Left >= 0) and (R.Top >= 0) and (R.Right <= View.ClientWidth) and (R.Bottom <= View.ClientHeight), 'Ring pixels fit the viewport');
+      Check(View.PixelAt(Round(R.CenterPoint.X),Round(R.CenterPoint.Y)) = I, 'Ring geometry and hit testing agree');
+    end;
+    View.PixelColors[0] := RGB(120,80,40); View.Brightness := 128;
+    for Mode in [tmERDesignsLight,tmERDesignsDark] do
+    begin
+      Theme.Mode := Mode; Bitmap.SetSize(View.Width,View.Height); View.PaintTo(Bitmap.Canvas.Handle,0,0); R := View.PixelBounds(0);
+      Check(ColorToRGB(Bitmap.Canvas.Pixels[Round(R.CenterPoint.X),Round(R.CenterPoint.Y)]) = RGB(60,40,20), 'Brightness affects rendering without changing stored RGB in either theme');
+    end;
+    Check(View.PixelColors[0] = RGB(120,80,40), 'Display brightness does not change source color data');
+    View.LEDCount := 4096; R := View.PixelBounds(4095);
+    Check(not R.IsEmpty and not IsNan(R.Left), 'Maximum LED count retains finite ring geometry');
+    View.LEDCount := 1; R := View.PixelBounds(0);
+    Check((Abs(R.CenterPoint.X-200) < 1) and (Abs(R.CenterPoint.Y-200) < 1), 'Single-pixel ring is centered');
+    View.SetBounds(0,0,10,10); Check(View.PixelBounds(0).IsEmpty and (View.PixelAt(5,5) = -1), 'Tiny view has no phantom hit targets');
+    View.OnChange := nil; View.OnSelectionChange := nil; View.OnPixelClick := nil; View.Theme := nil;
+    View.LEDCount := 12; View.Layout := ldlRing; RegisterClass(TLEDViewProbe); CopyView := TLEDViewProbe.Create(Form);
+    try
+      Stream.WriteComponent(View); Stream.Position := 0; Stream.ReadComponent(CopyView);
+      Check((CopyView.LEDCount = 12) and (CopyView.Layout = ldlRing) and (CopyView.SelectionCount = 0) and (CopyView.PixelColors[0] = clBlack), 'DFM persists configuration without runtime color frames or selection');
+    finally CopyView.Free; end;
+  finally View.OnChange := nil; View.OnSelectionChange := nil; View.OnPixelClick := nil; Stream.Free; Bitmap.Free; Events.Free; Form.Free; end;
+end;
+
 procedure TestProjectSelectionIcons;
 var Form: TForm; Tree: TERDProjectTree; Theme: TERDTheme; Bitmap: TBitmap;
     Items: TArray<TERDProjectItem>; Mode: TERDThemeMode; Column: Integer;
@@ -6466,7 +6571,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines; TestDockHost; TestDockMouseDrop; TestDocumentHost; TestDocumentDebug; TestDocumentManagement; TestProjectSelectionIcons; TestProjectTree; TestDiagnosticList; TestAutomaticOfficeHints; TestOfficeHints;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines; TestDockHost; TestDockMouseDrop; TestDocumentHost; TestDocumentDebug; TestDocumentManagement; TestLEDView; TestProjectSelectionIcons; TestProjectTree; TestDiagnosticList; TestAutomaticOfficeHints; TestOfficeHints;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;

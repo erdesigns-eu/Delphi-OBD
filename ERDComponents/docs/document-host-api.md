@@ -188,8 +188,9 @@ het request wordt eenmaal geconsumeerd, het document blijft gewijzigd en de
 resterende sluitverzoeken vervallen. Zonder CompleteSave/FailSave blijft een
 asynchroon verzoek wachten. Beide antwoorden moeten op de UI-thread komen.
 
-De demo is hiervoor niet uitgebreid. Navigatiegeschiedenis, workspace-opslag
-en echte bestandshandelingen blijven werk voor de toekomstige IDE.
+De dockingdemo bevat alleen de API-acties op de bestaande ribbon en een
+in-memory savehandler. Navigatiegeschiedenis, workspace-opslag en echte
+bestandshandelingen blijven werk voor de toekomstige IDE.
 
 De Windows-smoketest `TestDocumentManagement` dekt save-all, tabvolgorde,
 nieuwe documenten tijdens een aanvraag, batch-cancel/discard, een messagepump
