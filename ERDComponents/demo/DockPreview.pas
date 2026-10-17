@@ -347,7 +347,33 @@ end;
 procedure TDockPreview.AttachRibbon(Value: TERDRibbon);
 var Group: TERDRibbonGroup; Item: TERDRibbonItem; I: Integer;
 const Captions: array[0..26] of string = ('Reset layout','Remember layout','Restore layout','Auto-hide inspector','Pin inspector','Float console','Show console','Dock console','Hide locals','Show locals','Save layout...','Open layout...','Load diagnostics','Loading','Unavailable','Clear diagnostics','Group by file','Next message','Previous message','Copy messages','Save document','Close document','Pause main','Pause board','Resume fixture','Stop fixture','Breakpoints');
-  Descriptions: array[0..26] of string = ('Restores the initial panel arrangement.','Remembers the current panel arrangement for this demo session.','Restores the remembered panel arrangement.','Collapses the inspector into a side tab. Hover or click to reveal it.','Keeps the inspector visible in the right dock group.','Opens the console in a separate themed window.','Shows the console in its previous dock or floating state.','Returns the console to the bottom tab group.','Hides the locals panel without destroying its content.','Shows the locals panel again.','Saves the panel arrangement to a layout file.','Loads a saved panel arrangement.','Loads synthetic errors, warnings, information and hints.','Starts a new diagnostics request and marks previous results stale.','Fails the pending request while retaining previous results.','Clears the diagnostics view.','Toggles file grouping.','Navigates to the next visible source diagnostic.','Navigates to the previous visible source diagnostic.','Copies all matching diagnostic messages.','Accepts this fixture document in memory; no disk I/O.','Closes the current document; unsaved changes veto closing.','Shows a synthetic paused location in main.ts.','Opens board.ts if necessary and shows a synthetic pause.','Clears execution markers and simulates running.','Clears execution markers and simulates disconnect.','Shows shared breakpoints; double-click to navigate to source.');
+Descriptions: array[0..26] of string = ('Restores the initial panel arrangement.',
+    'Remembers the current panel arrangement for this demo session.',
+    'Restores the remembered panel arrangement.',
+    'Collapses the inspector into a side tab. Hover or click to reveal it.',
+    'Keeps the inspector visible in the right dock group.',
+    'Opens the console in a separate themed window.',
+    'Shows the console in its previous dock or floating state.',
+    'Returns the console to the bottom tab group.',
+    'Hides the locals panel without destroying its content.',
+    'Shows the locals panel again.',
+    'Saves the panel arrangement to a layout file.',
+    'Loads a saved panel arrangement.',
+    'Loads synthetic errors, warnings, information and hints.',
+    'Starts a new diagnostics request and marks previous results stale.',
+    'Fails the pending request while retaining previous results.',
+    'Clears the diagnostics view.',
+    'Toggles file grouping.',
+    'Navigates to the next visible source diagnostic.',
+    'Navigates to the previous visible source diagnostic.',
+    'Copies all matching diagnostic messages.',
+    'Accepts this fixture document in memory; no disk I/O.',
+    'Closes the current document; unsaved changes veto closing.',
+    'Shows a synthetic paused location in main.ts.',
+    'Opens board.ts if necessary and shows a synthetic pause.',
+    'Clears execution markers and simulates running.',
+    'Clears execution markers and simulates disconnect.',
+    'Shows shared breakpoints; double-click to navigate to source.');
 begin
   if FRibbon = Value then Exit;
   if FRibbon <> nil then begin FRibbon.RemoveFreeNotification(Self); FreeAndNil(FTab); end;

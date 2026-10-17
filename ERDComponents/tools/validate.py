@@ -10,6 +10,11 @@ def require(condition,message):
     if not condition:raise ValueError(message)
 
 def validate():
+    # Delphi dcc32 rejects physical source lines longer than 1023 characters.
+    for path in ROOT.rglob('*'):
+        if path.suffix.lower() in {'.pas', '.dpr', '.dpk'}:
+            for number, line in enumerate(path.read_text(encoding='utf-8-sig').splitlines(), 1):
+                require(len(line) <= 1023, f'Delphi source line too long: {path.relative_to(ROOT)}:{number} ({len(line)} characters)')
     catalog=json.loads((ROOT/'docs/iconset-catalog.json').read_text())
     require(catalog['count']==320,'Catalog count')
     require([i['id'] for i in catalog['icons']]==list(range(1,321)),'Stable contiguous IDs')
