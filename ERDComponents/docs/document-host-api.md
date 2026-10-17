@@ -153,3 +153,45 @@ controleren. Wijzig main.ts en wissel de pauzelocatie om behoud van edits te tes
 `TestDocumentDebug` voegt Windows-smokegevallen toe voor gedeelde/replacement-
 modellen, vernietiging, geïsoleerde breakpointankers, bronresolutie, read-only
 navigatie, begrensde kolommen, ontbrekende bron en execution-navigatie na sluiten.
+
+
+## Documentbeheer als component-API
+
+- `SaveAllDocuments`: vraagt opslag aan voor alle gewijzigde, schrijfbare
+  documenten. De returnwaarde telt verzoeken, niet geslaagde saves. Ongewijzigde
+  en read-only documenten worden overgeslagen. Documenten die een savecallback
+  nieuw opent, vallen buiten deze ronde.
+- `CloseAllDocuments`: plant sluiten van de nu geopende documenten in.
+- `CloseOtherDocuments(ID)`: behoudt het opgegeven document.
+- `CloseDocumentsToRight(ID)`: gebruikt de actuele visuele tabvolgorde, ook na
+  herordenen. Ongeldige of lege doel-ID's sluiten niets.
+
+De sluitacties gebruiken één queue met document-instances. Nieuwe documenten
+vallen buiten de aanvraag. Annuleren of veto stopt resterende verzoeken; eerder
+uitgevoerde sluitingen worden niet teruggedraaid. De queue wordt tijdens een
+modale dialoog niet opnieuw verwerkt.
+
+`ConfirmClose=True` schakelt de ingebouwde `TERDTaskDialog` in voor dirty
+sluitingen: **Save**, **Don't save**, **Cancel**. De dialoog gebruikt de effectief
+geërfde theme en density van de host. Save wordt alleen aangeboden bij een
+schrijfbaar document met een `OnSave`-handler. Cancel is de veilige standaard.
+De standaardwaarde van ConfirmClose blijft False voor bestaande toepassingen.
+Een toegewezen `OnClosing` neemt de beslissing volledig over; dan verschijnt
+geen ingebouwde dialoog. Subclasses kunnen `ConfirmDocumentClose` overriden voor
+bijvoorbeeld eigen vertalingen of automatisering.
+
+Bij Save blijft het document open zolang de snapshot nog niet bevestigd is.
+De overige sluitverzoeken wachten mee. `CompleteSave(Request)` hervat de queue
+alleen als het document daarna schoon is. Nieuwe edits tijdens de save stoppen
+de resterende sluitingen. Gebruik **`FailSave(Request)`** wanneer opslag mislukt:
+het request wordt eenmaal geconsumeerd, het document blijft gewijzigd en de
+resterende sluitverzoeken vervallen. Zonder CompleteSave/FailSave blijft een
+asynchroon verzoek wachten. Beide antwoorden moeten op de UI-thread komen.
+
+De dockingdemo bevat alleen de API-acties op de bestaande ribbon en een
+in-memory savehandler. Navigatiegeschiedenis, workspace-opslag en echte
+bestandshandelingen blijven werk voor de toekomstige IDE.
+
+De Windows-smoketest `TestDocumentManagement` dekt save-all, tabvolgorde,
+nieuwe documenten tijdens een aanvraag, batch-cancel/discard, een messagepump
+binnen de bevestiging, synchrone/asynchrone save en nieuwe edits of opslagfouten.

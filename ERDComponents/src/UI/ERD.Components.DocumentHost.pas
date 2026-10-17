@@ -8,6 +8,7 @@ uses
   ERD.Components.Panel, ERD.Components.Tabs, ERD.Components.CodeEditor;
 
 type
+  TERDDocumentCloseAction = (dcaCancel, dcaSave, dcaDiscard);
   TERDDocumentHost = class;
   TERDDocumentSaveRequest = record
     DocumentID: string;
@@ -21,7 +22,7 @@ type
     FControl: TWinControl;
     FEditor: TERDCodeEditor;
     FTab: TERDTabItem;
-    FReadOnly, FModified, FOwned, FPendingSave: Boolean;
+    FReadOnly, FModified, FOwned, FPendingSave, FCloseAfterSave: Boolean;
     FSavedText: UnicodeString;
     FSave: TERDDocumentSaveRequest;
     FParent: TWinControl;
@@ -54,13 +55,17 @@ type
     FBody: TERDPanel;
     FDocuments: TObjectList<TERDDocument>;
     FCloseQueue: TList<Int64>;
-    FNextInstance: Int64;
+    FNextInstance, FWaitingSave: Int64;
+    FProcessingClose, FConfirmClose: Boolean;
     FReleasing, FUpdating, FResolving: Boolean;
     FDebugModel: TERDDebugModel;
     FOnResolveDocument: TERDDocumentResolveEvent;
     FOnDocumentChanged, FOnActiveDocumentChanged: TERDDocumentEvent;
     FOnClosing: TERDDocumentCloseEvent;
     FOnSave: TERDDocumentSaveEvent;
+    function DocumentByInstance(Serial: Int64): TERDDocument;
+    function QueueDocuments(const KeepID: string; RightOnly: Boolean): Integer;
+    procedure ScheduleClose;
     procedure SetDebugModel(Value: TERDDebugModel);
     function GetCount: Integer;
     function GetDocument(Index: Integer): TERDDocument;
@@ -73,6 +78,7 @@ type
     procedure ReleaseDocument(Document: TERDDocument);
     procedure ProcessClose(var Message: TMessage); message WM_APP + $4D3;
   protected
+    function ConfirmDocumentClose(Document: TERDDocument): TERDDocumentCloseAction; virtual;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
     procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
@@ -87,8 +93,13 @@ type
       FocusEditor: Boolean = True): Boolean;
     function RevealExecutionLocation(FocusEditor: Boolean = True): Boolean;
     function CloseDocument(const ID: string): Boolean;
+    function CloseAllDocuments: Integer;
+    function CloseOtherDocuments(const ID: string): Integer;
+    function CloseDocumentsToRight(const ID: string): Integer;
+    function SaveAllDocuments: Integer;
     function SaveDocument(const ID: string): Boolean;
     function CompleteSave(const Request: TERDDocumentSaveRequest): Boolean;
+    function FailSave(const Request: TERDDocumentSaveRequest): Boolean;
     function SetDocumentReadOnly(const ID: string; Value: Boolean): Boolean;
     function SetDocumentModified(const ID: string; Value: Boolean): Boolean;
     function SetDocumentCaption(const ID, Value: string): Boolean;
@@ -100,6 +111,7 @@ type
   published
     property DebugModel: TERDDebugModel read FDebugModel write SetDebugModel;
     property OnResolveDocument: TERDDocumentResolveEvent read FOnResolveDocument write FOnResolveDocument;
+    property ConfirmClose: Boolean read FConfirmClose write FConfirmClose default False;
     property Density;
     property ParentDensity;
     property OnDocumentChanged: TERDDocumentEvent read FOnDocumentChanged write FOnDocumentChanged;
@@ -109,6 +121,8 @@ type
   end;
 
 implementation
+
+uses System.UITypes, ERD.Components.TaskDialog;
 
 constructor TERDDocumentHost.Create(AOwner: TComponent);
 begin
@@ -310,6 +324,70 @@ begin
   D := FindDocument(ID); Result := D <> nil; if not Result then Exit;
   D.FCaption := Value; D.FTab.Caption := Value; D.FTab.Hint := Value+'|'+ID;
 end;
+function TERDDocumentHost.DocumentByInstance(Serial: Int64): TERDDocument;
+var D: TERDDocument;
+begin
+  Result := nil;
+  for D in FDocuments do if D.Instance = Serial then Exit(D);
+end;
+procedure TERDDocumentHost.ScheduleClose;
+begin
+  if not FReleasing and not FProcessingClose and (FWaitingSave = 0) and
+    (FCloseQueue.Count > 0) then PostMessage(Handle,WM_APP+$4D3,0,0);
+end;
+function TERDDocumentHost.QueueDocuments(const KeepID: string; RightOnly: Boolean): Integer;
+var I, First: Integer; D, Keep: TERDDocument;
+begin
+  Result := 0; First := 0; Keep := nil;
+  if KeepID <> '' then
+  begin
+    Keep := FindDocument(KeepID); if Keep = nil then Exit;
+    if RightOnly then First := Keep.FTab.Index+1;
+  end;
+  for I := First to FTabs.Tabs.Count-1 do
+    for D in FDocuments do
+      if (D.FTab = FTabs.Tabs[I]) and (D <> Keep) then
+      begin if CloseDocument(D.ID) then Inc(Result); Break; end;
+end;
+function TERDDocumentHost.CloseAllDocuments: Integer;
+begin Result := QueueDocuments('',False); end;
+function TERDDocumentHost.CloseOtherDocuments(const ID: string): Integer;
+begin
+  Result := 0; if Trim(ID) <> '' then Result := QueueDocuments(ID,False);
+end;
+function TERDDocumentHost.CloseDocumentsToRight(const ID: string): Integer;
+begin
+  Result := 0; if Trim(ID) <> '' then Result := QueueDocuments(ID,True);
+end;
+function TERDDocumentHost.SaveAllDocuments: Integer;
+var Serials: TArray<Int64>; I: Integer; D: TERDDocument;
+begin
+  Result := 0; SetLength(Serials,FDocuments.Count);
+  for I := 0 to FDocuments.Count-1 do Serials[I] := FDocuments[I].Instance;
+  for I := 0 to High(Serials) do
+  begin
+    D := DocumentByInstance(Serials[I]);
+    if (D <> nil) and D.Modified and not D.ReadOnly then
+      if SaveDocument(D.ID) then Inc(Result);
+  end;
+end;
+function TERDDocumentHost.ConfirmDocumentClose(Document: TERDDocument): TERDDocumentCloseAction;
+var Dialog: TERDTaskDialog;
+begin
+  Result := dcaCancel; Dialog := TERDTaskDialog.Create(nil);
+  try
+    Dialog.Theme := EffectiveTheme; Dialog.Density := Density; Dialog.Title := 'Unsaved changes';
+    Dialog.Caption := 'Save changes to '+Document.Caption+'?';
+    Dialog.Text := 'Your changes will be lost if you close this document without saving.';
+    Dialog.MainIcon := tdiWarning; Dialog.CommonButtons := [otcbCancel];
+    Dialog.DefaultButton := otcbCancel;
+    if not Document.ReadOnly and Assigned(FOnSave) then
+      with Dialog.Buttons.Add do begin Caption := 'Save'; ModalResult := mrYes; Kind := otbkPrimary; end;
+    with Dialog.Buttons.Add do begin Caption := 'Don''t save'; ModalResult := mrNo; end;
+    if not Dialog.Execute then Exit;
+    case Dialog.ModalResult of mrYes: Result := dcaSave; mrNo: Result := dcaDiscard; end;
+  finally Dialog.Free; end;
+end;
 function TERDDocumentHost.SaveDocument(const ID: string): Boolean;
 var D: TERDDocument; Request: TERDDocumentSaveRequest;
 begin
@@ -319,7 +397,8 @@ begin
   Request.DocumentID := D.ID; Request.Instance := D.Instance; Request.Revision := D.Revision;
   if D.Editor <> nil then Request.Text := D.Editor.Text else Request.Text := '';
   D.FSave := Request; D.FPendingSave := True;
-  FOnSave(Self,Request);
+  try FOnSave(Self,Request);
+  except FailSave(Request); raise; end;
 end;
 function TERDDocumentHost.CompleteSave(const Request: TERDDocumentSaveRequest): Boolean;
 var D: TERDDocument;
@@ -333,7 +412,26 @@ begin
   begin D.FSavedText := Request.Text; D.FModified := D.Editor.Text <> D.FSavedText; end
   else D.FModified := D.Revision <> Request.Revision;
   D.FTab.Modified := D.Modified;
+  if D.FCloseAfterSave then
+  begin
+    D.FCloseAfterSave := False; FWaitingSave := 0;
+    if not D.Modified then
+    begin if not FCloseQueue.Contains(D.Instance) then FCloseQueue.Insert(0,D.Instance); end
+    else FCloseQueue.Clear;
+    ScheduleClose;
+  end;
   if Assigned(FOnDocumentChanged) then FOnDocumentChanged(Self,D);
+end;
+function TERDDocumentHost.FailSave(const Request: TERDDocumentSaveRequest): Boolean;
+var D: TERDDocument;
+begin
+  D := FindDocument(Request.DocumentID);
+  Result := (D <> nil) and D.FPendingSave and (D.Instance = Request.Instance) and
+    (D.FSave.Revision = Request.Revision) and (D.FSave.Text = Request.Text);
+  if not Result then Exit;
+  D.FPendingSave := False;
+  if D.FCloseAfterSave then
+  begin D.FCloseAfterSave := False; FWaitingSave := 0; FCloseQueue.Clear; end;
 end;
 procedure TERDDocumentHost.TabClose(Sender: TObject; Index: Integer; var CanClose: Boolean);
 var D: TERDDocument;
@@ -347,27 +445,43 @@ begin
   D := FindDocument(ID); Result := D <> nil; if not Result then Exit;
   if FCloseQueue.Contains(D.Instance) then Exit;
   FCloseQueue.Add(D.Instance);
-  PostMessage(Handle,WM_APP+$4D3,0,0);
+  ScheduleClose;
 end;
 procedure TERDDocumentHost.ProcessClose(var Message: TMessage);
-var Serial, Revision: Int64; D, Candidate: TERDDocument; AllowClose: Boolean;
+var Serial, Revision: Int64; D: TERDDocument; AllowClose: Boolean; Action: TERDDocumentCloseAction;
 begin
-  if FReleasing or (FCloseQueue.Count = 0) then Exit;
-  Serial := FCloseQueue[0]; FCloseQueue.Delete(0); D := nil;
-  for Candidate in FDocuments do if Candidate.Instance = Serial then begin D := Candidate; Break; end;
-  if D = nil then Exit;
-  Revision := D.Revision; AllowClose := not D.Modified;
-  if Assigned(FOnClosing) then FOnClosing(Self,D,AllowClose);
-  // Content may have been destroyed by the host callback. Re-resolve the instance.
-  D := nil;
-  for Candidate in FDocuments do if Candidate.Instance = Serial then begin D := Candidate; Break; end;
-  if D = nil then Exit;
-  if (D.Revision <> Revision) and D.Modified then AllowClose := False;
-  if AllowClose then ReleaseDocument(D);
+  if FReleasing or FProcessingClose or (FWaitingSave <> 0) or (FCloseQueue.Count = 0) then Exit;
+  FProcessingClose := True;
+  try
+    try
+    Serial := FCloseQueue[0]; FCloseQueue.Delete(0); D := DocumentByInstance(Serial);
+    if D = nil then Exit;
+    Revision := D.Revision; AllowClose := not D.Modified; Action := dcaCancel;
+    if Assigned(FOnClosing) then FOnClosing(Self,D,AllowClose)
+    else if D.Modified and FConfirmClose then Action := ConfirmDocumentClose(D);
+    D := DocumentByInstance(Serial); if D = nil then Exit;
+    if (D.Revision <> Revision) and D.Modified then
+    begin FCloseQueue.Clear; Exit; end;
+    if Action = dcaDiscard then AllowClose := True;
+    if Action = dcaSave then
+    begin
+      if SaveDocument(D.ID) then
+      begin
+        D := DocumentByInstance(Serial); if D = nil then Exit;
+        AllowClose := not D.Modified;
+        if not AllowClose and D.FPendingSave then
+        begin D.FCloseAfterSave := True; FWaitingSave := Serial; end;
+      end;
+    end;
+    if AllowClose then ReleaseDocument(D)
+    else if FWaitingSave = 0 then FCloseQueue.Clear;
+    except FCloseQueue.Clear; raise; end;
+  finally FProcessingClose := False; ScheduleClose; end;
 end;
 procedure TERDDocumentHost.ReleaseDocument(Document: TERDDocument);
 var Control: TWinControl;
 begin
+  if FWaitingSave = Document.Instance then FWaitingSave := 0;
   Control := Document.Control;
   if Document.Editor <> nil then Document.Editor.OnChange := nil;
   FUpdating := True;
@@ -388,7 +502,7 @@ begin
   end;
   FDocuments.Remove(Document);
   finally FUpdating := False; end;
-  TabChanged(Self);
+  TabChanged(Self); ScheduleClose;
 end;
 procedure TERDDocumentHost.Notification(AComponent: TComponent; Operation: TOperation);
 var I: Integer; D: TERDDocument;

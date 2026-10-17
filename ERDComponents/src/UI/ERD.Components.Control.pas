@@ -246,6 +246,8 @@ type
     property FocusCuesVisible: Boolean read GetFocusCuesVisible;
 
   public
+    /// <summary>Resolved theme, including owner inheritance and the registered default.</summary>
+    property EffectiveTheme: TERDTheme read FResolvedTheme;
     /// <summary>Effective density from the ERD owner or theme while
     /// ParentDensity is True. Setting Density disables inheritance.
     /// Public so composite controls can configure ERD parts through

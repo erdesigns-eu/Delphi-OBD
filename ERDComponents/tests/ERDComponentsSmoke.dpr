@@ -162,6 +162,13 @@ type
     procedure Inspect(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
     procedure Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
   end;
+  TDocumentManagementProbe = class(TERDDocumentHost)
+  public
+    Action: TERDDocumentCloseAction;
+    Confirmations: Integer;
+  protected
+    function ConfirmDocumentClose(Document: TERDDocument): TERDDocumentCloseAction; override;
+  end;
   TDocumentDebugEvents = class
   public
     Host: TERDDocumentHost;
@@ -171,7 +178,7 @@ type
   TDocumentEvents = class
   public
     Request: TERDDocumentSaveRequest;
-    AllowDirtyClose, DestroyContentOnClose: Boolean;
+    AllowDirtyClose, DestroyContentOnClose, AutoSave: Boolean;
     Saves, Closes: Integer;
     procedure Save(Sender: TObject; const Value: TERDDocumentSaveRequest);
     procedure Closing(Sender: TObject; Document: TERDDocument; var AllowClose: Boolean);
@@ -4396,7 +4403,10 @@ begin
   finally Stream.Free; Probe.Free; Form.Free; end;
 end;
 procedure TDocumentEvents.Save(Sender: TObject; const Value: TERDDocumentSaveRequest);
-begin Inc(Saves); Request := Value; end;
+begin
+  Inc(Saves); Request := Value;
+  if AutoSave then (Sender as TERDDocumentHost).CompleteSave(Value);
+end;
 procedure TDocumentEvents.Closing(Sender: TObject; Document: TERDDocument; var AllowClose: Boolean);
 begin
   Inc(Closes); if AllowDirtyClose then AllowClose := True;
@@ -4526,6 +4536,65 @@ begin
     Check(not Host.RevealExecutionLocation(False), 'Disconnected sessions cannot reveal stale execution locations');
     Host.OnResolveDocument := nil; Model.Free;
   finally Events.Free; Host.OnResolveDocument := nil; Form.Free; end;
+end;
+
+function TDocumentManagementProbe.ConfirmDocumentClose(Document: TERDDocument): TERDDocumentCloseAction;
+begin
+  Inc(Confirmations);
+  // A modal dialog pumps messages. Pending batch requests must not reenter confirmation.
+  Application.ProcessMessages;
+  Result := Action;
+end;
+procedure TestDocumentManagement;
+var Form: TForm; Host: TDocumentManagementProbe; Events: TDocumentEvents;
+    A, B, C: TERDDocument; Request: TERDDocumentSaveRequest;
+  procedure OpenThree(Dirty: Boolean);
+  begin
+    A := Host.OpenCode('a','a','first'); B := Host.OpenCode('b','b','second');
+    C := Host.OpenCode('c','c','third');
+    if Dirty then begin A.Editor.Text := 'changed a'; B.Editor.Text := 'changed b'; C.Editor.Text := 'changed c'; end;
+  end;
+begin
+  Form := TForm.Create(nil); Host := TDocumentManagementProbe.Create(Form); Events := TDocumentEvents.Create;
+  try
+    Host.Parent := Form; Host.Align := alClient; Host.OnSave := Events.Save;
+    OpenThree(True); Host.SetDocumentReadOnly('c',True); Events.AutoSave := True;
+    Check((Host.SaveAllDocuments = 2) and not A.Modified and not B.Modified and C.Modified,
+      'Save all requests only dirty writable documents and acknowledges each baseline');
+    Host.OnClosing := Events.Closing; Events.AllowDirtyClose := True;
+    Host.CloseAllDocuments; Application.ProcessMessages; Host.OnClosing := nil;
+    OpenThree(False); Host.TabStrip.MoveTab(2,0);
+    Check(Host.CloseDocumentsToRight('c') = 2, 'Close to right follows visual tab order');
+    Host.OpenCode('new','new','created after request'); Application.ProcessMessages;
+    Check((Host.DocumentCount = 2) and (Host.FindDocument('c') <> nil) and (Host.FindDocument('new') <> nil),
+      'Batch close targets only documents present when requested');
+    Host.CloseOtherDocuments('c'); Application.ProcessMessages;
+    Check((Host.DocumentCount = 1) and (Host.ActiveDocument.ID = 'c'), 'Close others retains the requested document');
+    Check((Host.CloseOtherDocuments('missing') = 0) and (Host.CloseDocumentsToRight('') = 0),
+      'Invalid batch targets cannot close unrelated documents');
+    Host.CloseAllDocuments; Application.ProcessMessages;
+    Host.ConfirmClose := True; Host.Action := dcaCancel; OpenThree(True);
+    Host.CloseAllDocuments; Application.ProcessMessages;
+    Check((Host.DocumentCount = 3) and (Host.Confirmations = 1), 'Cancel aborts the batch without nested prompts');
+    Host.Action := dcaDiscard; Host.CloseAllDocuments; Application.ProcessMessages;
+    Check((Host.DocumentCount = 0) and (Host.Confirmations = 4), 'Discard confirms each dirty document and completes the batch');
+    Events.AutoSave := False; Host.Action := dcaSave;
+    A := Host.OpenCode('a','a','first'); A.Editor.Text := 'changed'; Host.OpenCode('b','b','clean');
+    Host.CloseAllDocuments; Application.ProcessMessages; Request := Events.Request;
+    Check(Host.DocumentCount = 2, 'Async save suspends closing the remaining batch');
+    Check(Host.CompleteSave(Request), 'Async close save can be acknowledged'); Application.ProcessMessages;
+    Check(Host.DocumentCount = 0, 'Successful async save resumes and completes the close batch');
+    A := Host.OpenCode('a','a','first'); A.Editor.Text := 'changed'; Host.OpenCode('b','b','clean');
+    Host.CloseAllDocuments; Application.ProcessMessages; Request := Events.Request;
+    Check(Host.FailSave(Request) and not Host.FailSave(Request), 'Save failure is version-checked and consumed once');
+    Application.ProcessMessages;
+    Check((Host.DocumentCount = 2) and A.Modified, 'Save failure retains dirty document and cancels remaining closes');
+    Host.CloseAllDocuments; Application.ProcessMessages; Request := Events.Request;
+    A.Editor.Text := 'newer changes'; Host.CompleteSave(Request); Application.ProcessMessages;
+    Check((Host.DocumentCount = 2) and A.Modified, 'Edits during save prevent automatic closing and stop the batch');
+    Events.AutoSave := True; Host.CloseAllDocuments; Application.ProcessMessages;
+    Check(Host.DocumentCount = 0, 'Synchronous save confirmation also closes safely');
+  finally Host.OnSave := nil; Events.Free; Form.Free; end;
 end;
 
 procedure TestProjectSelectionIcons;
@@ -6397,7 +6466,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines; TestDockHost; TestDockMouseDrop; TestDocumentHost; TestDocumentDebug; TestProjectSelectionIcons; TestProjectTree; TestDiagnosticList; TestAutomaticOfficeHints; TestOfficeHints;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines; TestDockHost; TestDockMouseDrop; TestDocumentHost; TestDocumentDebug; TestDocumentManagement; TestProjectSelectionIcons; TestProjectTree; TestDiagnosticList; TestAutomaticOfficeHints; TestOfficeHints;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;

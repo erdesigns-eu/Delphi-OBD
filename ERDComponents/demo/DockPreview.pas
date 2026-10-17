@@ -47,7 +47,6 @@ type
     procedure BreakpointNavigate(Sender: TObject; const DocumentUri: string; Line: Integer);
     procedure DebugCommand(Sender: TObject; Command: TERDDebugCommand);
     procedure SaveDocument(Sender: TObject; const Request: TERDDocumentSaveRequest);
-    procedure ClosingDocument(Sender: TObject; Document: TERDDocument; var AllowClose: Boolean);
     procedure DiagnosticFilter(Sender: TObject);
     procedure DiagnosticsChanged(Sender: TObject);
     procedure NavigateDiagnostic(Sender: TObject; const Context: TERDDiagnosticRequest; const Diagnostic: TERDDiagnostic);
@@ -86,7 +85,7 @@ begin
   FDebugModel.AddBreakpoint('demo://main.ts',5); FDebugModel.AddBreakpoint('demo://board.ts',2);
   FBreakpoints := TERDBreakpointPanel.Create(Self); FBreakpoints.DebugModel := FDebugModel;
   FBreakpoints.OnNavigate := BreakpointNavigate;
-  FDocuments.OnSave := SaveDocument; FDocuments.OnClosing := ClosingDocument;
+  FDocuments.OnSave := SaveDocument; FDocuments.ConfirmClose := True;
   FConsole := TERDDebugConsole.Create(Self); FConsole.AddEntry(0,Now,dlsInfo,'demo','Drag a panel tab to an edge or center. Drop outside to float. Right-click a tab to pin, auto-hide or hide.');
   FDetails := TERDMemo.Create(Self); FDetails.ReadOnly := True; FDetails.Text := 'Independent inspector content'+sLineBreak+sLineBreak+'Select panels via tabs. Docking changes presentation only.';
   CreateProject;
@@ -240,10 +239,6 @@ begin
   FDocuments.CompleteSave(Request);
   FStatus.Caption := 'DEMO DATA | saved in memory: '+Request.DocumentID;
 end;
-procedure TDockPreview.ClosingDocument(Sender: TObject; Document: TERDDocument; var AllowClose: Boolean);
-begin
-  if not AllowClose then FStatus.Caption := 'Unsaved changes: save the document before closing it.';
-end;
 procedure TDockPreview.EditorChanged(Sender: TObject; Document: TERDDocument);
 var I: Integer;
 begin
@@ -341,13 +336,18 @@ begin
     23: begin FDebugModel.SetExecution(dsPaused,'demo://board.ts',2); FHost.ActivatePanel('editor'); FDocuments.RevealExecutionLocation; end;
     24: FDebugModel.RequestCommand(dcContinue);
     25: FDebugModel.RequestCommand(dcStop);
+    27: FDocuments.SaveAllDocuments;
+    28: if FDocuments.ActiveDocument <> nil then FDocuments.CloseOtherDocuments(FDocuments.ActiveDocument.ID);
+    29: if FDocuments.ActiveDocument <> nil then FDocuments.CloseDocumentsToRight(FDocuments.ActiveDocument.ID);
+    30: FDocuments.CloseAllDocuments;
     26: begin FHost.ShowPanel('breakpoints'); FHost.ActivatePanel('breakpoints'); end;
   end;
 end;
 procedure TDockPreview.AttachRibbon(Value: TERDRibbon);
 var Group: TERDRibbonGroup; Item: TERDRibbonItem; I: Integer;
-const Captions: array[0..26] of string = ('Reset layout','Remember layout','Restore layout','Auto-hide inspector','Pin inspector','Float console','Show console','Dock console','Hide locals','Show locals','Save layout...','Open layout...','Load diagnostics','Loading','Unavailable','Clear diagnostics','Group by file','Next message','Previous message','Copy messages','Save document','Close document','Pause main','Pause board','Resume fixture','Stop fixture','Breakpoints');
-Descriptions: array[0..26] of string = ('Restores the initial panel arrangement.',
+const Captions: array[0..30] of string = ('Reset layout','Remember layout','Restore layout','Auto-hide inspector','Pin inspector','Float console','Show console','Dock console','Hide locals','Show locals','Save layout...','Open layout...','Load diagnostics','Loading','Unavailable','Clear diagnostics','Group by file','Next message','Previous message','Copy messages','Save document','Close document','Pause main','Pause board','Resume fixture','Stop fixture','Breakpoints',
+    'Save all','Close others','Close to right','Close all');
+Descriptions: array[0..30] of string = ('Restores the initial panel arrangement.',
     'Remembers the current panel arrangement for this demo session.',
     'Restores the remembered panel arrangement.',
     'Collapses the inspector into a side tab. Hover or click to reveal it.',
@@ -373,7 +373,11 @@ Descriptions: array[0..26] of string = ('Restores the initial panel arrangement.
     'Opens board.ts if necessary and shows a synthetic pause.',
     'Clears execution markers and simulates running.',
     'Clears execution markers and simulates disconnect.',
-    'Shows shared breakpoints; double-click to navigate to source.');
+    'Shows shared breakpoints; double-click to navigate to source.',
+    'Requests saving all modified writable documents.',
+    'Closes all documents except the active tab.',
+    'Closes documents to the right of the active tab.',
+    'Closes all documents; Cancel stops the remaining close requests.');
 begin
   if FRibbon = Value then Exit;
   if FRibbon <> nil then begin FRibbon.RemoveFreeNotification(Self); FreeAndNil(FTab); end;
