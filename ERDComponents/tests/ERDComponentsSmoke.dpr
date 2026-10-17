@@ -162,6 +162,12 @@ type
     procedure Inspect(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
     procedure Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
   end;
+  TDocumentDebugEvents = class
+  public
+    Host: TERDDocumentHost;
+    Resolves: Integer;
+    procedure Resolve(Sender: TObject; const ID: string);
+  end;
   TDocumentEvents = class
   public
     Request: TERDDocumentSaveRequest;
@@ -1186,13 +1192,16 @@ begin
     Check((R.Left >= 0) and (R.Right <= Form.PageTabs.ClientWidth), 'Selecting docking reveals the overflowed final tab');
     for I := 0 to Form.DockPage.ComponentCount-1 do
       if Form.DockPage.Components[I] is TERDDockHost then Host := TERDDockHost(Form.DockPage.Components[I]);
-    Check((Host <> nil) and (Host.PanelCount = 6) and (Host.ClientWidth > 0) and
-      (Host.ClientHeight > 0), 'Docking demo contains its six panels in a visible viewport');
+    Check((Host <> nil) and (Host.PanelCount = 7) and (Host.ClientWidth > 0) and
+      (Host.ClientHeight > 0), 'Docking demo contains its seven panels in a visible viewport');
     Project := nil;
     for I := 0 to Form.DockPage.ComponentCount-1 do
       if Form.DockPage.Components[I] is TERDProjectTree then Project := TERDProjectTree(Form.DockPage.Components[I]);
     Check((Project <> nil) and (Project.ItemCount = 9), 'Docking demo hosts the reusable project tree instead of project text');
     Documents := Host.FindPanel('editor').Control as TERDDocumentHost;
+    Check((Documents.DebugModel <> nil) and
+      ((Host.FindPanel('breakpoints').Control as TERDBreakpointPanel).DebugModel = Documents.DebugModel),
+      'Docking demo shares its model between document editors and breakpoint panel');
     Project.SelectItem('template'); Project.OpenSelected; Application.ProcessMessages;
     Editor := Documents.ActiveDocument.Editor;
     Check(Editor.ReadOnly and (Editor.DocumentUri = 'demo://board.template.json'), 'Project demo opens protected templates read-only');
@@ -4460,6 +4469,65 @@ begin
   finally Stream.Free; Events.Free; Host.OnSave := nil; Host.OnClosing := nil; Form.Free; end;
 end;
 
+procedure TDocumentDebugEvents.Resolve(Sender: TObject; const ID: string);
+begin
+  Inc(Resolves);
+  if ID = 'demo://resolved.ts' then Host.OpenCode(ID,'resolved.ts','first'+#13#10+'second'+#13#10+'third',True);
+end;
+procedure TestDocumentDebug;
+var Form: TForm; Host: TERDDocumentHost; Events: TDocumentDebugEvents;
+    Model, Other: TERDDebugModel; A, B, Resolved: TERDDocument;
+    Breakpoint: TERDDebugBreakpoint; Text: string; Position: Integer;
+begin
+  Form := TForm.Create(nil); Host := TERDDocumentHost.Create(Form);
+  Events := TDocumentDebugEvents.Create;
+  try
+    Host.Parent := Form; Host.Align := alClient;
+    Events.Host := Host; Host.OnResolveDocument := Events.Resolve;
+    A := Host.OpenCode('demo://a.ts','a.ts','first'+#13#10+'second');
+    Model := TERDDebugModel.Create(Form); Host.DebugModel := Model;
+    B := Host.OpenCode('demo://b.ts','b.ts','board',True);
+    Check((A.Editor.DebugModel = Model) and (B.Editor.DebugModel = Model),
+      'Shared model attaches to existing editors and newly opened documents');
+    Other := TERDDebugModel.Create(Form); Host.DebugModel := Other;
+    Check((A.Editor.DebugModel = Other) and (B.Editor.DebugModel = Other), 'Replacing a model rebinds every editor');
+    Other.Free;
+    Check((Host.DebugModel = nil) and (A.Editor.DebugModel = nil) and (B.Editor.DebugModel = nil),
+      'Model destruction detaches host and editors without calling disposed listener storage');
+    Host.DebugModel := Model;
+    Model.AddBreakpoint(A.ID,2); Model.AddBreakpoint(B.ID,1);
+    Text := A.Editor.Text; A.Editor.Text := 'inserted'+#13#10+Text;
+    Check(Model.BreakpointAt(A.ID,3,Breakpoint) and Model.BreakpointAt(B.ID,1,Breakpoint),
+      'Editing one hosted document remaps only its own breakpoint anchors');
+    Check(not Host.NavigateToSource('demo://resolved.ts',1,0) and (Events.Resolves = 0),
+      'Invalid source coordinates are rejected before resolving documents');
+    Check(Host.NavigateToSource('demo://resolved.ts',2,3,False), 'Navigation resolves an unopened source document');
+    Resolved := Host.ActiveDocument; Position := Pos('second',Resolved.Editor.Text)-1;
+    Check((Events.Resolves = 1) and (Resolved.Editor.SelStart = Position+2) and
+      Resolved.ReadOnly and not Resolved.Modified and (Resolved.Editor.DebugModel = Model),
+      'Resolved source inherits model and navigation preserves read-only and clean state');
+    Check(Host.NavigateToSource(Resolved.ID,2,MaxInt,False) and (Resolved.Editor.SelStart = Position+6),
+      'Large source columns clamp to the physical line end');
+    Position := Resolved.Editor.SelStart;
+    Check(not Host.NavigateToSource(Resolved.ID,99,1,False) and (Resolved.Editor.SelStart = Position),
+      'Out-of-range source lines preserve the existing caret');
+    Check(not Host.NavigateToSource('demo://missing.ts',1,1,False) and (Host.ActiveDocument = Resolved),
+      'Unresolved source does not replace the active document');
+    Model.SetExecution(dsRunning);
+    Check(not Host.RevealExecutionLocation(False), 'Running sessions have no paused source location to reveal');
+    Model.SetExecution(dsPaused,A.ID,3);
+    Check(Host.RevealExecutionLocation(False) and (Host.ActiveDocument = A) and A.Modified,
+      'Execution navigation activates the correct retained document without replacing unsaved source');
+    Host.CloseDocument(Resolved.ID); Application.ProcessMessages;
+    Model.SetExecution(dsPaused,'demo://resolved.ts',3);
+    Check(Host.RevealExecutionLocation(False) and (Host.ActiveDocument.ID = 'demo://resolved.ts'),
+      'Execution navigation can resolve a source that was closed');
+    Model.SetExecution(dsDisconnected);
+    Check(not Host.RevealExecutionLocation(False), 'Disconnected sessions cannot reveal stale execution locations');
+    Host.OnResolveDocument := nil; Model.Free;
+  finally Events.Free; Host.OnResolveDocument := nil; Form.Free; end;
+end;
+
 procedure TestProjectTree;
 var Form: TForm; Tree, CopyTree: TProjectTreeProbe; Events: TProjectEvents;
     Items, Bad: TArray<TERDProjectItem>; Item: TERDProjectItem; Node: PVirtualNode;
@@ -6292,7 +6360,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines; TestDockHost; TestDockMouseDrop; TestDocumentHost; TestProjectTree; TestDiagnosticList; TestAutomaticOfficeHints; TestOfficeHints;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines; TestDockHost; TestDockMouseDrop; TestDocumentHost; TestDocumentDebug; TestProjectTree; TestDiagnosticList; TestAutomaticOfficeHints; TestOfficeHints;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;

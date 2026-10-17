@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.Classes, System.SysUtils, System.Types,
-  System.Generics.Collections, Vcl.Controls,
+  System.Generics.Collections, Vcl.Controls, ERD.Components.DebugModel,
   ERD.Components.Panel, ERD.Components.Tabs, ERD.Components.CodeEditor;
 
 type
@@ -40,6 +40,7 @@ type
     property Modified: Boolean read FModified;
     property ReadOnly: Boolean read FReadOnly;
   end;
+  TERDDocumentResolveEvent = procedure(Sender: TObject; const DocumentID: string) of object;
   TERDDocumentEvent = procedure(Sender: TObject; Document: TERDDocument) of object;
   TERDDocumentCloseEvent = procedure(Sender: TObject; Document: TERDDocument;
     var AllowClose: Boolean) of object;
@@ -54,10 +55,13 @@ type
     FDocuments: TObjectList<TERDDocument>;
     FCloseQueue: TList<Int64>;
     FNextInstance: Int64;
-    FReleasing, FUpdating: Boolean;
+    FReleasing, FUpdating, FResolving: Boolean;
+    FDebugModel: TERDDebugModel;
+    FOnResolveDocument: TERDDocumentResolveEvent;
     FOnDocumentChanged, FOnActiveDocumentChanged: TERDDocumentEvent;
     FOnClosing: TERDDocumentCloseEvent;
     FOnSave: TERDDocumentSaveEvent;
+    procedure SetDebugModel(Value: TERDDebugModel);
     function GetCount: Integer;
     function GetDocument(Index: Integer): TERDDocument;
     function GetActive: TERDDocument;
@@ -79,6 +83,9 @@ type
       ReadOnly: Boolean = False): TERDDocument;
     function AddDocument(const ID, Caption: string; Control: TWinControl): TERDDocument;
     function ActivateDocument(const ID: string): Boolean;
+    function NavigateToSource(const ID: string; Line: Integer; Column: Integer = 1;
+      FocusEditor: Boolean = True): Boolean;
+    function RevealExecutionLocation(FocusEditor: Boolean = True): Boolean;
     function CloseDocument(const ID: string): Boolean;
     function SaveDocument(const ID: string): Boolean;
     function CompleteSave(const Request: TERDDocumentSaveRequest): Boolean;
@@ -91,6 +98,8 @@ type
     property ActiveDocument: TERDDocument read GetActive;
     property TabStrip: TERDTabs read FTabs;
   published
+    property DebugModel: TERDDebugModel read FDebugModel write SetDebugModel;
+    property OnResolveDocument: TERDDocumentResolveEvent read FOnResolveDocument write FOnResolveDocument;
     property Density;
     property ParentDensity;
     property OnDocumentChanged: TERDDocumentEvent read FOnDocumentChanged write FOnDocumentChanged;
@@ -116,7 +125,7 @@ end;
 
 destructor TERDDocumentHost.Destroy;
 begin
-  FReleasing := True;
+  FReleasing := True; SetDebugModel(nil);
   FTabs.OnChange := nil; FTabs.OnClose := nil;
   while FDocuments.Count > 0 do ReleaseDocument(FDocuments.Last);
   FreeAndNil(FDocuments); FreeAndNil(FCloseQueue);
@@ -196,6 +205,7 @@ begin
     Editor.DocumentUri := ID; Editor.Text := Text; Editor.ReadOnly := ReadOnly;
     Result := AddPage(ID,Caption,Editor,True);
   except Editor.Free; raise; end;
+  Editor.DebugModel := FDebugModel;
   Result.FEditor := Editor; Result.FReadOnly := ReadOnly; Result.FSavedText := Editor.Text;
   Editor.OnChange := EditorChanged; SetDocumentReadOnly(ID,ReadOnly);
   ThemeChanged;
@@ -215,6 +225,52 @@ var D: TERDDocument;
 begin
   D := FindDocument(ID); Result := D <> nil; if not Result then Exit;
   FTabs.TabIndex := D.FTab.Index;
+end;
+procedure TERDDocumentHost.SetDebugModel(Value: TERDDebugModel);
+var D: TERDDocument;
+begin
+  if FDebugModel = Value then Exit;
+  if FDebugModel <> nil then FDebugModel.RemoveFreeNotification(Self);
+  FDebugModel := Value;
+  if Value <> nil then Value.FreeNotification(Self);
+  if FDocuments <> nil then
+    for D in FDocuments do if D.Editor <> nil then D.Editor.DebugModel := Value;
+end;
+function TERDDocumentHost.NavigateToSource(const ID: string; Line, Column: Integer;
+  FocusEditor: Boolean): Boolean;
+var D: TERDDocument; Source: UnicodeString; Position, Offset: Integer;
+begin
+  Result := False;
+  if (Trim(ID) = '') or (Line < 1) or (Column < 1) or FReleasing then Exit;
+  D := FindDocument(ID);
+  if (D = nil) and Assigned(FOnResolveDocument) and not FResolving then
+  begin
+    FResolving := True;
+    try FOnResolveDocument(Self,ID); finally FResolving := False; end;
+    D := FindDocument(ID);
+  end;
+  if (D = nil) or (D.Editor = nil) then Exit;
+  if not D.Editor.RevealDebugLine(Line) then Exit;
+  Source := D.Editor.Text; Position := D.Editor.SelStart; Offset := 0;
+  while (Offset < Column-1) and (Position+Offset < Length(Source)) do
+  begin
+    if CharInSet(Source[Position+Offset+1],[#10,#13]) then Break;
+    Inc(Offset);
+  end;
+  D.Editor.SelStart := Position+Offset;
+  ActivateDocument(ID);
+  // An active-document callback may remove content. Resolve the page again before focusing.
+  D := FindDocument(ID);
+  Result := (D <> nil) and (D.Editor <> nil);
+  if Result and FocusEditor and D.Editor.CanFocus then D.Editor.SetFocus;
+end;
+function TERDDocumentHost.RevealExecutionLocation(FocusEditor: Boolean): Boolean;
+var ID: string; Line: Integer;
+begin
+  Result := (FDebugModel <> nil) and (FDebugModel.State = dsPaused);
+  if not Result then Exit;
+  ID := FDebugModel.ExecutionUri; Line := FDebugModel.ExecutionLine;
+  Result := NavigateToSource(ID,Line,1,FocusEditor);
 end;
 procedure TERDDocumentHost.TabChanged(Sender: TObject);
 begin
@@ -338,6 +394,7 @@ procedure TERDDocumentHost.Notification(AComponent: TComponent; Operation: TOper
 var I: Integer; D: TERDDocument;
 begin
   inherited;
+  if (Operation = opRemove) and (AComponent = FDebugModel) then FDebugModel := nil;
   if (Operation <> opRemove) or (FDocuments = nil) then Exit;
   for I := FDocuments.Count-1 downto 0 do
   begin

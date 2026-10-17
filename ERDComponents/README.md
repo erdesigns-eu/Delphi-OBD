@@ -589,3 +589,8 @@ navigeren naar de bijbehorende editor zonder andere documenten te overschrijven.
 De ribbonacties **Save document** en **Close document** werken op het actieve
 bestand. Opslaan bewaart uitsluitend de demotekst in het geheugen; gewijzigde
 documenten moeten worden opgeslagen voordat sluiten wordt toegestaan.
+
+De documenthost kan nu één `DebugModel` aan alle editors koppelen.
+`NavigateToSource` en `RevealExecutionLocation` gebruiken een host-event om
+ontbrekende bronbestanden te openen. De dockingdemo toont dit met een gedeeld
+breakpointpaneel en de ribbonacties Pause main/board, Resume fixture en Stop fixture.

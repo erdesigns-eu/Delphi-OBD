@@ -2,7 +2,7 @@
 interface
 uses Winapi.Windows, System.Classes, System.SysUtils, System.Types, System.IOUtils, Vcl.Controls,
   System.Math, System.Generics.Collections, ERD.Components.FileDialogs, ERD.Components.Panel, ERD.Components.Control,
-  ERD.Components.DocumentHost, ERD.Components.DockHost, ERD.Components.CodeEditor, ERD.Components.DebugConsole,
+  ERD.Components.DebugModel, ERD.Components.BreakpointPanel, ERD.Components.DocumentHost, ERD.Components.DockHost, ERD.Components.CodeEditor, ERD.Components.DebugConsole,
   ERD.Components.Memo, ERD.Components.ValueTree, ERD.Components.Ribbon,
   ERD.Components.ProjectTree, ERD.Components.DiagnosticList, ERD.Components.CommonControls, ERD.Components.Edits;
 type
@@ -17,6 +17,8 @@ type
     FDiagnosticGeneration: Int64;
     FDiagnosticRequest: TERDDiagnosticRequest;
     FDocuments: TERDDocumentHost;
+    FDebugModel: TERDDebugModel;
+    FBreakpoints: TERDBreakpointPanel;
     FConsole: TERDDebugConsole;
     FDetails: TERDMemo;
     FFiles: TERDProjectTree;
@@ -41,6 +43,9 @@ type
     procedure ProjectRename(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem; const NewName: string);
     procedure ProjectMove(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem; const ParentID: string);
     procedure EditorChanged(Sender: TObject; Document: TERDDocument);
+    procedure ResolveDocument(Sender: TObject; const DocumentID: string);
+    procedure BreakpointNavigate(Sender: TObject; const DocumentUri: string; Line: Integer);
+    procedure DebugCommand(Sender: TObject; Command: TERDDebugCommand);
     procedure SaveDocument(Sender: TObject; const Request: TERDDocumentSaveRequest);
     procedure ClosingDocument(Sender: TObject; Document: TERDDocument; var AllowClose: Boolean);
     procedure DiagnosticFilter(Sender: TObject);
@@ -75,6 +80,12 @@ begin
   FSavedDocuments := TDictionary<string,string>.Create;
   FDocuments := TERDDocumentHost.Create(Self);
   FDocuments.OpenCode('demo://main.ts','main.ts',MainSource);
+  FDebugModel := TERDDebugModel.Create(Self); FDocuments.DebugModel := FDebugModel;
+  FDebugModel.OnCommand := DebugCommand;
+  FDocuments.OnResolveDocument := ResolveDocument;
+  FDebugModel.AddBreakpoint('demo://main.ts',5); FDebugModel.AddBreakpoint('demo://board.ts',2);
+  FBreakpoints := TERDBreakpointPanel.Create(Self); FBreakpoints.DebugModel := FDebugModel;
+  FBreakpoints.OnNavigate := BreakpointNavigate;
   FDocuments.OnSave := SaveDocument; FDocuments.OnClosing := ClosingDocument;
   FConsole := TERDDebugConsole.Create(Self); FConsole.AddEntry(0,Now,dlsInfo,'demo','Drag a panel tab to an edge or center. Drop outside to float. Right-click a tab to pin, auto-hide or hide.');
   FDetails := TERDMemo.Create(Self); FDetails.ReadOnly := True; FDetails.Text := 'Independent inspector content'+sLineBreak+sLineBreak+'Select panels via tabs. Docking changes presentation only.';
@@ -101,6 +112,7 @@ begin
     FHost.AddPanel('locals','Locals',FValues,dzRight);
     FHost.AddPanel('console','Console',FConsole,dzBottom);
     FHost.AddPanel('diagnostics','Diagnostics (demo)',FDiagnosticHost,dzBottom);
+    FHost.AddPanel('breakpoints','Breakpoints (demo)',FBreakpoints,dzBottom);
     FHost.ActivatePanel('diagnostics');
   finally FHost.EndUpdate; end;
   FDefaultLayout := FHost.SaveLayout; FHost.OnLayoutChanged := LayoutChanged; FHost.OnPanelActivated := Activated;
@@ -108,7 +120,9 @@ begin
 end;
 destructor TDockPreview.Destroy;
 begin
-  AttachRibbon(nil); if FDocuments <> nil then begin FDocuments.OnDocumentChanged := nil; FDocuments.OnSave := nil; FDocuments.OnClosing := nil; end;
+  AttachRibbon(nil); if FDocuments <> nil then begin FDocuments.OnDocumentChanged := nil; FDocuments.OnSave := nil; FDocuments.OnClosing := nil; FDocuments.OnResolveDocument := nil; end;
+  if FDebugModel <> nil then FDebugModel.OnCommand := nil;
+  if FBreakpoints <> nil then FBreakpoints.OnNavigate := nil;
   if FFiles <> nil then begin FFiles.OnOpenItem := nil; FFiles.OnRenameItem := nil; FFiles.OnMoveItem := nil; end;
   if FProjectSearch <> nil then FProjectSearch.OnSearch := nil;
   if FDiagnostics <> nil then begin FDiagnostics.OnChange := nil; FDiagnostics.OnNavigate := nil; end;
@@ -122,6 +136,7 @@ begin
   inherited; if FStatus <> nil then FStatus.Theme := Theme;
   if FHost <> nil then begin FHost.Theme := Theme; FHost.ThemeChanged; end;
   if FDocuments <> nil then FDocuments.Theme := Theme;
+  if FBreakpoints <> nil then FBreakpoints.Theme := Theme;
   if FConsole <> nil then FConsole.Theme := Theme;
   if FDetails <> nil then FDetails.Theme := Theme;
   if FFiles <> nil then FFiles.Theme := Theme;
@@ -194,6 +209,30 @@ function TDockPreview.GetEditor: TERDCodeEditor;
 begin
   Result := nil; if (FDocuments <> nil) and (FDocuments.ActiveDocument <> nil) then Result := FDocuments.ActiveDocument.Editor;
 end;
+procedure TDockPreview.ResolveDocument(Sender: TObject; const DocumentID: string);
+var Item: TERDProjectItem;
+begin
+  for Item in FProjectItems do
+    if (Item.Uri = DocumentID) and not (pisMissing in Item.Status) then
+    begin ProjectOpen(Self,Default(TERDProjectContext),Item); Exit; end;
+end;
+procedure TDockPreview.BreakpointNavigate(Sender: TObject; const DocumentUri: string; Line: Integer);
+begin
+  FHost.ActivatePanel('editor');
+  if FDocuments.NavigateToSource(DocumentUri,Line) then
+    FStatus.Caption := 'DEMO DATA | breakpoint source: '+DocumentUri;
+end;
+procedure TDockPreview.DebugCommand(Sender: TObject; Command: TERDDebugCommand);
+begin
+  case Command of
+    dcContinue: FDebugModel.SetExecution(dsRunning);
+    dcStop: FDebugModel.SetExecution(dsDisconnected);
+  else
+    FStatus.Caption := 'DEMO DATA | no runtime attached; use Pause main / Pause board fixtures';
+    Exit;
+  end;
+  FStatus.Caption := 'DEMO DATA | debug state changed; no runtime attached';
+end;
 procedure TDockPreview.SaveDocument(Sender: TObject; const Request: TERDDocumentSaveRequest);
 begin
   // Acknowledge the in-memory fixture only; the demo deliberately performs no document I/O.
@@ -254,21 +293,9 @@ begin
     [FDiagnostics.SeverityCount(dgsError),FDiagnostics.SeverityCount(dgsWarning),FDiagnostics.VisibleDiagnosticCount,FDiagnostics.DiagnosticCount,State]);
 end;
 procedure TDockPreview.NavigateDiagnostic(Sender: TObject; const Context: TERDDiagnosticRequest; const Diagnostic: TERDDiagnostic);
-var Position, Offset: Integer; Source: string;
 begin
-  if Diagnostic.DocumentUri = 'demo://main.ts' then Source := MainSource
-  else if Diagnostic.DocumentUri = 'demo://board.ts' then Source := BoardSource else Exit;
-  if FSavedDocuments.ContainsKey(Diagnostic.DocumentUri) then Source := FSavedDocuments[Diagnostic.DocumentUri];
-  FDocuments.OpenCode(Diagnostic.DocumentUri,ExtractFileName(StringReplace(Diagnostic.DocumentUri,'/','\',[rfReplaceAll])),Source);
   FHost.ActivatePanel('editor');
-  if FEditor.RevealDebugLine(Diagnostic.Line) then
-  begin
-    Source := FEditor.Text; Position := FEditor.SelStart; Offset := 0;
-    while (Offset < Max(0,Diagnostic.Column-1)) and (Position+Offset < Length(Source)) do
-    begin if CharInSet(Source[Position+Offset+1],[#10,#13]) then Break; Inc(Offset); end;
-    FEditor.SelStart := Position+Offset;
-  end;
-  if FEditor.CanFocus then FEditor.SetFocus;
+  if not FDocuments.NavigateToSource(Diagnostic.DocumentUri,Diagnostic.Line,Diagnostic.Column) then Exit;
   FStatus.Caption := 'DEMO DATA | '+Diagnostic.DocumentUri+':'+IntToStr(Diagnostic.Line)+' - '+Diagnostic.MessageText;
 end;
 procedure TDockPreview.LayoutChanged(Sender: TObject);
@@ -310,12 +337,17 @@ begin
     19: FDiagnostics.CopyVisibleDiagnostics;
     20: if FDocuments.ActiveDocument <> nil then FDocuments.SaveDocument(FDocuments.ActiveDocument.ID);
     21: if FDocuments.ActiveDocument <> nil then FDocuments.CloseDocument(FDocuments.ActiveDocument.ID);
+    22: begin FDebugModel.SetExecution(dsPaused,'demo://main.ts',5); FHost.ActivatePanel('editor'); FDocuments.RevealExecutionLocation; end;
+    23: begin FDebugModel.SetExecution(dsPaused,'demo://board.ts',2); FHost.ActivatePanel('editor'); FDocuments.RevealExecutionLocation; end;
+    24: FDebugModel.RequestCommand(dcContinue);
+    25: FDebugModel.RequestCommand(dcStop);
+    26: begin FHost.ShowPanel('breakpoints'); FHost.ActivatePanel('breakpoints'); end;
   end;
 end;
 procedure TDockPreview.AttachRibbon(Value: TERDRibbon);
 var Group: TERDRibbonGroup; Item: TERDRibbonItem; I: Integer;
-const Captions: array[0..21] of string = ('Reset layout','Remember layout','Restore layout','Auto-hide inspector','Pin inspector','Float console','Show console','Dock console','Hide locals','Show locals','Save layout...','Open layout...','Load diagnostics','Loading','Unavailable','Clear diagnostics','Group by file','Next message','Previous message','Copy messages','Save document','Close document');
-  Descriptions: array[0..21] of string = ('Restores the initial panel arrangement.','Remembers the current panel arrangement for this demo session.','Restores the remembered panel arrangement.','Collapses the inspector into a side tab. Hover or click to reveal it.','Keeps the inspector visible in the right dock group.','Opens the console in a separate themed window.','Shows the console in its previous dock or floating state.','Returns the console to the bottom tab group.','Hides the locals panel without destroying its content.','Shows the locals panel again.','Saves the panel arrangement to a layout file.','Loads a saved panel arrangement.','Loads synthetic errors, warnings, information and hints.','Starts a new diagnostics request and marks previous results stale.','Fails the pending request while retaining previous results.','Clears the diagnostics view.','Toggles file grouping.','Navigates to the next visible source diagnostic.','Navigates to the previous visible source diagnostic.','Copies all matching diagnostic messages.','Accepts this fixture document in memory; no disk I/O.','Closes the current document; unsaved changes veto closing.');
+const Captions: array[0..26] of string = ('Reset layout','Remember layout','Restore layout','Auto-hide inspector','Pin inspector','Float console','Show console','Dock console','Hide locals','Show locals','Save layout...','Open layout...','Load diagnostics','Loading','Unavailable','Clear diagnostics','Group by file','Next message','Previous message','Copy messages','Save document','Close document','Pause main','Pause board','Resume fixture','Stop fixture','Breakpoints');
+  Descriptions: array[0..26] of string = ('Restores the initial panel arrangement.','Remembers the current panel arrangement for this demo session.','Restores the remembered panel arrangement.','Collapses the inspector into a side tab. Hover or click to reveal it.','Keeps the inspector visible in the right dock group.','Opens the console in a separate themed window.','Shows the console in its previous dock or floating state.','Returns the console to the bottom tab group.','Hides the locals panel without destroying its content.','Shows the locals panel again.','Saves the panel arrangement to a layout file.','Loads a saved panel arrangement.','Loads synthetic errors, warnings, information and hints.','Starts a new diagnostics request and marks previous results stale.','Fails the pending request while retaining previous results.','Clears the diagnostics view.','Toggles file grouping.','Navigates to the next visible source diagnostic.','Navigates to the previous visible source diagnostic.','Copies all matching diagnostic messages.','Accepts this fixture document in memory; no disk I/O.','Closes the current document; unsaved changes veto closing.','Shows a synthetic paused location in main.ts.','Opens board.ts if necessary and shows a synthetic pause.','Clears execution markers and simulates running.','Clears execution markers and simulates disconnect.','Shows shared breakpoints; double-click to navigate to source.');
 begin
   if FRibbon = Value then Exit;
   if FRibbon <> nil then begin FRibbon.RemoveFreeNotification(Self); FreeAndNil(FTab); end;
@@ -327,6 +359,7 @@ begin
     if I = 3 then begin Group := FTab.Groups.Add; Group.Caption := 'Panel actions'; end;
     if I = 12 then begin Group := FTab.Groups.Add; Group.Caption := 'Diagnostics (demo)'; end;
     if I = 20 then begin Group := FTab.Groups.Add; Group.Caption := 'Documents (demo)'; end;
+    if I = 22 then begin Group := FTab.Groups.Add; Group.Caption := 'Debug (demo)'; end;
     Item := Group.Items.Add; Item.Caption := Captions[I]; Item.Hint := Captions[I]+'|'+Descriptions[I]; Item.Size := risSmall; Item.Tag := I; Item.OnClick := RibbonClick;
   end;
 end;

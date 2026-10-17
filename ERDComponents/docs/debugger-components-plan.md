@@ -98,6 +98,7 @@ still needs end-to-end verification for the selected runtime/transport.
 | `TERDShapeInspector` | Shape metadata, property-layout table, known parent/prototype links | Implemented: antialiased relationship cards + details, paged outgoing edges; full registry graph requires missing NDB data |
 | `TERDProjectTree` | Implemented: project/resource hierarchy, search, status icons, deferred open/rename/move host events and internal drag-and-drop | `TERDVirtualStringTree`; shared density and automatic Office hints |
 | `TERDDiagnosticList` | Implemented: source diagnostics grouped per file, severity/search filters, safe snapshot replacement and host navigation; independent of compiler/transport | `TERDVirtualStringTree`; automatic Office hints and shared GDI+ glyphs |
+| `TERDDocumentHost` | Implemented: retained editor tabs, dirty/read-only, versioned save/close events, shared debug model and host-resolved source/execution navigation | `TERDPanel`, `TERDTabs`, `TERDCodeEditor`; no transport or file I/O |
 | `TERDDockHost` | Dockable tool panels, auto-hide/floating state and layout persistence | Implemented: five tabbed regions, floating/auto-hide panels, borrowed content and versioned JSON layouts |
 
 A generic node graph, flame graph and raw-memory viewer are possible later visual
@@ -140,5 +141,3 @@ physical board or recorded snapshot playback.
   request them on demand rather than at every chart update.
 - Controls and fixtures must distinguish unavailable data from an empty valid
   result. Future real adapters must handle unsupported methods and capabilities.
-
-- `TERDDocumentHost`: documenttabs, bewaarde editorviews, read-only/dirty status en save/close-events; gekoppeld aan projectboom en diagnostics in de dockingdemo.

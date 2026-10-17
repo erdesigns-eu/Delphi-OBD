@@ -108,3 +108,48 @@ caret, scroll en vouw code in. Wissel tabs en open hetzelfde bestand opnieuw.
 Controleer dat toestand behouden blijft, close op dirty wordt geweigerd, Save
 document de stip verwijdert, en een daarna gesloten/heropend document de in-memory
 opgeslagen tekst bevat. Navigeer ook vanuit diagnostics en wissel thema/density.
+
+## Gedeeld debugmodel en bronnavigatie
+
+```pascal
+Documents.DebugModel := DebugModel;
+Documents.OnResolveDocument := ResolveDocument;
+Documents.NavigateToSource('project://main.ts', 24, 8);
+```
+
+De host bindt `DebugModel` aan alle bestaande en nieuw geopende code-editors.
+Gutter-breakpoints, sneltoetsen en execution markers gebruiken daardoor dezelfde
+modelinstantie als een los breakpointpaneel. Het model wordt geleend; vervangen,
+loskoppelen en vernietigen worden afgehandeld zonder ownership over te nemen.
+De individuele editors verwerken het verplaatsen van breakpointankers bij edits.
+
+`NavigateToSource(ID, Line, Column, FocusEditor)` gebruikt één-gebaseerde regels
+en UTF-16-kolommen. Kolommen voorbij het regeleinde worden begrensd. Ongeldige
+coördinaten of een niet-bestaande regel geven False. Navigatie klapt de doelregel
+open, wist de selectie, verplaatst de caret en activeert de juiste tab. Een
+bestaand document wordt nooit opnieuw geladen of writable gemaakt. Met
+`FocusEditor=False` wordt geen toetsenbordfocus gevraagd.
+
+Is het ID nog niet geopend, dan ontvangt de applicatie synchroon
+`OnResolveDocument(Sender, ID)`. De applicatie kan daar `OpenCode` aanroepen met
+haar eigen bron en read-only beleid. Daarna zoekt de host het document opnieuw.
+Geen beschikbare bron, of een generiek document zonder editor, geeft False.
+De host verzint geen broninhoud en leest geen bestanden. Recursieve resolve-
+aanvragen worden onderdrukt. Voor asynchrone bronophaling: open het document na
+ontvangst op de UI-thread en vraag navigatie opnieuw aan.
+
+`RevealExecutionLocation(FocusEditor)` navigeert naar de huidige pauzelocatie
+van het gedeelde model. Running/disconnected of een onoplosbare bron geeft False.
+De applicatie roept dit aan wanneer zij een nieuwe stoplocatie verwerkt; algemene
+modelwijzigingen laten de documenthost niet automatisch van tab wisselen.
+
+In de dockingdemo delen documenthost en breakpointpaneel één model. De ribbon
+heeft **Pause main**, **Pause board**, **Resume fixture**, **Stop fixture** en
+**Breakpoints**. Deze acties gebruiken uitsluitend gesimuleerde debugstatus.
+Dubbelklikken op een breakpoint en navigatie vanuit diagnostics gebruiken dezelfde
+bronresolver. Sluit board.ts en gebruik Pause board om het openen op aanvraag te
+controleren. Wijzig main.ts en wissel de pauzelocatie om behoud van edits te testen.
+
+`TestDocumentDebug` voegt Windows-smokegevallen toe voor gedeelde/replacement-
+modellen, vernietiging, geïsoleerde breakpointankers, bronresolutie, read-only
+navigatie, begrensde kolommen, ontbrekende bron en execution-navigatie na sluiten.
