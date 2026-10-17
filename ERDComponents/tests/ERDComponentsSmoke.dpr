@@ -4528,6 +4528,43 @@ begin
   finally Events.Free; Host.OnResolveDocument := nil; Form.Free; end;
 end;
 
+procedure TestProjectSelectionIcons;
+var Form: TForm; Tree: TERDProjectTree; Theme: TERDTheme; Bitmap: TBitmap;
+    Items: TArray<TERDProjectItem>; Mode: TERDThemeMode; Column: Integer;
+  function IconHasDetail: Boolean;
+  var R: TRect; X, Y, Left, Middle, Changes: Integer; Background: TColor;
+  begin
+    Bitmap.SetSize(Tree.ClientWidth,Tree.ClientHeight); Tree.PaintTo(Bitmap.Canvas.Handle,0,0);
+    R := Tree.GetDisplayRect(Tree.FocusedNode,Column,True,False,False);
+    Left := R.Left+MulDiv(5,Tree.CurrentPPI,96); Middle := R.CenterPoint.Y;
+    Background := Bitmap.Canvas.Pixels[Left,Middle-MulDiv(5,Tree.CurrentPPI,96)]; Changes := 0;
+    for Y := Middle-MulDiv(5,Tree.CurrentPPI,96) to Middle+MulDiv(5,Tree.CurrentPPI,96) do
+      for X := Left to Left+MulDiv(13,Tree.CurrentPPI,96) do
+        if Bitmap.Canvas.Pixels[X,Y] <> Background then Inc(Changes);
+    Result := Changes > 8;
+  end;
+begin
+  Form := TForm.Create(nil); Theme := TERDTheme.Create(Form);
+  Tree := TERDProjectTree.Create(Form); Bitmap := TBitmap.Create;
+  try
+    Form.SetBounds(30,30,800,300); Tree.Parent := Form; Tree.Align := alClient; Tree.Theme := Theme;
+    SetLength(Items,1); Items[0].ID := 'main'; Items[0].Name := 'main.ts';
+    Items[0].Uri := 'demo://main.ts'; Items[0].Kind := pikTypeScript; Items[0].Status := [pisError];
+    Tree.SetItems('icon-fixture',1,Items); Tree.SelectItem('main'); Form.Show; Tree.SetFocus;
+    for Mode in [tmERDesignsLight,tmERDesignsDark] do
+    begin
+      Theme.Mode := Mode;
+      for Column := 0 to 1 do
+      begin
+        Tree.Selected[Tree.FocusedNode] := False;
+        Check(IconHasDetail, 'Project file and status icons have visible detail before selection');
+        Tree.Selected[Tree.FocusedNode] := True;
+        Check(IconHasDetail, 'Selection background does not cover project file or status icons');
+      end;
+    end;
+  finally Bitmap.Free; Form.Free; end;
+end;
+
 procedure TestProjectTree;
 var Form: TForm; Tree, CopyTree: TProjectTreeProbe; Events: TProjectEvents;
     Items, Bad: TArray<TERDProjectItem>; Item: TERDProjectItem; Node: PVirtualNode;
@@ -6360,7 +6397,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines; TestDockHost; TestDockMouseDrop; TestDocumentHost; TestDocumentDebug; TestProjectTree; TestDiagnosticList; TestAutomaticOfficeHints; TestOfficeHints;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines; TestDockHost; TestDockMouseDrop; TestDocumentHost; TestDocumentDebug; TestProjectSelectionIcons; TestProjectTree; TestDiagnosticList; TestAutomaticOfficeHints; TestOfficeHints;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;

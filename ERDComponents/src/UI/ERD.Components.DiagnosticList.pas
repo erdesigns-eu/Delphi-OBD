@@ -23,6 +23,7 @@ type
   /// Presentation only. Hosts supply snapshots and handle source navigation.
   TERDDiagnosticList = class(TERDVirtualStringTree, IERDHintProvider)
   private
+    FCellIconLeft: Integer;
     FItems: TArray<TERDDiagnostic>;
     FVisible: TArray<Integer>;
     FGroupUris: TList<string>;
@@ -53,6 +54,8 @@ type
     procedure DoPaintText(Node: PVirtualNode; const Canvas: TCanvas; Column: TColumnIndex; TextType: TVSTTextType); override;
     procedure DoBeforeCellPaint(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
       CellPaintMode: TVTCellPaintMode; CellRect: TRect; var ContentRect: TRect); override;
+    procedure DoAfterCellPaint(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+      CellRect: TRect); override;
     procedure DoFocusChange(Node: PVirtualNode; Column: TColumnIndex); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure DblClick; override;
@@ -409,17 +412,26 @@ begin
 end;
 procedure TERDDiagnosticList.DoBeforeCellPaint(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
   CellPaintMode: TVTCellPaintMode; CellRect: TRect; var ContentRect: TRect);
+var Value: TERDDiagnostic;
+begin
+  inherited;
+  if (Column <> 1) or not ItemFor(Node,Value) then Exit;
+  // Selection is painted after this hook. Reserve space here and draw the icon afterwards.
+  if CellPaintMode = cpmPaint then FCellIconLeft := ContentRect.Left;
+  Inc(ContentRect.Left,MulDiv(28,CurrentPPI,96));
+end;
+procedure TERDDiagnosticList.DoAfterCellPaint(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+  CellRect: TRect);
 var Value: TERDDiagnostic; Painter: TERDPainter; Size: Integer; Ink: TColor;
 begin
   inherited; if (Column <> 1) or not ItemFor(Node,Value) then Exit;
   Size := MulDiv(20,CurrentPPI,96); Ink := SeverityInk(Value.Severity);
   Painter := TERDPainter.Create(Canvas,Palette,CurrentPPI);
   try
-    Painter.RoundRect(CellRect.Left+MulDiv(3,CurrentPPI,96),CellRect.Top+(CellRect.Height-Size)/2,Size,Size,
+    Painter.RoundRect(FCellIconLeft+MulDiv(3,CurrentPPI,96),CellRect.Top+(CellRect.Height-Size)/2,Size,Size,
       MulDiv(4,CurrentPPI,96),ERDMixColor(Ink,Palette.Background,0.14),clNone);
-    Painter.GlyphLine(DiagnosticGlyph(Value.Severity),CellRect.Left+MulDiv(13,CurrentPPI,96),CellRect.Top+CellRect.Height/2,Ink,CurrentPPI/96);
+    Painter.GlyphLine(DiagnosticGlyph(Value.Severity),FCellIconLeft+MulDiv(13,CurrentPPI,96),CellRect.Top+CellRect.Height/2,Ink,CurrentPPI/96);
   finally Painter.Free; end;
-  Inc(ContentRect.Left,MulDiv(28,CurrentPPI,96));
 end;
 procedure TERDDiagnosticList.DoFocusChange(Node: PVirtualNode; Column: TColumnIndex);
 begin inherited; SelectionChanged; end;

@@ -31,6 +31,7 @@ type
   /// Borrowed project data is copied; file I/O and approval of commands belong to the host.
   TERDProjectTree = class(TERDVirtualStringTree, IERDHintProvider)
   private
+    FCellIconLeft: Integer;
     FItems: TArray<TERDProjectItem>;
     FIndex: TDictionary<string,Integer>;
     FNodes: TArray<PVirtualNode>;
@@ -66,6 +67,8 @@ type
     procedure DoPaintText(Node: PVirtualNode; const Canvas: TCanvas; Column: TColumnIndex; TextType: TVSTTextType); override;
     procedure DoBeforeCellPaint(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
       CellPaintMode: TVTCellPaintMode; CellRect: TRect; var ContentRect: TRect); override;
+    procedure DoAfterCellPaint(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+      CellRect: TRect); override;
     procedure DoFocusChange(Node: PVirtualNode; Column: TColumnIndex); override;
     procedure DoCanEdit(Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean); override;
     procedure DoNewText(Node: PVirtualNode; Column: TColumnIndex; const Text: string); override;
@@ -382,6 +385,17 @@ begin
 end;
 procedure TERDProjectTree.DoBeforeCellPaint(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
   CellPaintMode: TVTCellPaintMode; CellRect: TRect; var ContentRect: TRect);
+var Item: TERDProjectItem;
+begin
+  inherited;
+  if not ItemFor(Node,Item) or not (Column in [0,1]) then Exit;
+  if (Column = 1) and (Item.Status = []) then Exit;
+  // Selection is painted after this hook. Reserve space here and draw the icon afterwards.
+  if CellPaintMode = cpmPaint then FCellIconLeft := ContentRect.Left;
+  Inc(ContentRect.Left,MulDiv(28,CurrentPPI,96));
+end;
+procedure TERDProjectTree.DoAfterCellPaint(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+  CellRect: TRect);
 var Item: TERDProjectItem; Painter: TERDPainter; Ink: TColor; Glyph: TERDGlyph; X, Y, Size: Integer;
 begin
   inherited; if not ItemFor(Node,Item) or not (Column in [0,1]) then Exit;
@@ -394,7 +408,7 @@ begin
     else if pisReadOnly in Item.Status then Glyph := glLock else Exit;
   end;
   if FStale then Ink := Palette.Subtle;
-  X := ContentRect.Left+MulDiv(12,CurrentPPI,96); Y := CellRect.Top+CellRect.Height div 2; Size := MulDiv(20,CurrentPPI,96);
+  X := FCellIconLeft+MulDiv(12,CurrentPPI,96); Y := CellRect.Top+CellRect.Height div 2; Size := MulDiv(20,CurrentPPI,96);
   Painter := TERDPainter.Create(Canvas,Palette,CurrentPPI);
   try
     if (Column = 0) and (Item.Kind = pikTypeScript) then
@@ -404,7 +418,6 @@ begin
     end
     else Painter.GlyphLine(Glyph,X,Y,Ink,CurrentPPI/96);
   finally Painter.Free; end;
-  Inc(ContentRect.Left,MulDiv(28,CurrentPPI,96));
 end;
 function TERDProjectTree.HintContentAt(const ScreenPoint: TPoint; out Content: TERDHintContent): Boolean;
 var P: TPoint; Item: TERDProjectItem;
