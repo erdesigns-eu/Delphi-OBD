@@ -210,3 +210,11 @@ ERDesigns: [info@erdesigns.be](mailto:info@erdesigns.be) ·
 [erdesigns.be](https://erdesigns.be)
 
 For licences, support, development work and security reports.
+
+
+## Reusable ERD components
+
+The extracted, standalone VCL component library is maintained in
+[ERDComponents](https://github.com/erdesigns-eu/ERDComponents).
+Its component sources, packages, demo, tools and vendor files are managed there.
+The extraction baseline is tagged `erd-components-extraction-2026-10-17`.

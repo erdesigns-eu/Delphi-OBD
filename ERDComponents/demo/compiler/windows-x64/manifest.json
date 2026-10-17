@@ -1,9 +1,0 @@
-{
-  "source": "https://github.com/erdesigns-eu/ERD-TSVM",
-  "source_commit": "9940c65c0b0ed1cdda8833edb63720610570f94d",
-  "target": "Windows x64",
-  "toolchain": "MinGW-w64 GCC 14 POSIX, Release -O2, static GCC/C++ runtimes",
-  "sha256": "183e9f496cea8cfb802c072ca6bde9d0de1b288b6503a8224beeb8ec7c170cde",
-  "size_bytes": 19241984,
-  "validation": "Native LSP integration tests passed under Wine and on Linux; real Windows testing pending."
-}
