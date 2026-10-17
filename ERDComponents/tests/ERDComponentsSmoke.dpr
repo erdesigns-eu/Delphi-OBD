@@ -4417,6 +4417,70 @@ begin
   finally Form.Free; Probe.Free; end;
 end;
 
+procedure TestDockMouseDrop;
+var Form: TForm; Host: TERDDockHost; A: TERDPanel; B: TERDEdit;
+    Tabs: TERDDockTabs; Target: TPoint; Before: string; Window: TCustomForm;
+  function MousePosition(const P: TPoint): LPARAM;
+  begin Result := LPARAM(Cardinal(Word(P.X)) or (Cardinal(Word(P.Y)) shl 16)); end;
+  function PanelTabs(const ID: string): TERDDockTabs;
+  var Container: TWinControl; I: Integer;
+  begin
+    Result := nil; Container := Host.FindPanel(ID).Control.Parent.Parent;
+    for I := 0 to Container.ControlCount-1 do
+      if Container.Controls[I] is TERDDockTabs then Exit(TERDDockTabs(Container.Controls[I]));
+  end;
+  procedure StartDrag(const ID: string; const Destination: TPoint);
+  var I: Integer; R: TRect; P: TPoint;
+  begin
+    Tabs := PanelTabs(ID); Check(Tabs <> nil, 'Panel exposes its docking tab strip');
+    I := 0; while (I < Tabs.Tabs.Count) and (Tabs.Tabs[I].Caption <> 'Movable') do Inc(I);
+    Check(I < Tabs.Tabs.Count, 'Movable panel tab exists'); R := Tabs.TabBounds(I);
+    P := Point((R.Left+R.Right) div 2,(R.Top+R.Bottom) div 2);
+    SendMessage(Tabs.Handle,WM_LBUTTONDOWN,MK_LBUTTON,MousePosition(P));
+    P := Tabs.ScreenToClient(Destination);
+    SendMessage(Tabs.Handle,WM_MOUSEMOVE,MK_LBUTTON,MousePosition(P));
+  end;
+  procedure ReleaseAt(const Destination: TPoint);
+  begin SendMessage(Tabs.Handle,WM_LBUTTONUP,0,MousePosition(Tabs.ScreenToClient(Destination))); end;
+begin
+  Form := TForm.Create(nil); Form.SetBounds(30,30,1000,760);
+  Host := TERDDockHost.Create(Form); Host.Parent := Form; Host.SetBounds(0,0,840,600);
+  A := TERDPanel.Create(Form); B := TERDEdit.Create(Form); B.Text := 'Keep document';
+  try
+    Host.AddPanel('editor','Editor',A,dzCenter); Host.AddPanel('movable','Movable',B,dzLeft);
+    Form.Show; Application.ProcessMessages;
+    Target := Host.ClientToScreen(Point(Host.ClientWidth-8,Host.ClientHeight div 2));
+    StartDrag('movable',Target); Check(Host.FindPanel('movable').Zone = dzLeft, 'Drag preview leaves docking state unchanged');
+    ReleaseAt(Target);
+    Check(Host.FindPanel('movable').Zone = dzLeft, 'Native mouse release queues rather than applies the drop inside the tab callback');
+    Application.ProcessMessages;
+    Check((Host.FindPanel('movable').Zone = dzRight) and (Host.FindPanel('movable').Mode = dpmDocked), 'Native mouse release preserves the drag through capture loss and docks on the right');
+    Target := Host.ClientToScreen(Host.GroupBounds(dzCenter).CenterPoint);
+    StartDrag('movable',Target); ReleaseAt(Target); Application.ProcessMessages;
+    Check((Host.FindPanel('movable').Zone = dzCenter) and (Host.ActivePanel(dzCenter) = 'movable'), 'Native drag joins the center tab group');
+    Before := Host.SaveLayout;
+    Target := Host.ClientToScreen(Point(8,Host.ClientHeight div 2));
+    StartDrag('movable',Target); SendMessage(Tabs.Handle,WM_KEYDOWN,VK_ESCAPE,0); ReleaseAt(Target); Application.ProcessMessages;
+    Check(Host.SaveLayout = Before, 'Escape cancels docking without applying a later mouse release');
+    StartDrag('movable',Target); SetCapture(Form.Handle); ReleaseAt(Target); ReleaseCapture; Application.ProcessMessages;
+    Check(Host.SaveLayout = Before, 'Capture transferred outside mouse-up cancels the docking drag');
+    // A click must not be promoted to a drop without crossing the drag threshold.
+    Tabs := PanelTabs('movable'); Target := Tabs.ClientToScreen(Tabs.TabBounds(Tabs.TabIndex).CenterPoint);
+    StartDrag('movable',Target); ReleaseAt(Target); Application.ProcessMessages;
+    Check(Host.SaveLayout = Before, 'Clicking the selected tab performs no docking operation');
+    Target := Host.ClientToScreen(Point(Host.ClientWidth+40,Host.ClientHeight+40));
+    StartDrag('movable',Target); ReleaseAt(Target); Application.ProcessMessages;
+    Window := Host.FloatingWindow('movable');
+    Check((Window <> nil) and (Host.FindPanel('movable').Mode = dpmFloating), 'Native drop outside the host creates a floating window');
+    Target := Host.ClientToScreen(Point(8,Host.ClientHeight div 2));
+    StartDrag('movable',Target); ReleaseAt(Target);
+    Check(Host.FloatingWindow('movable') = Window, 'Floating source survives until the queued drop is dispatched');
+    Application.ProcessMessages;
+    Check((Host.FindPanel('movable').Zone = dzLeft) and (Host.FindPanel('movable').Mode = dpmDocked) and
+      (Host.FloatingWindow('movable') = nil) and (B.Text = 'Keep document'), 'Floating tab redocks after native release without destroying its content');
+  finally Form.Free; end;
+end;
+
 procedure TestDockHost;
 var Form: TForm; Host, CopyHost: TERDDockHost; Origin, B, C, D, LostParent: TERDPanel;
     A, Lost: TERDEdit; Probe: TDockProbe; Original: TRect; R, Center: TRect;
@@ -6017,7 +6081,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines; TestDockHost; TestDiagnosticList; TestAutomaticOfficeHints; TestOfficeHints;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines; TestDockHost; TestDockMouseDrop; TestDiagnosticList; TestAutomaticOfficeHints; TestOfficeHints;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;

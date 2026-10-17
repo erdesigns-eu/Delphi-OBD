@@ -50,7 +50,9 @@ Drag a panel tab to a host edge or another group to dock/join it. The drop cue
 names the target. Drop outside the host to float. Floating windows have a draggable
 panel tab, a themed title bar, a Dock button and the same context menu. Returning
 content uses a queued host message, so the window is not freed in its own close or
-mouse callback. Escape/capture loss cancels a tab drag. The tab control keeps its
+mouse callback. Capture release during WM_LBUTTONUP preserves the drag until
+the queued drop is recorded. Escape or capture loss outside button release
+cancels a tab drag. The tab control keeps its
 keyboard selection and chevron scrolling behaviour. Right-click an active tab to
 dock to a region, float, pin/auto-hide or hide it.
 
@@ -144,7 +146,9 @@ object pointer. Setting Glyph/Layout is configuration; it applies to subsequent
 hint activation. The code editor's specialised signature-help presentation retains
 its own rendering.
 
-Added Windows smoke cases cover tab selection, ownership and restoration,
+Added Windows smoke cases cover native mouse-message drops between dock groups,
+floating and redocking, Escape/capture cancellation, clicks without a drag,
+tab selection, ownership and restoration,
 non-overlapping groups, auto-hide/flyouts, native/externally destroyed floating
 windows, invalid/unknown layout handling, content destruction, DFM, Office wrapping,
 compact selection, automatic component/action/item metadata, per-component theme,

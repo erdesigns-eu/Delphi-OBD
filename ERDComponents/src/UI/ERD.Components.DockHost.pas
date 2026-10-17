@@ -43,9 +43,10 @@ type
     FZone: TERDDockZone;
     FDownSerial: Integer;
     FStart: TPoint;
-    FDragging: Boolean;
+    FDragging, FHandlingDockMouseUp: Boolean;
     procedure WMCaptureChanged(var Message: TMessage); message WM_CAPTURECHANGED;
   protected
+    procedure WndProc(var Message: TMessage); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
@@ -225,6 +226,17 @@ begin
   if (FTabs.TabIndex < 0) or (FTabs.TabIndex >= FTabs.Tabs.Count) then Exit;
   Panel := FHost.FindSerial(FTabs.Tabs[FTabs.TabIndex].Tag); if Panel <> nil then FHost.ActivatePanel(Panel.ID);
 end;
+procedure TERDDockTabs.WndProc(var Message: TMessage);
+begin
+  if Message.Msg = WM_LBUTTONUP then
+  begin
+    // VCL releases capture before calling MouseUp. Preserve the docking drag
+    // until MouseUp can copy its identity and queue the drop on the host.
+    FHandlingDockMouseUp := True;
+    try inherited finally FHandlingDockMouseUp := False; end;
+  end
+  else inherited;
+end;
 procedure TERDDockTabs.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var I: Integer;
 begin
@@ -255,7 +267,9 @@ begin
 end;
 procedure TERDDockTabs.WMCaptureChanged(var Message: TMessage);
 begin
-  inherited; FDownSerial := 0; FDragging := False; Cursor := crDefault;
+  inherited;
+  if FHandlingDockMouseUp then Exit;
+  FDownSerial := 0; FDragging := False; Cursor := crDefault;
   if (FHost <> nil) and not FHost.FShuttingDown then FHost.CancelDrag;
 end;
 procedure TERDDockTabs.KeyDown(var Key: Word; Shift: TShiftState);
