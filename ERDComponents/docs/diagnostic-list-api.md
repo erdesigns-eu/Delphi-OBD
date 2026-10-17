@@ -112,7 +112,7 @@ DFM retains theme, grouping, severity configuration and normal control propertie
 Records, nodes, request tokens, search text and generated header columns are not
 streamed. Snapshot lifetime belongs to the host.
 
-The **Dock host** demo contains a dockable **Diagnostics (demo)** panel with ERD
+The **Docking** demo contains a dockable **Diagnostics (demo)** panel with ERD
 search/filter controls and contextual ribbon commands. Its messages are explicitly
 synthetic. Navigation switches the ERD editor between fixture documents and
 reveals the supplied line/column. Editing a fixture marks diagnostics stale;

@@ -1117,7 +1117,7 @@ begin
   PageTabs.Tabs.Add.Caption := 'Shape inspector';
   DockPage := TDockPreview.Create(Self); DockPage.Parent := DemoPages;
   DockPage.Align := alClient; DockPage.Visible := False; DockPage.AttachRibbon(Ribbon);
-  PageTabs.Tabs.Add.Caption := 'Dock host';
+  PageTabs.Tabs.Add.Caption := 'Docking';
   Menu := nil;
   TitleBar.Menu := MainMenu;
   TitleBar.Ribbon := Ribbon;

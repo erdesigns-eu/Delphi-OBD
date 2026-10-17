@@ -1,4 +1,4 @@
-object ShowcaseForm: TShowcaseForm
+﻿object ShowcaseForm: TShowcaseForm
   Left = 0
   Top = 0
   Caption = 'ERD Components - general VCL showcase'
@@ -322,6 +322,12 @@ object ShowcaseForm: TShowcaseForm
       item
         Icon.BuiltIn = ei028Info
         Caption = 'Overview'
+      end
+      item
+        Icon.BuiltIn = ei048Venstersnaastelkaar
+        Caption = 'Docking'
+        Hint = 'Docking|Drag tabs to dock or float panels. Use the Docking ribbon to try auto-hide and save layouts.'
+        Tag = -12
       end
       item
         Icon.BuiltIn = ei005Bestand

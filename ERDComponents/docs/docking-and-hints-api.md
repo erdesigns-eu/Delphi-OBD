@@ -93,7 +93,7 @@ internal groups/rails/windows are not streamed again. When streaming an enclosin
 form, its hosted content controls retain their form ownership and are included;
 the form should register them with stable IDs after loading, then restore layout.
 
-The **Dock host** demo embeds its own editor, console, project text, locals and
+The **Docking** demo embeds its own editor, console, project text, locals and
 independent inspector content. Its contextual ribbon resets/temporarily remembers
 layouts, demonstrates floating/auto-hide/hide/show, and lets the user explicitly
 save/open layout files. It does not move controls from the other demo pages.
