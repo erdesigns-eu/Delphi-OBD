@@ -509,9 +509,9 @@ procedure TERDShapeInspector.DensityChanged;
 begin
   inherited;
   if FMap <> nil then begin FMap.ParentDensity := False; FMap.Density := Density; end;
-  if FSummary <> nil then begin FSummary.ParentDensity := False; FSummary.Density := Density; end;
-  if FProperties <> nil then begin FProperties.ParentDensity := False; FProperties.Density := Density; end;
-  if FTransitions <> nil then begin FTransitions.ParentDensity := False; FTransitions.Density := Density; end;
+  if FSummary <> nil then begin FSummary.RowHeight := Metrics.Edit+6; FSummary.HeaderHeight := Metrics.Edit+4; end;
+  if FProperties <> nil then begin FProperties.RowHeight := Metrics.Edit+6; FProperties.HeaderHeight := Metrics.Edit+4; end;
+  if FTransitions <> nil then begin FTransitions.RowHeight := Metrics.Edit+6; FTransitions.HeaderHeight := Metrics.Edit+4; end;
   if FSearch <> nil then begin FSearch.ParentDensity := False; FSearch.Density := Density; end;
   Resize;
 end;
