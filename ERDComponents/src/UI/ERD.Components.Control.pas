@@ -242,20 +242,20 @@ type
     /// <returns>Density metrics.</returns>
     function Metrics: TERDDensityMetrics;
 
-    /// <summary>Row height and hit-target size. Reads the bound
-    /// theme's density while <see cref="ParentDensity"/> is True;
-    /// setting it clears <c>ParentDensity</c>. Published by the
-    /// Application controls.</summary>
     function GetFocusCuesVisible: Boolean;
     property FocusCuesVisible: Boolean read GetFocusCuesVisible;
 
+  public
+    /// <summary>Effective density from the ERD owner or theme while
+    /// ParentDensity is True. Setting Density disables inheritance.
+    /// Public so composite controls can configure ERD parts through
+    /// a TERDCustomControl reference.</summary>
     property Density: TERDDensity read GetDensity write SetDensity
       stored IsDensityStored;
-    /// <summary>True: follow <c>TERDTheme.Density</c>. False: use
-    /// the control's own <see cref="Density"/>.</summary>
+    /// <summary>Follow the ERD owner or theme density instead of a
+    /// local override.</summary>
     property ParentDensity: Boolean read FParentDensity
       write SetParentDensity default True;
-  public
     /// <summary>Creates the control with double-buffering enabled.
     /// </summary>
     /// <param name="AOwner">Component owner.</param>
