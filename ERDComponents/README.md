@@ -4,7 +4,7 @@ Zelfstandige algemene **Delphi VCL**-componentlibrary. Dit zijn onafhankelijke
 kopieën: Delphi-OBD wordt niet aangepast en heeft geen afhankelijkheid van deze
 library. De hele map kan naar een eigen repository worden verplaatst.
 
-- **92 paletcomponenten**: algemene invoer, navigatie, containers, grids, dialogen,
+- **93 paletcomponenten**: algemene invoer, navigatie, containers, grids, dialogen,
   applicatiechrome, theming en feedback. Zie `assets/components.json`.
 - **320 ingebouwde vectoriconen**, met stabiele identifiers en schaalbare SVGs.
 - Eigen namespace `ERD.Components.*`, classes `TERD*`, interfaces `IERD*`.
@@ -22,7 +22,7 @@ library. De hele map kan naar een eigen repository worden verplaatst.
    De demo gebruikt `TERDTitleBar`; met de keuze Ribbon/Menu wissel je van commandosurface.
    De File-knop opent een echte backstage met eigen Information- en Settings-pagina’s.
    De voorbeeldpagina’s gebruiken `TERDTabs` en `TERDPanel`, zonder standaard PageControl.
-   De 92 geregistreerde componenten staan in de DFM of runtime-voorbeeldpagina's: de sidebar navigeert naar
+   De 93 geregistreerde componenten staan in de DFM of runtime-voorbeeldpagina's: de sidebar navigeert naar
    iconen, invoer, layout, data, bestanden/kleuren en dialogs/notificaties.
    Dialogknoppen openen de bijbehorende component; toast, hints en popupmenu hebben eigen voorbeelden.
 
@@ -567,3 +567,11 @@ Zie [Docking en Office hints](docs/docking-and-hints-api.md).
 uitklapbare boom per bestand, met zoeken, severityfilters en broncodenavigatie.
 De pagina **Docking** demonstreert dit met synthetische meldingen en de
 ERD-code-editor. [API en Windows-testlijst](docs/diagnostic-list-api.md).
+
+## Projectverkenner
+
+`TERDProjectTree` toont een project met mappen, scripts, PCB-templates en resources,
+met zoeken, statusiconen, hernoemen, drag-and-drop en een ERD-contextmenu.
+De **Docking**-demo gebruikt deze boom in het Project-paneel. Alle bewerkingen
+blijven host-events; er wordt geen bestand gelezen of gewijzigd.
+[API en Windows-testlijst](docs/project-tree-api.md).

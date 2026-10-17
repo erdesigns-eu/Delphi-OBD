@@ -90,5 +90,6 @@
   "TERDDebugConsole",
   "TERDShapeInspector",
   "TERDDockHost",
-  "TERDDiagnosticList"
+  "TERDDiagnosticList",
+  "TERDProjectTree"
 ]

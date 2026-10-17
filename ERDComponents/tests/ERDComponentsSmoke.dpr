@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.DiagnosticList, ERD.Components.DockHost, ERD.Components.Hint, ERD.Components.ShapeInspector, ERD.Components.DebugConsole, ERD.Components.RuntimeMonitor, ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
+  ERD.Components.ProjectTree, ERD.Components.DiagnosticList, ERD.Components.DockHost, ERD.Components.Hint, ERD.Components.ShapeInspector, ERD.Components.DebugConsole, ERD.Components.RuntimeMonitor, ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.PCBValidation, ERD.Components.PCBValidationPanel, ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
@@ -161,6 +161,23 @@ type
     procedure Cleared(Sender: TObject);
     procedure Inspect(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
     procedure Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
+  end;
+  TProjectTreeProbe = class(TERDProjectTree)
+  public
+    procedure StartMove;
+    function DropAt(const Point: TPoint; Execute: Boolean; Source: TObject): Boolean;
+    procedure EditName(const Text: string);
+  end;
+  TProjectEvents = class
+  public
+    Tree: TERDProjectTree;
+    Items: TArray<TERDProjectItem>;
+    Opens, Renames, Moves: Integer;
+    LastID, LastArgument: string;
+    Apply: Boolean;
+    procedure Open(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem);
+    procedure Rename(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem; const Name: string);
+    procedure Move(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem; const ParentID: string);
   end;
   TDiagnosticProbe = class
   public
@@ -536,6 +553,33 @@ procedure TFiberProbe.Inspect(Sender: TObject; const Context: TERDFiberRequest; 
 begin Inc(Inspections); end;
 procedure TFiberProbe.Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
 begin Inc(Navigations); end;
+procedure TProjectTreeProbe.StartMove;
+var DragObject: TDragObject;
+begin DragObject := nil; DoStartDrag(DragObject); end;
+function TProjectTreeProbe.DropAt(const Point: TPoint; Execute: Boolean; Source: TObject): Boolean;
+var Effect: Integer; Formats: TFormatArray;
+begin
+  Effect := 0; Result := DoDragOver(Source,[],dsDragMove,Point,dmOnNode,Effect);
+  if Result and Execute then begin Formats := nil; DoDragDrop(Source,nil,Formats,[],Point,Effect,dmOnNode); end;
+end;
+procedure TProjectTreeProbe.EditName(const Text: string);
+begin DoNewText(FocusedNode,0,Text); end;
+procedure TProjectEvents.Open(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem);
+begin Inc(Opens); LastID := Item.ID; end;
+procedure TProjectEvents.Rename(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem; const Name: string);
+var I: Integer;
+begin
+  Inc(Renames); LastID := Item.ID; LastArgument := Name;
+  if Apply then begin for I := 0 to High(Items) do if Items[I].ID = Item.ID then Items[I].Name := Name;
+    Tree.SetItems(Context.ProjectID,Context.Revision+1,Items); end;
+end;
+procedure TProjectEvents.Move(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem; const ParentID: string);
+var I: Integer;
+begin
+  Inc(Moves); LastID := Item.ID; LastArgument := ParentID;
+  if Apply then begin for I := 0 to High(Items) do if Items[I].ID = Item.ID then Items[I].ParentID := ParentID;
+    Tree.SetItems(Context.ProjectID,Context.Revision+1,Items); end;
+end;
 procedure TDiagnosticProbe.Navigate(Sender: TObject; const Request: TERDDiagnosticRequest; const Value: TERDDiagnostic);
 begin Inc(Navigations); ID := Value.ID; Context := Request; end;
 procedure TDiagnosticProbe.Changed(Sender: TObject);
@@ -1112,7 +1156,7 @@ end;
 
 procedure TestShowcaseDockingNavigation;
 var Form: TShowcaseForm; I, DockIndex: Integer; Item: TERDSidebarItem;
-    Host: TERDDockHost; R: TRect;
+    Host: TERDDockHost; Project: TERDProjectTree; Editor: TERDCodeEditor; R: TRect;
 begin
   Form := TShowcaseForm.Create(nil);
   try
@@ -1136,6 +1180,15 @@ begin
       if Form.DockPage.Components[I] is TERDDockHost then Host := TERDDockHost(Form.DockPage.Components[I]);
     Check((Host <> nil) and (Host.PanelCount = 6) and (Host.ClientWidth > 0) and
       (Host.ClientHeight > 0), 'Docking demo contains its six panels in a visible viewport');
+    Project := nil;
+    for I := 0 to Form.DockPage.ComponentCount-1 do
+      if Form.DockPage.Components[I] is TERDProjectTree then Project := TERDProjectTree(Form.DockPage.Components[I]);
+    Check((Project <> nil) and (Project.ItemCount = 9), 'Docking demo hosts the reusable project tree instead of project text');
+    Editor := Host.FindPanel('editor').Control as TERDCodeEditor;
+    Project.SelectItem('template'); Project.OpenSelected; Application.ProcessMessages;
+    Check(Editor.ReadOnly and (Editor.DocumentUri = 'demo://board.template.json'), 'Project demo opens protected templates read-only');
+    Project.SelectItem('main'); Project.OpenSelected; Application.ProcessMessages;
+    Check(not Editor.ReadOnly and (Editor.DocumentUri = 'demo://main.ts'), 'Opening an editable project resource restores editor typing');
     Form.PageTabs.TabIndex := 0; Check(not Form.DockPage.Visible, 'Leaving docking hides its preview');
     Form.PageTabs.TabIndex := DockIndex; Check(Form.DockPage.Visible, 'Selecting the last tab directly opens docking');
   finally Form.Free; end;
@@ -4323,6 +4376,80 @@ begin
     finally CopyTree.Free; end;
   finally Stream.Free; Probe.Free; Form.Free; end;
 end;
+procedure TestProjectTree;
+var Form: TForm; Tree, CopyTree: TProjectTreeProbe; Events: TProjectEvents;
+    Items, Bad: TArray<TERDProjectItem>; Item: TERDProjectItem; Node: PVirtualNode;
+    R: TRect; P: TPoint; Stream: TMemoryStream; Hint: TERDHintContent; Revision: Int64; WasExpanded: Boolean;
+  procedure Add(Index: Integer; const ID, ParentID, Name: string; Kind: TERDProjectItemKind; Status: TERDProjectItemStatuses);
+  begin
+    Items[Index].ID := ID; Items[Index].ParentID := ParentID; Items[Index].Name := Name;
+    Items[Index].Uri := 'demo://'+Name; Items[Index].Kind := Kind; Items[Index].Status := Status;
+    Items[Index].CanRename := Kind <> pikProject; Items[Index].CanMove := Kind <> pikProject;
+  end;
+begin
+  Form := TForm.Create(nil); Form.SetBounds(30,30,900,700); Tree := TProjectTreeProbe.Create(Form); Tree.Parent := Form; Tree.Align := alClient;
+  Events := TProjectEvents.Create; Events.Tree := Tree;
+  try
+    Check(Tree.Stale and (Tree.ItemCount = 0) and Tree.ParentDensity, 'Project tree starts empty and inherits ERD density');
+    SetLength(Items,7); Add(0,'root','','Demo',pikProject,[]); Add(1,'src','root','src',pikFolder,[]);
+    Add(2,'assets','root','assets',pikFolder,[]); Add(3,'main','src','main.ts',pikTypeScript,[pisModified,pisError]);
+    Add(4,'board','src','board.ts',pikTypeScript,[]); Add(5,'template','assets','board.json',pikPCBTemplate,[pisReadOnly]);
+    Add(6,'missing','assets','missing.json',pikResource,[pisMissing]);
+    Check(Tree.SetItems('project',1,Items) and (Tree.ItemCount = 7) and (Tree.RootNodeCount = 1), 'Validated project snapshot builds a hierarchy');
+    Items[3].Name := 'caller change'; Tree.FindItem('main',Item); Check(Item.Name = 'main.ts', 'Project snapshots copy caller records'); Items[3].Name := 'main.ts';
+    Tree.OnOpenItem := Events.Open; Tree.OnRenameItem := Events.Rename; Tree.OnMoveItem := Events.Move; Events.Items := Copy(Items);
+    Check(not Tree.SetItems('project',1,Items), 'Equal project revisions cannot overwrite current data');
+    Bad := Copy(Items); Bad[1].ParentID := 'unknown'; Check(not Tree.SetItems('project',2,Bad), 'Missing project parents are rejected atomically');
+    Bad := Copy(Items); Bad[1].ParentID := 'src'; Check(not Tree.SetItems('project',2,Bad), 'Project parent cycles are rejected');
+    Bad := Copy(Items); Bad[1].ParentID := 'main'; Check(not Tree.SetItems('project',2,Bad), 'Files cannot contain child project items');
+    Bad := Copy(Items); Bad[4].ID := 'main'; Check(not Tree.SetItems('project',2,Bad), 'Duplicate project IDs are rejected');
+    Check((Tree.Context.Revision = 1) and (Tree.ItemCount = 7), 'Rejected project snapshots preserve state');
+    Tree.SelectItem('src'); Node := Tree.FocusedNode; Tree.Expanded[Node] := False;
+    Tree.SearchText := 'main'; Check((Tree.VisibleItemCount = 3) and Tree.SelectItem('main'), 'Project search retains ancestor context and reveals matches');
+    Tree.ClearSelection; Tree.FocusedNode := nil; Tree.SearchText := ''; Tree.SelectItem('root'); Node := Tree.GetFirstChild(Tree.GetFirst);
+    Check(not Tree.Expanded[Node], 'Clearing project search restores pre-search collapse state');
+    Tree.SelectItem('main'); Check(Tree.SelectedItem(Item) and (Item.ID = 'main'), 'Project selection resolves stable IDs');
+    Tree.SearchText := 'Modified'; Check((Tree.VisibleItemCount = 3) and Tree.SelectedItem(Item), 'Project status text participates in filtering'); Tree.SearchText := '';
+    Form.Show; Application.ProcessMessages; Tree.SelectItem('main'); R := Tree.GetDisplayRect(Tree.FocusedNode,0,False);
+    Check(Tree.HintContentAt(Tree.ClientToScreen(Point(R.Left+10,(R.Top+R.Bottom) div 2)),Hint) and
+      (Hint.Title = 'main.ts') and (Pos('Modified',Hint.Description) > 0) and Hint.HasDensity, 'Project hints include status and the effective density');
+    Tree.SelectItem('src'); Node := Tree.FocusedNode; WasExpanded := Tree.Expanded[Node]; R := Tree.GetDisplayRect(Node,0,False);
+    SendMessage(Tree.Handle,WM_LBUTTONDBLCLK,MK_LBUTTON,LPARAM((R.Left+120) or (((R.Top+R.Bottom) div 2) shl 16)));
+    Check(Tree.Expanded[Node] <> WasExpanded, 'Native project folder double-click toggles once without engine double-toggling');
+    Tree.SelectItem('main');
+    Tree.OpenSelected; Check(Events.Opens = 0, 'Open events wait until the native UI callback returns'); Application.ProcessMessages;
+    Check((Events.Opens = 1) and (Events.LastID = 'main'), 'Project open event identifies the chosen resource');
+    Tree.SelectItem('missing'); Tree.OpenSelected; Application.ProcessMessages; Check(Events.Opens = 1, 'Missing resources are not opened');
+    Check(not Tree.RequestRename('template','new.json') and not Tree.RequestRename('main','../bad.ts') and
+      not Tree.RequestRename('main','board.ts'), 'Project renaming rejects read-only items, path separators and sibling collisions');
+    Check(not Tree.CanMoveTo('src','src') and not Tree.CanMoveTo('src','main') and not Tree.CanMoveTo('root','src') and
+      not Tree.CanMoveTo('template','src'), 'Project moves reject cycles, file targets and read-only sources');
+    Check(Tree.RequestRename('main','renamed.ts'), 'A valid rename queues a host request'); Tree.FindItem('main',Item);
+    Check((Events.Renames = 0) and (Item.Name = 'main.ts'), 'Queued rename does not optimistically change project data');
+    Application.ProcessMessages; Tree.FindItem('main',Item);
+    Check((Events.Renames = 1) and (Item.Name = 'main.ts'), 'Host may decline a rename by keeping the snapshot unchanged');
+    Events.Apply := True; Tree.SelectItem('main'); Tree.EditName('renamed.ts'); Application.ProcessMessages;
+    Check(Tree.FindItem('main',Item) and (Item.Name = 'renamed.ts') and (Tree.Context.Revision = 2), 'Host can synchronously publish an approved inline rename from the deferred event');
+    Tree.SelectItem('main'); Tree.StartMove; Tree.SelectItem('assets'); R := Tree.GetDisplayRect(Tree.FocusedNode,0,False); P := R.CenterPoint;
+    Check(not Tree.DropAt(P,False,Form) and Tree.DropAt(P,True,Tree), 'Internal project drag accepts container targets and rejects foreign sources');
+    Check(Events.Moves = 0, 'Project drop defers host mutation until the drag callback returns'); Application.ProcessMessages;
+    Check((Events.Moves = 1) and Tree.FindItem('main',Item) and (Item.ParentID = 'assets'), 'Project drop retains the original drag ID when target selection changes');
+    Tree.SelectItem('main'); Tree.StartMove; Revision := Tree.Context.Revision;
+    Check(Tree.SetItems('project',Revision+1,Events.Items), 'Project revision may change during a drag'); Tree.SelectItem('src'); R := Tree.GetDisplayRect(Tree.FocusedNode,0,False);
+    Check(not Tree.DropAt(R.CenterPoint,True,Tree), 'A replaced project snapshot invalidates the captured drag');
+    Check(Tree.RequestRename('main','late.ts'), 'A rename can be pending'); Tree.MarkStale; Application.ProcessMessages;
+    Check((Events.Renames = 2) and not Tree.RequestMove('main','src') and not Tree.SelectedItem(Item), 'Stale project state cancels queued commands and disables interactions');
+    Tree.OnOpenItem := nil; Tree.OnRenameItem := nil; Tree.OnMoveItem := nil;
+    RegisterClass(TProjectTreeProbe); CopyTree := TProjectTreeProbe.Create(Form); Stream := TMemoryStream.Create;
+    try
+      Tree.SearchText := 'main'; Stream.WriteComponent(Tree); Stream.Position := 0; Stream.ReadComponent(CopyTree);
+      Check((CopyTree.ItemCount = 0) and (CopyTree.RootNodeCount = 0) and (CopyTree.SearchText = '') and CopyTree.Stale and (CopyTree.ComponentCount = 4),
+        'DFM excludes runtime project snapshots, nodes, filters and queued commands');
+    finally Stream.Free; CopyTree.Free; end;
+    Tree.ClearProject; Check((Tree.ItemCount = 0) and (Tree.Context.ProjectID = ''), 'Project clear removes model and selection');
+  finally Form.Free; Events.Free; end;
+end;
+
 procedure TestDiagnosticList;
 var Form: TForm; List: TDiagnosticKeyProbe; CopyList: TERDDiagnosticList;
     Probe: TDiagnosticProbe; Values, Invalid: TArray<TERDDiagnostic>;
@@ -6081,7 +6208,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines; TestDockHost; TestDockMouseDrop; TestDiagnosticList; TestAutomaticOfficeHints; TestOfficeHints;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines; TestDockHost; TestDockMouseDrop; TestProjectTree; TestDiagnosticList; TestAutomaticOfficeHints; TestOfficeHints;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;

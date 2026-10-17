@@ -4,7 +4,7 @@ uses Winapi.Windows, System.Classes, System.SysUtils, System.Types, System.IOUti
   System.Math, ERD.Components.FileDialogs, ERD.Components.Panel, ERD.Components.Control,
   ERD.Components.DockHost, ERD.Components.CodeEditor, ERD.Components.DebugConsole,
   ERD.Components.Memo, ERD.Components.ValueTree, ERD.Components.Ribbon,
-  ERD.Components.DiagnosticList, ERD.Components.CommonControls, ERD.Components.Edits;
+  ERD.Components.ProjectTree, ERD.Components.DiagnosticList, ERD.Components.CommonControls, ERD.Components.Edits;
 type
   TDockPreview = class(TERDPanel)
   private
@@ -19,7 +19,12 @@ type
     FDiagnosticRequest: TERDDiagnosticRequest;
     FEditor: TERDCodeEditor;
     FConsole: TERDDebugConsole;
-    FDetails, FFiles: TERDMemo;
+    FDetails: TERDMemo;
+    FFiles: TERDProjectTree;
+    FProjectHost, FProjectFilter: TERDPanel;
+    FProjectSearch: TERDSearchEdit;
+    FProjectItems: TArray<TERDProjectItem>;
+    FProjectRevision: Int64;
     FValues: TERDValueTree;
     FRibbon: TERDRibbon;
     FTab: TERDRibbonTab;
@@ -28,6 +33,11 @@ type
     procedure Activated(Sender: TObject; const PanelID: string);
     procedure RibbonClick(Sender: TObject);
     procedure LoadDiagnostics;
+    procedure CreateProject;
+    procedure ProjectSearch(Sender: TObject);
+    procedure ProjectOpen(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem);
+    procedure ProjectRename(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem; const NewName: string);
+    procedure ProjectMove(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem; const ParentID: string);
     procedure EditorChanged(Sender: TObject);
     procedure DiagnosticFilter(Sender: TObject);
     procedure DiagnosticsChanged(Sender: TObject);
@@ -61,7 +71,7 @@ begin
   FEditor := TERDCodeEditor.Create(Self); FEditor.DocumentUri := 'demo://main.ts'; FEditor.Text := MainSource;
   FConsole := TERDDebugConsole.Create(Self); FConsole.AddEntry(0,Now,dlsInfo,'demo','Drag a panel tab to an edge or center. Drop outside to float. Right-click a tab to pin, auto-hide or hide.');
   FDetails := TERDMemo.Create(Self); FDetails.ReadOnly := True; FDetails.Text := 'Independent inspector content'+sLineBreak+sLineBreak+'Select panels via tabs. Docking changes presentation only.';
-  FFiles := TERDMemo.Create(Self); FFiles.ReadOnly := True; FFiles.Text := 'Demo project'+sLineBreak+'  main.ts'+sLineBreak+'  board.template.json'+sLineBreak+'  README.md';
+  CreateProject;
   FValues := TERDValueTree.Create(Self); SetLength(Values,2); Values[0].ID := 'enabled'; Values[0].Name := 'enabled'; Values[0].ValueText := 'true'; Values[0].TypeName := 'boolean';
   Values[1].ID := 'count'; Values[1].Name := 'count'; Values[1].ValueText := '12'; Values[1].TypeName := 'number'; FValues.LoadSnapshot('dock-demo',0,Values);
   FDiagnosticHost := TERDPanel.Create(Self); FDiagnosticHost.BorderWidth := 0;
@@ -75,10 +85,11 @@ begin
   FDiagnostics := TERDDiagnosticList.Create(Self); FDiagnostics.Parent := FDiagnosticHost; FDiagnostics.Align := alClient;
   FDiagnostics.OnNavigate := NavigateDiagnostic; FDiagnostics.OnChange := DiagnosticsChanged;
   LoadDiagnostics; FEditor.OnChange := EditorChanged;
+  FHost.LeftSize := 300;
   FHost.BeginUpdate;
   try
     FHost.AddPanel('editor','Code editor',FEditor,dzCenter).Closable := False;
-    FHost.AddPanel('files','Project',FFiles,dzLeft);
+    FHost.AddPanel('files','Project',FProjectHost,dzLeft);
     FHost.AddPanel('inspector','Inspector',FDetails,dzRight);
     FHost.AddPanel('locals','Locals',FValues,dzRight);
     FHost.AddPanel('console','Console',FConsole,dzBottom);
@@ -91,6 +102,8 @@ end;
 destructor TDockPreview.Destroy;
 begin
   AttachRibbon(nil); if FEditor <> nil then FEditor.OnChange := nil;
+  if FFiles <> nil then begin FFiles.OnOpenItem := nil; FFiles.OnRenameItem := nil; FFiles.OnMoveItem := nil; end;
+  if FProjectSearch <> nil then FProjectSearch.OnSearch := nil;
   if FDiagnostics <> nil then begin FDiagnostics.OnChange := nil; FDiagnostics.OnNavigate := nil; end;
   if FSearch <> nil then FSearch.OnSearch := nil; if FSeverity <> nil then FSeverity.OnChange := nil;
   if FHost <> nil then begin FHost.OnLayoutChanged := nil; FHost.OnPanelActivated := nil; end;
@@ -105,12 +118,70 @@ begin
   if FConsole <> nil then FConsole.Theme := Theme;
   if FDetails <> nil then FDetails.Theme := Theme;
   if FFiles <> nil then FFiles.Theme := Theme;
+  if FProjectHost <> nil then FProjectHost.Theme := Theme;
+  if FProjectFilter <> nil then FProjectFilter.Theme := Theme;
+  if FProjectSearch <> nil then FProjectSearch.Theme := Theme;
   if FValues <> nil then FValues.Theme := Theme;
   if FDiagnosticHost <> nil then FDiagnosticHost.Theme := Theme;
   if FFilters <> nil then FFilters.Theme := Theme;
   if FSearch <> nil then FSearch.Theme := Theme;
   if FSeverity <> nil then FSeverity.Theme := Theme;
   if FDiagnostics <> nil then FDiagnostics.Theme := Theme;
+end;
+procedure TDockPreview.CreateProject;
+  procedure Add(Index: Integer; const ID, ParentID, Name, Uri: string; Kind: TERDProjectItemKind; Status: TERDProjectItemStatuses);
+  begin
+    FProjectItems[Index].ID := ID; FProjectItems[Index].ParentID := ParentID; FProjectItems[Index].Name := Name;
+    FProjectItems[Index].Uri := Uri; FProjectItems[Index].Kind := Kind; FProjectItems[Index].Status := Status;
+    FProjectItems[Index].CanRename := (Kind <> pikProject); FProjectItems[Index].CanMove := (Kind <> pikProject);
+  end;
+begin
+  FProjectHost := TERDPanel.Create(Self); FProjectHost.BorderWidth := 0;
+  FProjectFilter := TERDPanel.Create(Self); FProjectFilter.Parent := FProjectHost; FProjectFilter.Align := alTop;
+  FProjectFilter.BorderWidth := 0; FProjectFilter.Height := ScaleValue(38); FProjectFilter.Padding.SetBounds(4,3,4,3);
+  FProjectSearch := TERDSearchEdit.Create(Self); FProjectSearch.Parent := FProjectFilter; FProjectSearch.Align := alClient;
+  FProjectSearch.TextHint := 'Search project'; FProjectSearch.OnSearch := ProjectSearch;
+  FFiles := TERDProjectTree.Create(Self); FFiles.Parent := FProjectHost; FFiles.Align := alClient;
+  FFiles.OnOpenItem := ProjectOpen; FFiles.OnRenameItem := ProjectRename; FFiles.OnMoveItem := ProjectMove;
+  SetLength(FProjectItems,9);
+  Add(0,'project','','Pick-to-light demo','',pikProject,[]);
+  Add(1,'src','project','src','',pikFolder,[]); Add(2,'templates','project','templates','',pikFolder,[]);
+  Add(3,'resources','project','resources','',pikFolder,[]);
+  Add(4,'main','src','main.ts','demo://main.ts',pikTypeScript,[pisError]);
+  Add(5,'board','src','board.ts','demo://board.ts',pikTypeScript,[pisModified]);
+  Add(6,'template','templates','board.template.json','demo://board.template.json',pikPCBTemplate,[pisReadOnly]);
+  Add(7,'readme','resources','README.md','demo://README.md',pikResource,[]);
+  Add(8,'missing','resources','labels.json','demo://labels.json',pikResource,[pisMissing]);
+  FProjectRevision := 1; FFiles.SetItems('dock-demo',FProjectRevision,FProjectItems);
+end;
+procedure TDockPreview.ProjectSearch(Sender: TObject);
+begin FFiles.SearchText := FProjectSearch.Text; end;
+procedure TDockPreview.ProjectOpen(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem);
+var Source: string;
+begin
+  if Item.Uri = 'demo://main.ts' then Source := MainSource
+  else if Item.Uri = 'demo://board.ts' then Source := BoardSource
+  else if Item.Uri = 'demo://board.template.json' then Source := '{ "demo": true, "board": "pick-to-light" }'
+  else Source := '# Demo project'+sLineBreak+'These are synthetic resources. No files are read or written.';
+  FChangingSource := True;
+  try FEditor.ReadOnly := pisReadOnly in Item.Status; FEditor.DocumentUri := Item.Uri; FEditor.Text := Source;
+  finally FChangingSource := False; end;
+  FHost.ActivatePanel('editor'); if FEditor.CanFocus then FEditor.SetFocus;
+  FStatus.Caption := 'DEMO DATA | opened '+Item.Name;
+end;
+procedure TDockPreview.ProjectRename(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem; const NewName: string);
+var I: Integer;
+begin
+  for I := 0 to High(FProjectItems) do if FProjectItems[I].ID = Item.ID then FProjectItems[I].Name := NewName;
+  Inc(FProjectRevision); FFiles.SetItems('dock-demo',FProjectRevision,FProjectItems);
+  FStatus.Caption := 'DEMO DATA | renamed '+Item.Name+' to '+NewName+' in memory';
+end;
+procedure TDockPreview.ProjectMove(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem; const ParentID: string);
+var I: Integer;
+begin
+  for I := 0 to High(FProjectItems) do if FProjectItems[I].ID = Item.ID then FProjectItems[I].ParentID := ParentID;
+  Inc(FProjectRevision); FFiles.SetItems('dock-demo',FProjectRevision,FProjectItems);
+  FStatus.Caption := 'DEMO DATA | moved '+Item.Name+' in memory';
 end;
 procedure TDockPreview.EditorChanged(Sender: TObject);
 begin if not FChangingSource and (FDiagnostics <> nil) then FDiagnostics.MarkStale; end;
@@ -124,7 +195,7 @@ var Values: TArray<TERDDiagnostic>;
   end;
 begin
   FChangingSource := True;
-  try FEditor.DocumentUri := 'demo://main.ts'; FEditor.Text := MainSource;
+  try FEditor.ReadOnly := False; FEditor.DocumentUri := 'demo://main.ts'; FEditor.Text := MainSource;
   finally FChangingSource := False; end;
   Inc(FDiagnosticGeneration); FDiagnosticRequest := FDiagnostics.BeginSnapshot(1,FDiagnosticGeneration);
   SetLength(Values,6);
@@ -155,6 +226,7 @@ var Position, Offset: Integer; Source: string;
 begin
   if Diagnostic.DocumentUri = 'demo://main.ts' then Source := MainSource
   else if Diagnostic.DocumentUri = 'demo://board.ts' then Source := BoardSource else Exit;
+  FEditor.ReadOnly := False;
   if FEditor.DocumentUri <> Diagnostic.DocumentUri then
   begin
     FChangingSource := True;

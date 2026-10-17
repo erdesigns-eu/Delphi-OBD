@@ -96,6 +96,7 @@ still needs end-to-end verification for the selected runtime/transport.
 | `TERDDebugConsole` | Virtualized bounded log, severity/channel filters, timestamps, copy/search; optional input/history | Shared item-list infrastructure; input emits host events |
 | `TERDDisassemblyView` | Bytecode address, instruction, operands, symbol/source link and current instruction marker | Monospace virtual grid; host supplies disassembly and metadata |
 | `TERDShapeInspector` | Shape metadata, property-layout table, known parent/prototype links | Implemented: antialiased relationship cards + details, paged outgoing edges; full registry graph requires missing NDB data |
+| `TERDProjectTree` | Implemented: project/resource hierarchy, search, status icons, deferred open/rename/move host events and internal drag-and-drop | `TERDVirtualStringTree`; shared density and automatic Office hints |
 | `TERDDiagnosticList` | Implemented: source diagnostics grouped per file, severity/search filters, safe snapshot replacement and host navigation; independent of compiler/transport | `TERDVirtualStringTree`; automatic Office hints and shared GDI+ glyphs |
 | `TERDDockHost` | Dockable tool panels, auto-hide/floating state and layout persistence | Implemented: five tabbed regions, floating/auto-hide panels, borrowed content and versioned JSON layouts |
 
