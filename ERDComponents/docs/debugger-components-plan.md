@@ -140,3 +140,5 @@ physical board or recorded snapshot playback.
   request them on demand rather than at every chart update.
 - Controls and fixtures must distinguish unavailable data from an empty valid
   result. Future real adapters must handle unsupported methods and capabilities.
+
+- `TERDDocumentHost`: documenttabs, bewaarde editorviews, read-only/dirty status en save/close-events; gekoppeld aan projectboom en diagnostics in de dockingdemo.

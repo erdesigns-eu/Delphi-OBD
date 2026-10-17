@@ -4,7 +4,7 @@ Zelfstandige algemene **Delphi VCL**-componentlibrary. Dit zijn onafhankelijke
 kopieën: Delphi-OBD wordt niet aangepast en heeft geen afhankelijkheid van deze
 library. De hele map kan naar een eigen repository worden verplaatst.
 
-- **93 paletcomponenten**: algemene invoer, navigatie, containers, grids, dialogen,
+- **94 paletcomponenten**: algemene invoer, navigatie, containers, grids, dialogen,
   applicatiechrome, theming en feedback. Zie `assets/components.json`.
 - **320 ingebouwde vectoriconen**, met stabiele identifiers en schaalbare SVGs.
 - Eigen namespace `ERD.Components.*`, classes `TERD*`, interfaces `IERD*`.
@@ -22,7 +22,7 @@ library. De hele map kan naar een eigen repository worden verplaatst.
    De demo gebruikt `TERDTitleBar`; met de keuze Ribbon/Menu wissel je van commandosurface.
    De File-knop opent een echte backstage met eigen Information- en Settings-pagina’s.
    De voorbeeldpagina’s gebruiken `TERDTabs` en `TERDPanel`, zonder standaard PageControl.
-   De 93 geregistreerde componenten staan in de DFM of runtime-voorbeeldpagina's: de sidebar navigeert naar
+   De 94 geregistreerde componenten staan in de DFM of runtime-voorbeeldpagina's: de sidebar navigeert naar
    iconen, invoer, layout, data, bestanden/kleuren en dialogs/notificaties.
    Dialogknoppen openen de bijbehorende component; toast, hints en popupmenu hebben eigen voorbeelden.
 
@@ -575,3 +575,17 @@ met zoeken, statusiconen, hernoemen, drag-and-drop en een ERD-contextmenu.
 De **Docking**-demo gebruikt deze boom in het Project-paneel. Alle bewerkingen
 blijven host-events; er wordt geen bestand gelezen of gewijzigd.
 [API en Windows-testlijst](docs/project-tree-api.md).
+
+
+`TERDDocumentHost` beheert documenttabs met afzonderlijke editorinstanties: tekst,
+undo, selectie, scrollpositie en folds blijven behouden bij het wisselen. Gewijzigde
+bestanden krijgen een markering; read-only documenten een RO-badge. Opslaan en de
+beslissing om gewijzigde documenten te sluiten lopen via host-events.
+Ook andere ERD-controls kunnen als geleende documentinhoud worden gekoppeld.
+Zie [Documenthost API](docs/document-host-api.md).
+
+In de **Docking**-demo opent de projectboom meerdere documenttabs. Diagnostics
+navigeren naar de bijbehorende editor zonder andere documenten te overschrijven.
+De ribbonacties **Save document** en **Close document** werken op het actieve
+bestand. Opslaan bewaart uitsluitend de demotekst in het geheugen; gewijzigde
+documenten moeten worden opgeslagen voordat sluiten wordt toegestaan.

@@ -91,5 +91,6 @@
   "TERDShapeInspector",
   "TERDDockHost",
   "TERDDiagnosticList",
-  "TERDProjectTree"
+  "TERDProjectTree",
+  "TERDDocumentHost"
 ]

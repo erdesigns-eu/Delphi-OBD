@@ -1,8 +1,8 @@
 ﻿unit DockPreview;
 interface
 uses Winapi.Windows, System.Classes, System.SysUtils, System.Types, System.IOUtils, Vcl.Controls,
-  System.Math, ERD.Components.FileDialogs, ERD.Components.Panel, ERD.Components.Control,
-  ERD.Components.DockHost, ERD.Components.CodeEditor, ERD.Components.DebugConsole,
+  System.Math, System.Generics.Collections, ERD.Components.FileDialogs, ERD.Components.Panel, ERD.Components.Control,
+  ERD.Components.DocumentHost, ERD.Components.DockHost, ERD.Components.CodeEditor, ERD.Components.DebugConsole,
   ERD.Components.Memo, ERD.Components.ValueTree, ERD.Components.Ribbon,
   ERD.Components.ProjectTree, ERD.Components.DiagnosticList, ERD.Components.CommonControls, ERD.Components.Edits;
 type
@@ -14,10 +14,9 @@ type
     FDiagnosticHost, FFilters: TERDPanel;
     FSearch: TERDSearchEdit;
     FSeverity: TERDComboBox;
-    FChangingSource: Boolean;
     FDiagnosticGeneration: Int64;
     FDiagnosticRequest: TERDDiagnosticRequest;
-    FEditor: TERDCodeEditor;
+    FDocuments: TERDDocumentHost;
     FConsole: TERDDebugConsole;
     FDetails: TERDMemo;
     FFiles: TERDProjectTree;
@@ -28,7 +27,10 @@ type
     FValues: TERDValueTree;
     FRibbon: TERDRibbon;
     FTab: TERDRibbonTab;
+    FSavedDocuments: TDictionary<string,string>;
     FDefaultLayout, FSavedLayout: string;
+    function GetEditor: TERDCodeEditor;
+    property FEditor: TERDCodeEditor read GetEditor;
     procedure LayoutChanged(Sender: TObject);
     procedure Activated(Sender: TObject; const PanelID: string);
     procedure RibbonClick(Sender: TObject);
@@ -38,7 +40,9 @@ type
     procedure ProjectOpen(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem);
     procedure ProjectRename(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem; const NewName: string);
     procedure ProjectMove(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem; const ParentID: string);
-    procedure EditorChanged(Sender: TObject);
+    procedure EditorChanged(Sender: TObject; Document: TERDDocument);
+    procedure SaveDocument(Sender: TObject; const Request: TERDDocumentSaveRequest);
+    procedure ClosingDocument(Sender: TObject; Document: TERDDocument; var AllowClose: Boolean);
     procedure DiagnosticFilter(Sender: TObject);
     procedure DiagnosticsChanged(Sender: TObject);
     procedure NavigateDiagnostic(Sender: TObject; const Context: TERDDiagnosticRequest; const Diagnostic: TERDDiagnostic);
@@ -68,7 +72,10 @@ begin
   inherited;
   FStatus := TERDPanel.Create(Self); FStatus.Parent := Self; FStatus.Align := alTop; FStatus.BorderWidth := 0; FStatus.HeaderHeight := 32; FStatus.Height := ScaleValue(32);
   FHost := TERDDockHost.Create(Self); FHost.Parent := Self; FHost.Align := alClient;
-  FEditor := TERDCodeEditor.Create(Self); FEditor.DocumentUri := 'demo://main.ts'; FEditor.Text := MainSource;
+  FSavedDocuments := TDictionary<string,string>.Create;
+  FDocuments := TERDDocumentHost.Create(Self);
+  FDocuments.OpenCode('demo://main.ts','main.ts',MainSource);
+  FDocuments.OnSave := SaveDocument; FDocuments.OnClosing := ClosingDocument;
   FConsole := TERDDebugConsole.Create(Self); FConsole.AddEntry(0,Now,dlsInfo,'demo','Drag a panel tab to an edge or center. Drop outside to float. Right-click a tab to pin, auto-hide or hide.');
   FDetails := TERDMemo.Create(Self); FDetails.ReadOnly := True; FDetails.Text := 'Independent inspector content'+sLineBreak+sLineBreak+'Select panels via tabs. Docking changes presentation only.';
   CreateProject;
@@ -84,11 +91,11 @@ begin
   FSearch.TextHint := 'Search diagnostics'; FSearch.Hint := 'Search diagnostics|Filter message, code, source file, origin and severity.'; FSearch.OnSearch := DiagnosticFilter;
   FDiagnostics := TERDDiagnosticList.Create(Self); FDiagnostics.Parent := FDiagnosticHost; FDiagnostics.Align := alClient;
   FDiagnostics.OnNavigate := NavigateDiagnostic; FDiagnostics.OnChange := DiagnosticsChanged;
-  LoadDiagnostics; FEditor.OnChange := EditorChanged;
+  LoadDiagnostics; FDocuments.OnDocumentChanged := EditorChanged;
   FHost.LeftSize := 300;
   FHost.BeginUpdate;
   try
-    FHost.AddPanel('editor','Code editor',FEditor,dzCenter).Closable := False;
+    FHost.AddPanel('editor','Documents',FDocuments,dzCenter).Closable := False;
     FHost.AddPanel('files','Project',FProjectHost,dzLeft);
     FHost.AddPanel('inspector','Inspector',FDetails,dzRight);
     FHost.AddPanel('locals','Locals',FValues,dzRight);
@@ -101,20 +108,20 @@ begin
 end;
 destructor TDockPreview.Destroy;
 begin
-  AttachRibbon(nil); if FEditor <> nil then FEditor.OnChange := nil;
+  AttachRibbon(nil); if FDocuments <> nil then begin FDocuments.OnDocumentChanged := nil; FDocuments.OnSave := nil; FDocuments.OnClosing := nil; end;
   if FFiles <> nil then begin FFiles.OnOpenItem := nil; FFiles.OnRenameItem := nil; FFiles.OnMoveItem := nil; end;
   if FProjectSearch <> nil then FProjectSearch.OnSearch := nil;
   if FDiagnostics <> nil then begin FDiagnostics.OnChange := nil; FDiagnostics.OnNavigate := nil; end;
   if FSearch <> nil then FSearch.OnSearch := nil; if FSeverity <> nil then FSeverity.OnChange := nil;
   if FHost <> nil then begin FHost.OnLayoutChanged := nil; FHost.OnPanelActivated := nil; end;
   // Release the host first, so it can restore borrowed controls while they exist.
-  FreeAndNil(FHost); inherited;
+  FreeAndNil(FHost); FreeAndNil(FSavedDocuments); inherited;
 end;
 procedure TDockPreview.ThemeChanged;
 begin
   inherited; if FStatus <> nil then FStatus.Theme := Theme;
   if FHost <> nil then begin FHost.Theme := Theme; FHost.ThemeChanged; end;
-  if FEditor <> nil then FEditor.Theme := Theme;
+  if FDocuments <> nil then FDocuments.Theme := Theme;
   if FConsole <> nil then FConsole.Theme := Theme;
   if FDetails <> nil then FDetails.Theme := Theme;
   if FFiles <> nil then FFiles.Theme := Theme;
@@ -148,7 +155,7 @@ begin
   Add(1,'src','project','src','',pikFolder,[]); Add(2,'templates','project','templates','',pikFolder,[]);
   Add(3,'resources','project','resources','',pikFolder,[]);
   Add(4,'main','src','main.ts','demo://main.ts',pikTypeScript,[pisError]);
-  Add(5,'board','src','board.ts','demo://board.ts',pikTypeScript,[pisModified]);
+  Add(5,'board','src','board.ts','demo://board.ts',pikTypeScript,[]);
   Add(6,'template','templates','board.template.json','demo://board.template.json',pikPCBTemplate,[pisReadOnly]);
   Add(7,'readme','resources','README.md','demo://README.md',pikResource,[]);
   Add(8,'missing','resources','labels.json','demo://labels.json',pikResource,[pisMissing]);
@@ -163,9 +170,8 @@ begin
   else if Item.Uri = 'demo://board.ts' then Source := BoardSource
   else if Item.Uri = 'demo://board.template.json' then Source := '{ "demo": true, "board": "pick-to-light" }'
   else Source := '# Demo project'+sLineBreak+'These are synthetic resources. No files are read or written.';
-  FChangingSource := True;
-  try FEditor.ReadOnly := pisReadOnly in Item.Status; FEditor.DocumentUri := Item.Uri; FEditor.Text := Source;
-  finally FChangingSource := False; end;
+  if FSavedDocuments.ContainsKey(Item.Uri) then Source := FSavedDocuments[Item.Uri];
+  FDocuments.OpenCode(Item.Uri,Item.Name,Source,pisReadOnly in Item.Status);
   FHost.ActivatePanel('editor'); if FEditor.CanFocus then FEditor.SetFocus;
   FStatus.Caption := 'DEMO DATA | opened '+Item.Name;
 end;
@@ -174,6 +180,7 @@ var I: Integer;
 begin
   for I := 0 to High(FProjectItems) do if FProjectItems[I].ID = Item.ID then FProjectItems[I].Name := NewName;
   Inc(FProjectRevision); FFiles.SetItems('dock-demo',FProjectRevision,FProjectItems);
+  FDocuments.SetDocumentCaption(Item.Uri,NewName);
   FStatus.Caption := 'DEMO DATA | renamed '+Item.Name+' to '+NewName+' in memory';
 end;
 procedure TDockPreview.ProjectMove(Sender: TObject; const Context: TERDProjectContext; const Item: TERDProjectItem; const ParentID: string);
@@ -183,8 +190,35 @@ begin
   Inc(FProjectRevision); FFiles.SetItems('dock-demo',FProjectRevision,FProjectItems);
   FStatus.Caption := 'DEMO DATA | moved '+Item.Name+' in memory';
 end;
-procedure TDockPreview.EditorChanged(Sender: TObject);
-begin if not FChangingSource and (FDiagnostics <> nil) then FDiagnostics.MarkStale; end;
+function TDockPreview.GetEditor: TERDCodeEditor;
+begin
+  Result := nil; if (FDocuments <> nil) and (FDocuments.ActiveDocument <> nil) then Result := FDocuments.ActiveDocument.Editor;
+end;
+procedure TDockPreview.SaveDocument(Sender: TObject; const Request: TERDDocumentSaveRequest);
+begin
+  // Acknowledge the in-memory fixture only; the demo deliberately performs no document I/O.
+  FSavedDocuments.AddOrSetValue(Request.DocumentID,Request.Text);
+  FDocuments.CompleteSave(Request);
+  FStatus.Caption := 'DEMO DATA | saved in memory: '+Request.DocumentID;
+end;
+procedure TDockPreview.ClosingDocument(Sender: TObject; Document: TERDDocument; var AllowClose: Boolean);
+begin
+  if not AllowClose then FStatus.Caption := 'Unsaved changes: save the document before closing it.';
+end;
+procedure TDockPreview.EditorChanged(Sender: TObject; Document: TERDDocument);
+var I: Integer;
+begin
+  if FDiagnostics <> nil then FDiagnostics.MarkStale;
+  for I := 0 to High(FProjectItems) do
+    if (FProjectItems[I].Uri = Document.ID) and
+      ((pisModified in FProjectItems[I].Status) <> Document.Modified) then
+    begin
+      if Document.Modified then Include(FProjectItems[I].Status,pisModified)
+      else Exclude(FProjectItems[I].Status,pisModified);
+      Inc(FProjectRevision); FFiles.SetItems('dock-demo',FProjectRevision,FProjectItems);
+      Break;
+    end;
+end;
 procedure TDockPreview.LoadDiagnostics;
 var Values: TArray<TERDDiagnostic>;
   procedure Add(Index: Integer; Severity: TERDDiagnosticSeverity; const Code, MessageText, Uri: string; Line, Column: Integer);
@@ -194,9 +228,7 @@ var Values: TArray<TERDDiagnostic>;
     Values[Index].DocumentUri := Uri; Values[Index].Line := Line; Values[Index].Column := Column;
   end;
 begin
-  FChangingSource := True;
-  try FEditor.ReadOnly := False; FEditor.DocumentUri := 'demo://main.ts'; FEditor.Text := MainSource;
-  finally FChangingSource := False; end;
+  FDocuments.OpenCode('demo://main.ts','main.ts',MainSource);
   Inc(FDiagnosticGeneration); FDiagnosticRequest := FDiagnostics.BeginSnapshot(1,FDiagnosticGeneration);
   SetLength(Values,6);
   Add(0,dgsError,'DEMO2322','Type string is not assignable to type number.','demo://main.ts',2,26);
@@ -226,13 +258,8 @@ var Position, Offset: Integer; Source: string;
 begin
   if Diagnostic.DocumentUri = 'demo://main.ts' then Source := MainSource
   else if Diagnostic.DocumentUri = 'demo://board.ts' then Source := BoardSource else Exit;
-  FEditor.ReadOnly := False;
-  if FEditor.DocumentUri <> Diagnostic.DocumentUri then
-  begin
-    FChangingSource := True;
-    try FEditor.DocumentUri := Diagnostic.DocumentUri; FEditor.Text := Source;
-    finally FChangingSource := False; end;
-  end;
+  if FSavedDocuments.ContainsKey(Diagnostic.DocumentUri) then Source := FSavedDocuments[Diagnostic.DocumentUri];
+  FDocuments.OpenCode(Diagnostic.DocumentUri,ExtractFileName(StringReplace(Diagnostic.DocumentUri,'/','\',[rfReplaceAll])),Source);
   FHost.ActivatePanel('editor');
   if FEditor.RevealDebugLine(Diagnostic.Line) then
   begin
@@ -281,12 +308,14 @@ begin
     17: FDiagnostics.NavigateNext;
     18: FDiagnostics.NavigateNext(True);
     19: FDiagnostics.CopyVisibleDiagnostics;
+    20: if FDocuments.ActiveDocument <> nil then FDocuments.SaveDocument(FDocuments.ActiveDocument.ID);
+    21: if FDocuments.ActiveDocument <> nil then FDocuments.CloseDocument(FDocuments.ActiveDocument.ID);
   end;
 end;
 procedure TDockPreview.AttachRibbon(Value: TERDRibbon);
 var Group: TERDRibbonGroup; Item: TERDRibbonItem; I: Integer;
-const Captions: array[0..19] of string = ('Reset layout','Remember layout','Restore layout','Auto-hide inspector','Pin inspector','Float console','Show console','Dock console','Hide locals','Show locals','Save layout...','Open layout...','Load diagnostics','Loading','Unavailable','Clear diagnostics','Group by file','Next message','Previous message','Copy messages');
-  Descriptions: array[0..19] of string = ('Restores the initial panel arrangement.','Remembers the current panel arrangement for this demo session.','Restores the remembered panel arrangement.','Collapses the inspector into a side tab. Hover or click to reveal it.','Keeps the inspector visible in the right dock group.','Opens the console in a separate themed window.','Shows the console in its previous dock or floating state.','Returns the console to the bottom tab group.','Hides the locals panel without destroying its content.','Shows the locals panel again.','Saves the panel arrangement to a layout file.','Loads a saved panel arrangement.','Loads synthetic errors, warnings, information and hints.','Starts a new diagnostics request and marks previous results stale.','Fails the pending request while retaining previous results.','Clears the diagnostics view.','Toggles file grouping.','Navigates to the next visible source diagnostic.','Navigates to the previous visible source diagnostic.','Copies all matching diagnostic messages.');
+const Captions: array[0..21] of string = ('Reset layout','Remember layout','Restore layout','Auto-hide inspector','Pin inspector','Float console','Show console','Dock console','Hide locals','Show locals','Save layout...','Open layout...','Load diagnostics','Loading','Unavailable','Clear diagnostics','Group by file','Next message','Previous message','Copy messages','Save document','Close document');
+  Descriptions: array[0..21] of string = ('Restores the initial panel arrangement.','Remembers the current panel arrangement for this demo session.','Restores the remembered panel arrangement.','Collapses the inspector into a side tab. Hover or click to reveal it.','Keeps the inspector visible in the right dock group.','Opens the console in a separate themed window.','Shows the console in its previous dock or floating state.','Returns the console to the bottom tab group.','Hides the locals panel without destroying its content.','Shows the locals panel again.','Saves the panel arrangement to a layout file.','Loads a saved panel arrangement.','Loads synthetic errors, warnings, information and hints.','Starts a new diagnostics request and marks previous results stale.','Fails the pending request while retaining previous results.','Clears the diagnostics view.','Toggles file grouping.','Navigates to the next visible source diagnostic.','Navigates to the previous visible source diagnostic.','Copies all matching diagnostic messages.','Accepts this fixture document in memory; no disk I/O.','Closes the current document; unsaved changes veto closing.');
 begin
   if FRibbon = Value then Exit;
   if FRibbon <> nil then begin FRibbon.RemoveFreeNotification(Self); FreeAndNil(FTab); end;
@@ -297,6 +326,7 @@ begin
   begin
     if I = 3 then begin Group := FTab.Groups.Add; Group.Caption := 'Panel actions'; end;
     if I = 12 then begin Group := FTab.Groups.Add; Group.Caption := 'Diagnostics (demo)'; end;
+    if I = 20 then begin Group := FTab.Groups.Add; Group.Caption := 'Documents (demo)'; end;
     Item := Group.Items.Add; Item.Caption := Captions[I]; Item.Hint := Captions[I]+'|'+Descriptions[I]; Item.Size := risSmall; Item.Tag := I; Item.OnClick := RibbonClick;
   end;
 end;

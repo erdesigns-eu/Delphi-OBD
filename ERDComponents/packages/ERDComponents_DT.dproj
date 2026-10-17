@@ -112,6 +112,7 @@
         <DCCReference Include="..\src\UI\ERD.Components.ShapeInspector.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.DockHost.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.DiagnosticList.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.DocumentHost.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.ProjectTree.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.TimeSeries.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.PCBLibrary.pas"/>

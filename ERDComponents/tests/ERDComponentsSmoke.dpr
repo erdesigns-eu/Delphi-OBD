@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.ProjectTree, ERD.Components.DiagnosticList, ERD.Components.DockHost, ERD.Components.Hint, ERD.Components.ShapeInspector, ERD.Components.DebugConsole, ERD.Components.RuntimeMonitor, ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
+  ERD.Components.DocumentHost, ERD.Components.ProjectTree, ERD.Components.DiagnosticList, ERD.Components.DockHost, ERD.Components.Hint, ERD.Components.ShapeInspector, ERD.Components.DebugConsole, ERD.Components.RuntimeMonitor, ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.PCBValidation, ERD.Components.PCBValidationPanel, ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
@@ -161,6 +161,14 @@ type
     procedure Cleared(Sender: TObject);
     procedure Inspect(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
     procedure Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
+  end;
+  TDocumentEvents = class
+  public
+    Request: TERDDocumentSaveRequest;
+    AllowDirtyClose, DestroyContentOnClose: Boolean;
+    Saves, Closes: Integer;
+    procedure Save(Sender: TObject; const Value: TERDDocumentSaveRequest);
+    procedure Closing(Sender: TObject; Document: TERDDocument; var AllowClose: Boolean);
   end;
   TProjectTreeProbe = class(TERDProjectTree)
   public
@@ -1156,7 +1164,7 @@ end;
 
 procedure TestShowcaseDockingNavigation;
 var Form: TShowcaseForm; I, DockIndex: Integer; Item: TERDSidebarItem;
-    Host: TERDDockHost; Project: TERDProjectTree; Editor: TERDCodeEditor; R: TRect;
+    Host: TERDDockHost; Project: TERDProjectTree; Documents: TERDDocumentHost; Editor: TERDCodeEditor; R: TRect;
 begin
   Form := TShowcaseForm.Create(nil);
   try
@@ -1184,10 +1192,12 @@ begin
     for I := 0 to Form.DockPage.ComponentCount-1 do
       if Form.DockPage.Components[I] is TERDProjectTree then Project := TERDProjectTree(Form.DockPage.Components[I]);
     Check((Project <> nil) and (Project.ItemCount = 9), 'Docking demo hosts the reusable project tree instead of project text');
-    Editor := Host.FindPanel('editor').Control as TERDCodeEditor;
+    Documents := Host.FindPanel('editor').Control as TERDDocumentHost;
     Project.SelectItem('template'); Project.OpenSelected; Application.ProcessMessages;
+    Editor := Documents.ActiveDocument.Editor;
     Check(Editor.ReadOnly and (Editor.DocumentUri = 'demo://board.template.json'), 'Project demo opens protected templates read-only');
     Project.SelectItem('main'); Project.OpenSelected; Application.ProcessMessages;
+    Editor := Documents.ActiveDocument.Editor;
     Check(not Editor.ReadOnly and (Editor.DocumentUri = 'demo://main.ts'), 'Opening an editable project resource restores editor typing');
     Form.PageTabs.TabIndex := 0; Check(not Form.DockPage.Visible, 'Leaving docking hides its preview');
     Form.PageTabs.TabIndex := DockIndex; Check(Form.DockPage.Visible, 'Selecting the last tab directly opens docking');
@@ -4376,6 +4386,80 @@ begin
     finally CopyTree.Free; end;
   finally Stream.Free; Probe.Free; Form.Free; end;
 end;
+procedure TDocumentEvents.Save(Sender: TObject; const Value: TERDDocumentSaveRequest);
+begin Inc(Saves); Request := Value; end;
+procedure TDocumentEvents.Closing(Sender: TObject; Document: TERDDocument; var AllowClose: Boolean);
+begin
+  Inc(Closes); if AllowDirtyClose then AllowClose := True;
+  if DestroyContentOnClose then Document.Control.Free;
+end;
+
+procedure TestDocumentHost;
+var Form: TForm; Host, CopyHost: TERDDocumentHost; Events: TDocumentEvents;
+    A, B: TERDDocument; Editor: TERDCodeEditor; Page: TERDPanel;
+    Request, OldRequest: TERDDocumentSaveRequest; Bounds: TRect; Stream: TMemoryStream;
+begin
+  Form := TForm.Create(nil); Host := TERDDocumentHost.Create(Form);
+  Events := TDocumentEvents.Create; Stream := TMemoryStream.Create;
+  try
+    Host.Parent := Form; Host.Align := alClient; Form.SetBounds(20,20,900,600);
+    Host.OnSave := Events.Save; Host.OnClosing := Events.Closing;
+    A := Host.OpenCode('demo://a.ts','a.ts','function a() {'+#13#10+'  return 1;'+#13#10+'}');
+    Editor := A.Editor; Editor.SelStart := 9; Editor.SelLength := 2;
+    B := Host.OpenCode('demo://b.ts','b.ts','const b = 2;',True);
+    Check((Host.DocumentCount = 2) and B.ReadOnly and B.Editor.ReadOnly,
+      'Document host opens independent editors and applies read-only state');
+    Check(Host.OpenCode(A.ID,'ignored','overwrite') = A, 'Opening an existing ID activates its retained document');
+    Check((A.Editor = Editor) and (Editor.SelStart = 9) and (Editor.SelLength = 2) and
+      (Pos('function a()',Editor.Text) = 1), 'Tab switching preserves editor, selection and source');
+    Host.TabStrip.MoveTab(0,1); Host.ActivateDocument(B.ID);
+    Check(Host.ActiveDocument = B, 'Stable document identity survives tab reordering');
+    Check(not Host.SaveDocument(B.ID), 'Read-only documents cannot request saves');
+    Editor.Text := 'changed'; Check(A.Modified, 'Source edits mark document dirty');
+    Check(Host.SaveDocument(A.ID) and (Events.Saves = 1), 'Save delegates a copied source snapshot');
+    Request := Events.Request; Editor.Text := 'newer';
+    Check(Host.CompleteSave(Request) and A.Modified, 'Acknowledging an older revision retains newer changes');
+    Check(not Host.CompleteSave(Request), 'Save acknowledgment is consumed once');
+    Editor.Text := Request.Text; Check(not A.Modified, 'Returning to saved source clears dirty state');
+    Editor.Text := 'unsaved'; Host.CloseDocument(A.ID);
+    Check(Host.DocumentCount = 2, 'Close requests do not free controls inside tab callbacks');
+    Application.ProcessMessages;
+    Check((Host.FindDocument(A.ID) = A) and (Events.Closes = 1), 'Dirty close is vetoed by default');
+    Host.SaveDocument(A.ID); Request := Events.Request;
+    Check(Host.CompleteSave(Request) and not A.Modified, 'Successful save updates the baseline');
+    Host.CloseDocument(A.ID); Application.ProcessMessages;
+    Check(Host.FindDocument('demo://a.ts') = nil, 'Clean document closes after dispatch');
+    OldRequest := Request; A := Host.OpenCode('demo://a.ts','a.ts','reopened');
+    Host.SaveDocument(A.ID);
+    Check(not Host.CompleteSave(OldRequest), 'A reply for a closed instance cannot clean a reopened ID');
+    Request := Events.Request; Host.CompleteSave(Request);
+    Editor := A.Editor; Host.CloseDocument(A.ID); Editor.Text := 'edit before queued close';
+    Application.ProcessMessages;
+    Check(Host.FindDocument('demo://a.ts') = A, 'Queued close checks the current dirty state');
+    Events.AllowDirtyClose := True; Host.TabStrip.CloseTab(Host.TabStrip.TabIndex);
+    Application.ProcessMessages;
+    Check(Host.FindDocument('demo://a.ts') = nil, 'Host may explicitly authorize discarding a dirty document');
+    Page := TERDPanel.Create(Form); Page.Parent := Form; Page.SetBounds(12,16,140,80);
+    Page.Visible := False; Bounds := Page.BoundsRect;
+    Host.AddDocument('pcb','PCB',Page); Host.CloseDocument('pcb'); Application.ProcessMessages;
+    Check((Page.Parent = Form) and EqualRect(Page.BoundsRect,Bounds) and not Page.Visible,
+      'Closing a borrowed document restores its parent, bounds and visibility');
+    Host.AddDocument('pcb','PCB',Page); Events.DestroyContentOnClose := True;
+    Host.CloseDocument('pcb'); Application.ProcessMessages;
+    Check(Host.FindDocument('pcb') = nil, 'Closing callback may destroy borrowed content without a dangling document access');
+    Events.DestroyContentOnClose := False;
+    Page := TERDPanel.Create(Form); Host.AddDocument('pcb','PCB',Page); Page.Free;
+    Check(Host.FindDocument('pcb') = nil, 'Destroying borrowed content removes its document safely');
+    Host.OnSave := nil; Host.OnClosing := nil;
+    RegisterClass(TERDDocumentHost); CopyHost := TERDDocumentHost.Create(Form);
+    try
+      Stream.WriteComponent(Host); Stream.Position := 0; Stream.ReadComponent(CopyHost);
+      Check((CopyHost.DocumentCount = 0) and (CopyHost.ComponentCount = 2),
+        'DFM excludes runtime documents and reconstructs only its internal containers');
+    finally CopyHost.Free; end;
+  finally Stream.Free; Events.Free; Host.OnSave := nil; Host.OnClosing := nil; Form.Free; end;
+end;
+
 procedure TestProjectTree;
 var Form: TForm; Tree, CopyTree: TProjectTreeProbe; Events: TProjectEvents;
     Items, Bad: TArray<TERDProjectItem>; Item: TERDProjectItem; Node: PVirtualNode;
@@ -6208,7 +6292,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines; TestDockHost; TestDockMouseDrop; TestProjectTree; TestDiagnosticList; TestAutomaticOfficeHints; TestOfficeHints;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines; TestDockHost; TestDockMouseDrop; TestDocumentHost; TestProjectTree; TestDiagnosticList; TestAutomaticOfficeHints; TestOfficeHints;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;
