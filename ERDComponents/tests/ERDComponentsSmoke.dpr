@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.DockHost, ERD.Components.Hint, ERD.Components.ShapeInspector, ERD.Components.DebugConsole, ERD.Components.RuntimeMonitor, ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
+  ERD.Components.DiagnosticList, ERD.Components.DockHost, ERD.Components.Hint, ERD.Components.ShapeInspector, ERD.Components.DebugConsole, ERD.Components.RuntimeMonitor, ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.PCBValidation, ERD.Components.PCBValidationPanel, ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
@@ -161,6 +161,19 @@ type
     procedure Cleared(Sender: TObject);
     procedure Inspect(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
     procedure Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
+  end;
+  TDiagnosticProbe = class
+  public
+    Navigations, Changes, Selections: Integer;
+    ID: string;
+    Context: TERDDiagnosticRequest;
+    procedure Navigate(Sender: TObject; const Request: TERDDiagnosticRequest; const Value: TERDDiagnostic);
+    procedure Changed(Sender: TObject);
+    procedure Selected(Sender: TObject);
+  end;
+  TDiagnosticKeyProbe = class(TERDDiagnosticList)
+  public
+    procedure Press(var Key: Word; Shift: TShiftState);
   end;
   TDockProbe = class
   public
@@ -523,6 +536,14 @@ procedure TFiberProbe.Inspect(Sender: TObject; const Context: TERDFiberRequest; 
 begin Inc(Inspections); end;
 procedure TFiberProbe.Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
 begin Inc(Navigations); end;
+procedure TDiagnosticProbe.Navigate(Sender: TObject; const Request: TERDDiagnosticRequest; const Value: TERDDiagnostic);
+begin Inc(Navigations); ID := Value.ID; Context := Request; end;
+procedure TDiagnosticProbe.Changed(Sender: TObject);
+begin Inc(Changes); end;
+procedure TDiagnosticProbe.Selected(Sender: TObject);
+begin Inc(Selections); end;
+procedure TDiagnosticKeyProbe.Press(var Key: Word; Shift: TShiftState);
+begin KeyDown(Key,Shift); end;
 procedure TDockProbe.Layout(Sender: TObject);
 begin Inc(Layouts); end;
 procedure TDockProbe.Activate(Sender: TObject; const PanelID: string);
@@ -4220,6 +4241,100 @@ begin
     finally CopyTree.Free; end;
   finally Stream.Free; Probe.Free; Form.Free; end;
 end;
+procedure TestDiagnosticList;
+var Form: TForm; List: TDiagnosticKeyProbe; CopyList: TERDDiagnosticList;
+    Probe: TDiagnosticProbe; Values, Invalid: TArray<TERDDiagnostic>;
+    Request, Old, Next: TERDDiagnosticRequest; Value: TERDDiagnostic;
+    Root, Node: PVirtualNode; Stream: TMemoryStream; Key: Word; Count: Integer;
+    R: TRect; Content: TERDHintContent; Text: string;
+  procedure Sample(Index: Integer; const ID, Uri, MessageText: string; Severity: TERDDiagnosticSeverity; Line, Column: Integer);
+  begin
+    Values[Index].ID := ID; Values[Index].DocumentUri := Uri; Values[Index].MessageText := MessageText;
+    Values[Index].Severity := Severity; Values[Index].Line := Line; Values[Index].Column := Column;
+    Values[Index].Origin := 'fixture'; Values[Index].Code := 'E'+IntToStr(Index);
+  end;
+begin
+  Form := TForm.Create(nil); Probe := TDiagnosticProbe.Create;
+  List := TDiagnosticKeyProbe.Create(Form); List.Parent := Form; List.Align := alClient;
+  Form.SetBounds(40,40,1000,720);
+  try
+    List.OnNavigate := Probe.Navigate; List.OnChange := Probe.Changed; List.OnSelectionChanged := Probe.Selected;
+    Check(List.Stale and not List.Pending and List.GroupByFile and (List.DiagnosticCount = 0), 'Diagnostics start unavailable with no invented messages');
+    Request := List.BeginSnapshot(-1,0); Check(Request.RequestID = 0, 'Invalid diagnostic session is rejected');
+    Request := List.BeginSnapshot(10,0); Old := Request;
+    Check(List.Pending and List.Stale and (Request.RequestID > 0), 'Diagnostics request distinguishes loading from an empty result');
+    Request := List.BeginSnapshot(10,0); Check(Request.RequestID = 0, 'Duplicate diagnostics generation is rejected');
+    Next := List.BeginSnapshot(10,1); SetLength(Values,5);
+    Sample(0,'error1','demo://a.ts','Missing output name',dgsError,5,3);
+    Sample(1,'warning1','demo://a.ts','Unused value',dgsWarning,2,7);
+    Sample(2,'info1','demo://b.ts','Template information',dgsInformation,1,1);
+    Sample(3,'hint1','demo://b.ts','Document this name',dgsHint,3,1);
+    Sample(4,'project','','Compiler fixture',dgsInformation,0,0);
+    Check(not List.PublishSnapshot(Old,Values) and (List.DiagnosticCount = 0), 'Replaced diagnostics request cannot publish');
+    Check(List.PublishSnapshot(Next,Values) and not List.Stale and not List.Pending, 'Current diagnostic snapshot publishes');
+    Check((List.DiagnosticCount = 5) and (List.VisibleDiagnosticCount = 5) and (List.RootNodeCount = 3), 'Diagnostics group source files and project-wide messages separately');
+    Check((List.SeverityCount(dgsError) = 1) and (List.SeverityCount(dgsInformation) = 2), 'Diagnostic severity totals preserve raw snapshot counts');
+    Values[0].MessageText := 'Caller mutation'; Value := List.Diagnostic(0);
+    Check(Value.MessageText = 'Missing output name', 'Diagnostic snapshots own copies of records'); Values[0].MessageText := 'Missing output name';
+    Check(List.SelectDiagnostic('warning1') and List.SelectedDiagnostic(Value) and (Value.Line = 2), 'Diagnostic selection uses stable IDs');
+    List.NavigateSelected; Check((Probe.Navigations = 1) and (Probe.ID = 'warning1') and (Probe.Context.RequestID = Next.RequestID), 'Navigation includes snapshot identity and source range');
+    List.GroupByFile := False;
+    Check((List.RootNodeCount = 5) and List.SelectedDiagnostic(Value) and (Value.ID = 'warning1'), 'Flat mode preserves stable selection');
+    List.GroupByFile := True; Check(List.SelectedDiagnostic(Value) and (Value.ID = 'warning1'), 'File grouping preserves stable selection');
+    List.SearchText := 'output a.ts';
+    Check((List.VisibleDiagnosticCount = 1) and (List.RootNodeCount = 1), 'Diagnostic search ANDs words across message and URI');
+    List.Severities := [dgsWarning];
+    Check((List.VisibleDiagnosticCount = 0) and (List.SeverityCount(dgsError) = 1) and (List.SeverityCount(dgsError,True) = 0), 'Diagnostic search and severity filtering compose without changing totals');
+    List.SearchText := ''; Check(List.VisibleDiagnosticCount = 1, 'Severity filter survives search clearing');
+    List.Severities := []; Check(List.VisibleDiagnosticCount = 0, 'Empty diagnostic severity set hides all messages');
+    List.Severities := [dgsError,dgsWarning,dgsInformation,dgsHint];
+    List.ClearSelection; List.FocusedNode := nil; Root := List.GetFirst; List.Expanded[Root] := False;
+    List.SearchText := 'fixture'; Check(not List.Expanded[List.GetFirst], 'Collapsed file groups survive matching filter rebuilds');
+    List.SearchText := ''; List.SelectDiagnostic('error1'); Check(List.Expanded[List.GetFirst], 'Selecting a child reveals its file group');
+    Form.Show; Application.ProcessMessages;
+    Root := List.GetFirst; Node := List.GetFirstChild(Root); R := List.GetDisplayRect(Node,0,False); Count := Probe.Navigations;
+    Check(List.HintContentAt(List.ClientToScreen(Point(R.Left+10,(R.Top+R.Bottom) div 2)),Content) and
+      (Content.Title = 'Error E0') and (Content.Glyph = glClose) and (Pos('Missing output name',Content.Description) > 0), 'Diagnostic row provides automatic Office hint metadata');
+    Check(Probe.Navigations = Count, 'Hint queries never navigate or request data');
+    Check(List.NavigateNext and (Probe.ID = 'warning1'), 'Next diagnostic follows filtered tree order');
+    Key := VK_F8; List.Press(Key,[ssShift]); Check((Key = 0) and (Probe.ID = 'error1'), 'Shift+F8 navigates backward');
+    List.SelectDiagnostic('project'); Count := Probe.Navigations; List.NavigateSelected;
+    Check(Probe.Navigations = Count, 'Project-level messages without a source location never navigate');
+    List.NavigateNext; Check(Probe.ID = 'error1', 'Next diagnostic wraps and skips locationless messages');
+    List.SearchText := 'Unused'; Text := List.ExportText;
+    Check((Pos('Unused value',Text) > 0) and (Pos('Missing output name',Text) = 0) and (Pos('Missing output name',List.ExportText(False)) > 0), 'Diagnostic export distinguishes filtered and complete snapshots');
+    List.SearchText := ''; List.SelectDiagnostic('warning1'); Request := List.BeginSnapshot(10,2);
+    Check(List.Stale and not List.SelectedDiagnostic(Value), 'Refreshing diagnostics retains visible rows but disables navigation');
+    Count := Probe.Navigations; List.NavigateSelected; Check(not List.NavigateNext and (Probe.Navigations = Count), 'Stale diagnostics cannot navigate');
+    Invalid := Copy(Values); Invalid[1].ID := Invalid[0].ID; Count := Probe.Changes;
+    Check(not List.PublishSnapshot(Request,Invalid) and List.Pending and (List.DiagnosticCount = 5) and (Probe.Changes = Count), 'Duplicate diagnostic IDs are rejected atomically');
+    Invalid := Copy(Values); Invalid[0].EndLine := 4; Check(not List.PublishSnapshot(Request,Invalid), 'Reversed diagnostic source ranges are rejected');
+    Invalid := Copy(Values); Invalid[0].Column := -1; Check(not List.PublishSnapshot(Request,Invalid), 'Negative diagnostic coordinates are rejected');
+    Invalid := Copy(Values); Invalid[0].MessageText := ' '; Check(not List.PublishSnapshot(Request,Invalid), 'Blank diagnostic descriptions are rejected');
+    Check(List.PublishSnapshot(Request,Values) and List.SelectedDiagnostic(Value) and (Value.ID = 'warning1'), 'Valid replacement retains same-session stable selection');
+    Next := List.BeginSnapshot(11,0); Check(not List.FailSnapshot(Request,'Old error'), 'Old diagnostics failure cannot replace current status');
+    Check(List.FailSnapshot(Next,'Compiler offline') and List.Stale and not List.Pending and (List.ErrorText = 'Compiler offline') and (List.DiagnosticCount = 5), 'Failed diagnostics retain clearly stale previous results');
+    Check(List.HintContentAt(List.ClientToScreen(Point(30,List.ClientHeight-10)),Content) and
+      (Content.Title = 'Diagnostics unavailable') and (Content.Description = 'Compiler offline'), 'Unavailable diagnostics expose the failure reason in an Office hint');
+    Check(not List.PublishSnapshot(Next,Values), 'Completed failed requests cannot publish late success');
+    Next := List.BeginSnapshot(11,1); Check(List.PublishSnapshot(Next,nil) and not List.Stale and (List.DiagnosticCount = 0), 'Successful empty diagnostics are available, not stale');
+    Next := List.BeginSnapshot(11,2); Check(List.PublishSnapshot(Next,Values), 'Later generation can publish diagnostics');
+    List.SelectDiagnostic('error1'); List.ClearDiagnostics;
+    Check(List.Stale and (List.DiagnosticCount = 0) and not List.SelectedDiagnostic(Value), 'Explicit diagnostics clear invalidates results and selection');
+    Value := Values[1]; Values[1] := Values[2]; Values[2] := Value;
+    Next := List.BeginSnapshot(11,3); List.PublishSnapshot(Next,Values); List.SelectDiagnostic('error1');
+    Check(List.NavigateNext and (Probe.ID = 'warning1'), 'Grouped navigation follows displayed groups when input is interleaved');
+    List.OnNavigate := nil; List.OnChange := nil; List.OnSelectionChanged := nil;
+    List.SearchText := 'Unused'; List.GroupByFile := False; List.Severities := [dgsWarning];
+    RegisterClass(TDiagnosticKeyProbe); CopyList := TDiagnosticKeyProbe.Create(Form); Stream := TMemoryStream.Create;
+    try
+      Stream.WriteComponent(List); Stream.Position := 0; Stream.ReadComponent(CopyList);
+      Check(not CopyList.GroupByFile and (CopyList.Severities = [dgsWarning]) and (CopyList.SearchText = '') and
+        (CopyList.DiagnosticCount = 0) and (CopyList.RootNodeCount = 0) and CopyList.Stale, 'DFM stores configuration without snapshots, nodes or search state');
+    finally Stream.Free; CopyList.Free; end;
+  finally Form.Free; Probe.Free; end;
+end;
+
 procedure TestDockHost;
 var Form: TForm; Host, CopyHost: TERDDockHost; Origin, B, C, D, LostParent: TERDPanel;
     A, Lost: TERDEdit; Probe: TDockProbe; Original: TRect; R, Center: TRect;
@@ -5820,7 +5935,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines; TestDockHost; TestAutomaticOfficeHints; TestOfficeHints;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines; TestDockHost; TestDiagnosticList; TestAutomaticOfficeHints; TestOfficeHints;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;
